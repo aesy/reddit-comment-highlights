@@ -48,8 +48,12 @@ if (threadID != undefined){
 				
 				if (commentDateEpoch >= lastThreadVisitEpoch){
 					// The comment is newer than our last refresh date. Modify the next sibling's grandchild (markdown) div
+					
+					// Change background colour to pleasant yellow, add corner radius, a dotted line, and some padding.
 					$(commentTagline).next().find(".md").css('background-color', '#FFFDCC');
-					$(commentTagline).next().find(".md").css('border','1px dotted #CCCCCC')
+					$(commentTagline).next().find(".md").css('border','1px dotted #CCCCCC');
+					$(commentTagline).next().find(".md").css('border-radius', '2px');
+					$(commentTagline).next().find(".md").css('padding', '2px');
 					console.log("Current comment posted later than last thread view time. Colourising!");
 				}
 				
