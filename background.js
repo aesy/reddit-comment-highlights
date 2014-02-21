@@ -75,14 +75,16 @@ if (threadID != undefined){
 			// If we have more than 490 keys stored, then we have very low space (limit is 512 for chrome sync)
 			if (allKeys.length > maximumSavedThreadHeap){
 				
+				var keysToRemove = [];
 				$.each(items, function(key, savedDate) {
-					
 					if (savedDate < (pageLoadedEpoch - threadRemovalTimeSeconds)){						
-						chrome.storage.sync.remove(key, function(removedItem) {
-						       console.log("Removed old reddit thread " + removedItem);
-						}); 						
+						keysToRemove.push(key);
 					}
 				});
+				
+				chrome.storage.sync.remove(keysToRemove, function(removedItems) {
+				       console.log("Removed " + keysToRemove.length + " old reddit threads");
+				}); 
 			}
 		});
 		
