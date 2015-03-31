@@ -1,27 +1,27 @@
 {
-  "name": "Reddit (Au) Comment Highlights.",
-  "version": "0.4",
-  "manifest_version": 2,
-  "icons": { "16": "gold_logo.png",
-             "48": "gold_logo.png",
-            "128": "gold_logo.png" },
-  "homepage_url": "https://github.com/staticfish/Reddit-Comment-Highlights",
-  "description": "Highlight unread comments since your last visit to a Reddit discussion page. Syncs across all of your chrome sessions!",
-  "short_name": "Highlight new Reddit comments.",
-  "background": {
-    "scripts": ["jquery-1.11.0.min.js", "background.js"],
-	"persistent": false
-  },
-  "content_scripts": [
-      {
-		"all_frames": true,
-        "matches": ["http://www.reddit.com/r/*","https://www.reddit.com/r/*"],
-        "run_at": "document_idle",
-	    "js": ["jquery-1.11.0.min.js", "background.js"]
-      }
-    ],
-  "permissions": [
-	  "storage",
-	  "http://www.reddit.com/*",
-      "https://www.reddit.com/*" ]
+	"name": "Reddit (Au) Comment Highlights.",
+	"version": "0.5",
+	"options_page": "options.html",
+	"manifest_version": 2,
+	"icons": {
+		"16": "img/gold_logo.png",
+		"48": "img/gold_logo.png",
+		"128": "img/gold_logo.png"
+	},
+	"homepage_url": "https://github.com/staticfish/Reddit-Comment-Highlights",
+	"description": "Highlight unread comments since your last visit to a Reddit discussion page. Syncs across all of your chrome sessions!",
+	"short_name": "Highlight new Reddit comments.",
+	"background": {
+		"scripts": ["js/jquery-2.0.0.min.js", "js/background.js"],
+		"persistent": false
+	},
+	"content_scripts": [{
+		"matches": ["http://www.reddit.com/r/*","https://www.reddit.com/r/*"],
+		"js": ["js/jquery-2.0.0.min.js", "js/background.js"]
+	}],
+	"permissions": [
+		"storage",
+		"http://www.reddit.com/*",
+		"https://www.reddit.com/*"
+	]
 }
