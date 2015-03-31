@@ -1,0 +1,83 @@
+.input
+	&.input[type="button"], &.input[type="text"], &.input[type='range']
+		display inline-block
+		margin 0
+		padding 0 1em
+		height 2.5em
+		line-height 2.5em
+		background #1794CE
+		outline none
+		border 1px solid #137AAA
+		border-bottom-width 2px
+		border-radius .2em
+		font-family 'Open Sans', Arial
+		font-size 12px
+		font-weight normal
+		text-decoration none
+		color #FFF
+		cursor pointer
+
+	&.input[type="button"]
+		height 2.75em
+
+		&:hover
+			background #1C9FDC
+
+		&:active
+			background #116F9A
+			border-color #0E658C
+			box-shadow inset 0 2px 20px #0C5374
+
+		&.gray
+			background #D0D0D0
+			border-color #A9A9A9
+
+			&:hover
+				background #DADADA
+
+	&.input[type="text"]
+		width calc(75% - 2em)
+		background #FFF
+		border-color #CCC
+		cursor text
+		color #666
+
+		&:focus
+			border-color #1794CE
+
+		&:focus, &:hover
+			color #1794CE
+
+	&.input[type="checkbox"]
+		display none
+
+		& + label span
+			display inline-block
+			width 18px
+			height 18px
+			margin -1px 4px 0 0
+			vertical-align middle
+			background url("../img/checkbox.png") left top no-repeat
+			cursor pointer
+
+			&:hover
+				background url("../img/checkbox.png") -18px top no-repeat
+
+		&:checked + label span
+			background url("../img/checkbox.png") -36px top no-repeat
+
+	&.input[type='range']
+		-webkit-appearance none !important
+		background #fff
+		border-color #CCC
+		padding 0
+		height 10px
+
+		&:hover, &:focus
+			border-color #1794CE
+
+		&::-webkit-slider-thumb
+			-webkit-appearance none !important
+			background #1794CE
+			height 12px
+			width 3px
