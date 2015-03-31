@@ -12,13 +12,13 @@ var options = {
 		var opts = {
 			color: "#" + this.selected_color,
 			threadRemovalTimeSeconds: $("#frequency").val() * 86400,
-			border: $('#border').is(":checked")
+			border: $("#border").is(":checked")
 		};
 
-		chrome.storage.sync.set({'reddit_au_options': opts}, function() {
-			var status_area = $('#status-message');
+		chrome.storage.sync.set({"reddit_au_options": opts}, function() {
+			var status_area = $("#status-message");
 
-			status_area.text('Okay, got it!').fadeIn(function() {
+			status_area.text("Okay, got it!").fadeIn(function() {
 				setTimeout(function() {
 					status_area.fadeOut();
 				}, 2000);
@@ -29,24 +29,24 @@ var options = {
 	restore_options: function() {
 		var self = this;
 
-		chrome.storage.sync.get('reddit_au_options', function(opts) {
+		chrome.storage.sync.get("reddit_au_options", function(opts) {
 			opts = opts.reddit_au_options || {};
 			self.color_picker.colpickSetColor(opts.color || "#FFFDCC");
 
 			var seconds = opts.threadRemovalTimeSeconds || 604800;
-			$('#frequency').val(seconds / 86400);
-			$('#frequency').trigger('input');
+			$("#frequency").val(seconds / 86400);
+			$("#frequency").trigger("input");
 
-			$('#border').prop('checked', opts.border || true);
+			$("#border").prop("checked", opts.border || false);
 		});
 	},
 
 	init: function() {
 		var self = this;
 
-		var picker = $('#color').colpick({
+		var picker = $("#color").colpick({
 			flat: true,
-			layout: 'rgbhex',
+			layout: "rgbhex",
 			submit: false,
 			onChange: function(hsb, hex) {
 				self.select_color(hex);
@@ -61,27 +61,27 @@ var options = {
 
 $(document).ready(function() {
 	options.init();
-	$('#save-options').click(function() { options.save_options(); });
+	$("#save-options").click(function() { options.save_options(); });
 });
 
-$('#frequency').on('input', function() {
+$("#frequency").on("input", function() {
 	var frequency = $(this).val();
 
 	switch (parseInt(frequency)) {
 		case 1:
-			$('#frequency_number').text(frequency);
-			$('#frequency_unit').text('day');
+			$("#frequency_number").text(frequency);
+			$("#frequency_unit").text("day");
 			break;
 		case 7:
-			$('#frequency_number').text(1);
-			$('#frequency_unit').text('week');
+			$("#frequency_number").text(1);
+			$("#frequency_unit").text("week");
 			break;
 		case 14:
-			$('#frequency_number').text(2);
-			$('#frequency_unit').text('weeks');
+			$("#frequency_number").text(2);
+			$("#frequency_unit").text("weeks");
 			break;
 		default:
-			$('#frequency_number').text(frequency);
-			$('#frequency_unit').text('days');
+			$("#frequency_number").text(frequency);
+			$("#frequency_unit").text("days");
 	}
 });
