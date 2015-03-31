@@ -1,0 +1,53 @@
+body
+	margin 0
+	padding 10px
+	background-color #F8F8F8
+	color #373737
+	min-width 245px
+	overflow-x hidden
+	font-family "Helvetica", "Arial", sans-serif
+	font-weight 300
+	line-height 1.6
+	font-size 14px
+	text-shadow 0 1px 1px #fff
+
+	h1, h2, h3
+		margin 0
+
+	a
+		&:hover, &:focus
+			text-decoration underline
+			color #666
+
+		&, &:visited, &:active
+			color #999
+			text-decoration none
+
+	#focus-stealer
+		position absolute
+		left -900px
+		top 0
+		width 1px
+		height 1px
+
+	.hidden
+		display none !important
+
+	hr
+		border none
+		border-top 1px solid #eee
+		border-bottom 1px solid #fff
+		margin 20px 0
+
+	.pull-left
+		float left
+
+	.pull-right
+		float right
+
+	span.separator
+		display inline-block
+		margin 0 5px
+
+	@require 'options'
+	@require 'inputs'
