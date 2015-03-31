@@ -11,7 +11,7 @@ var reddit_au = {
 	init: function() {
 		var self = this;
 
-		chrome.storage.sync.clear();
+		// chrome.storage.sync.clear();
 
 		self.get_options(function(opts) {
 			self.process(opts);
@@ -65,7 +65,7 @@ var reddit_au = {
 		if (!firstSiteTable)
 			return null;
 
-		var threadIDParts = $(firstSiteTable).children(":first").attr('data-fullname');
+		var threadIDParts = $(firstSiteTable).children(":first").attr("data-fullname");
 		if (!threadIDParts)
 			return null;
 		else
@@ -76,21 +76,21 @@ var reddit_au = {
 		$(".tagline").each(function(index, commentTagline) {
 
 			// Reddit comment date format: 2014-02-20T00:41:27+00:00
-			var commentDateString = $(commentTagline).find("time").attr('datetime');
+			var commentDateString = $(commentTagline).find("time").attr("datetime");
 			if (!commentDateString)
 				return;
 
 			var commentDateEpoch = Date.parse(commentDateString);
 
 			if (commentDateEpoch >= lastThreadVisitEpoch) {
-				// The comment is newer than our last refresh date. Modify the next sibling's grandchild (markdown) div
+				// The comment is newer than our last refresh date. Modify the next sibling"s grandchild (markdown) div
 				// Change background colour to pleasant yellow, add corner radius, a dotted line, and some padding.
-				$(commentTagline).next().find(".md").css('background-color', opts.color || "#FFFDCC");
+				$(commentTagline).next().find(".md").css("background-color", opts.color || "#FFFDCC");
 
 				if (opts.border) {
-					$(commentTagline).next().find(".md").css('border', '1px dotted #CCCCCC');
-					$(commentTagline).next().find(".md").css('border-radius', '2px');
-					$(commentTagline).next().find(".md").css('padding', '2px');
+					$(commentTagline).next().find(".md").css("border", "1px dotted #CCCCCC");
+					$(commentTagline).next().find(".md").css("border-radius", "2px");
+					$(commentTagline).next().find(".md").css("padding", "2px");
 				}
 			}
 		});
