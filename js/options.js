@@ -7,8 +7,6 @@ var options = {
 	},
 
 	save_options: function() {
-		var self = this;
-
 		var opts = {
 			color: "#" + this.selected_color,
 			threadRemovalTimeSeconds: $("#frequency").val() * 86400,
@@ -26,6 +24,11 @@ var options = {
 		});
 	},
 
+	clear_storage: function(){
+		chrome.storage.sync.clear();
+		this.restore_options();
+	},
+
 	restore_options: function() {
 		var self = this;
 
@@ -37,7 +40,7 @@ var options = {
 			$("#frequency").val(seconds / 86400);
 			$("#frequency").trigger("input");
 
-			$("#border").prop("checked", opts.border || false);
+			$("#border").prop("checked", opts.border !== undefined ? opts.border : true);
 		});
 	},
 
@@ -62,6 +65,7 @@ var options = {
 $(document).ready(function() {
 	options.init();
 	$("#save-options").click(function() { options.save_options(); });
+	$("#clear-options").click(function() { options.clear_storage(); });
 });
 
 $("#frequency").on("input", function() {

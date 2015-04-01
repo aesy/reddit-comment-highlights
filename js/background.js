@@ -11,8 +11,6 @@ var reddit_au = {
 	init: function() {
 		var self = this;
 
-		// chrome.storage.sync.clear();
-
 		self.get_options(function(opts) {
 			self.process(opts);
 		});
@@ -83,15 +81,12 @@ var reddit_au = {
 			var commentDateEpoch = Date.parse(commentDateString);
 
 			if (commentDateEpoch >= lastThreadVisitEpoch) {
-				// The comment is newer than our last refresh date. Modify the next sibling"s grandchild (markdown) div
-				// Change background colour to pleasant yellow, add corner radius, a dotted line, and some padding.
 				$(commentTagline).next().find(".md").css("background-color", opts.color || "#FFFDCC");
+				$(commentTagline).next().find(".md").css("padding", "2px");
+				$(commentTagline).next().find(".md").css("border-radius", "2px");
 
-				if (opts.border) {
+				if (opts.border || opts.border === undefined)
 					$(commentTagline).next().find(".md").css("border", "1px dotted #CCCCCC");
-					$(commentTagline).next().find(".md").css("border-radius", "2px");
-					$(commentTagline).next().find(".md").css("padding", "2px");
-				}
 			}
 		});
 	},
@@ -101,7 +96,7 @@ var reddit_au = {
 
 		chrome.storage.sync.get("reddit_au_threads", function(threads) {
 			threads = threads.reddit_au_threads || {};
-		    var allKeys = Object.keys(threads);
+			var allKeys = Object.keys(threads);
 
 			// If we have more than 490 keys stored, then we have very low space (limit is 512 for chrome sync)
 			if (allKeys.length > self.maximumSavedThreadHeap) {
