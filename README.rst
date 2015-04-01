@@ -4,7 +4,13 @@ This is a Chrome extension that will highlight unread comments since your last v
 
 Screenshots
 -----------
--
+.. image:: Screenshot_highlight.png
+  :alt: Comment highlights
+Highlighted comments
+
+.. image:: Screenshot_options.png
+  :alt: Options
+Options page
 
 To-do List
 ----------
