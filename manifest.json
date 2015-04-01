@@ -12,7 +12,7 @@
 	"description": "Highlight unread comments since your last visit to a Reddit discussion page. Syncs across all of your chrome sessions!",
 	"short_name": "Highlight new Reddit comments.",
 	"background": {
-		"scripts": ["js/jquery-2.0.0.min.js", "js/background.js"],
+		"scripts": ["js/listener.js"],
 		"persistent": false
 	},
 	"content_scripts": [{
