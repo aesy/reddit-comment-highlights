@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Reddit (Au) Comment Highlights Options</title>
+		<link rel="stylesheet" type="text/css" media="screen" href="css/reddit-comment-highlights.css">
+		<link rel="stylesheet" type="text/css" href="css/colpick.css">
+	</head>
+
+	<body class="options">
+		<div class="container">
+			<div class="header">
+				<img src="img/gold_logo.png" width="48" height="48" alt="Reddit Notifier logo" class="pull-left logo">
+				<h1>Reddit (Au) Comment Highlights Options</h1>
+				<hr>
+			</div>
+			<p id="status-message" class="alert"></p>
+			<input type="button" id="save-options" class="input" value="Save Options" />
+			<hr>
+
+			<legend>Highlight color</legend>
+			<p class="help-block">
+				<small>Specify the background color of highlighted comments.</small>
+			</p>
+			<div id="color"></div>
+			<hr>
+
+			<legend>Dotted border</legend>
+			<input type="checkbox" id="border" class="input"></input>
+			<label for="border"><span></span><small>Specify whether you want a dotted border around highlighted comments.</small></label>
+			<hr>
+
+			<legend>Flush status of threads older than...</legend>
+			<div class="control-group">
+				<input id="frequency" class="input" type="range" min="1" max="14" value="1" step="1">
+				<span class="help-inline">
+					<span id="frequency_number"></span>
+					<span id="frequency_unit"></span>
+				</span>
+				<p class="help-block flush-left">
+					<small>note: thread status may still be flushed when storage is full.</small>
+				</p>
+			</div>
+			<hr>
+
+			<input type="button" id="clear-options" class="input gray" value="Reset" />
+
+			<div class="footer">
+				<hr>
+				&copy; 2015 Daniel Watson
+				<a href="https://github.com/staticfish/Reddit-Comment-Highlights" target="_blank">View Source</a>
+			</div>
+		</div>
+		<script src="js/jquery-2.0.0.min.js"></script>
+		<script src="js/colpick.js"></script>
+		<script src="js/options.js"></script>
+	</body>
+</html>
