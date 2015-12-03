@@ -118,9 +118,11 @@ var threads = (function() {
     };
 
 	var get_oldest = function() {
+        var id = Object.keys(collection)[0];
+
         return {
-            id: Object.keys(collection)[0],
-            timestamp: 0
+            id: id,
+            timestamp: collection[id]
         };
 	};
 
@@ -156,7 +158,7 @@ var threads = (function() {
 
     var over_max_thread_age_limit = function() {
         return get_oldest().timestamp
-            < (get_current_timestamp() - options.get_thread_removal_time_secs() || 432000);
+            > (get_current_timestamp() - options.get_thread_removal_time_secs() || 432000);
     };
 
     var over_max_byte_limit = function() {
@@ -171,10 +173,11 @@ var threads = (function() {
 })();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.method == "threads.get_by_id")
+    if (request.method == "threads.get_by_id") {
         sendResponse(threads.get_by_id(request.id));
-    else if (request.method == "threads.add")
+    } else if (request.method == "threads.add") {
         threads.add(request.id);
-    else if (request.method == "options.get_all")
+    } else if (request.method == "options.get_all") {
         sendResponse(options.get_all());
+    }
 });
