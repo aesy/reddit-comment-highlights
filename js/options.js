@@ -18,7 +18,7 @@ var options = (function() {
         });
 	};
 
-    var clear_options = function() {
+    var clear_storage = function() {
         chrome.extension.getBackgroundPage()
             .storage.clear();
 
@@ -55,7 +55,7 @@ var options = (function() {
 
     return {
         init: init,
-        clear_options: clear_options,
+        clear_storage: clear_storage,
         save_options: save_options
     };
 })();
@@ -68,7 +68,7 @@ $(document).ready(function() {
     });
 
 	$("#clear-options").click(function() {
-        options.clear_options();
+        options.clear_storage();
     });
 });
 
