@@ -1,6 +1,6 @@
 {
 	"name": "Reddit (Au) Comment Highlights.",
-	"version": "0.5",
+	"version": "0.6",
 	"options_page": "options.html",
 	"manifest_version": 2,
 	"icons": {
@@ -12,16 +12,16 @@
 	"description": "Highlight unread comments since your last visit to a Reddit discussion page. Syncs across all of your chrome sessions!",
 	"short_name": "Highlight new Reddit comments.",
 	"background": {
-		"scripts": ["js/listener.js"],
-		"persistent": false
+		"scripts": ["js/background.js"],
+        "persistent": true
 	},
 	"content_scripts": [{
 		"matches": ["http://www.reddit.com/r/*","https://www.reddit.com/r/*"],
-		"js": ["js/jquery-2.0.0.min.js", "js/background.js"]
+		"js": ["js/content_script.js"]
 	}],
 	"permissions": [
 		"storage",
-		"http://www.reddit.com/*",
-		"https://www.reddit.com/*"
+		"http://www.reddit.com/r/*",
+		"https://www.reddit.com/r/*"
 	]
 }
