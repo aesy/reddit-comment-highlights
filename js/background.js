@@ -5,115 +5,176 @@
  * Source code can be obtained at <http://www.github.com/staticfish/>.
  */
 
-var reddit_au = {
-	maximumSavedThreadHeap: 490,
+var get_current_timestamp = function() {
+	return new Date().getTime();
+};
 
-	init: function() {
-		var self = this;
+var storage = (function() {
+    var get_max_items = function() {
+        return chrome.storage.sync.MAX_ITEMS - 1;
+    };
 
-		self.get_options(function(opts) {
-			self.process(opts);
-		});
-	},
+    var get_max_bytes = function() {
+        return chrome.storage.sync.QUOTA_BYTES_PER_ITEM - 20;
+    };
 
-	process: function(opts) {
-		var self = this;
+    var clear = function() {
+        chrome.storage.sync.clear();
+    };
 
-		var id = self.get_thread_id();
+    var get = function(key) {
+        return new Promise(function(resolve, reject) {
+            chrome.storage.sync.get(key, function(data) {
+                resolve(data[key]);
+            });
+        });
+    };
 
-		if (id) {
-			chrome.storage.sync.get("reddit_au_threads", function(threads) {
-				threads = threads.reddit_au_threads || {};
-				var lastThreadVisitEpoch = threads[id];
+    var set = function(key, value) {
+        var obj = {};
+        obj[key] = value;
 
-				if (lastThreadVisitEpoch)
-					self.highlight_comments(lastThreadVisitEpoch, opts);
+        return new Promise(function(resolve, reject) {
+            chrome.storage.sync.set(obj, function() {
+                resolve();
+            });
+        });
+    };
 
-				self.add_thread(id, function() {
-					self.clean_up_threads(opts);
-				});
-			});
-		}
-	},
+    return {
+        clear: clear,
+        get: get,
+        set: set,
+        get_max_items: get_max_items,
+        get_max_bytes: get_max_bytes
+    };
+})();
 
-	add_thread: function(id, callback){
-		var self = this;
+var options = (function() {
+    var storage_key = "reddit_au_options";
+    var options = {};
 
-		chrome.storage.sync.get("reddit_au_threads", function(threads) {
-			threads = threads.reddit_au_threads || {};
-			threads[id] = self.get_timestamp();
+    (function constructor() {
+        storage.get(storage_key).then(function(data) {
+            options = data || {};
+        });
+    })();
 
-			chrome.storage.sync.set({"reddit_au_threads": threads}, function() {
-				if (callback)
-					callback();
-			});
-		});
+    var get_all = function() {
+        return {
+            border: get_border(),
+            has_border: get_has_border(),
+            color: get_color(),
+            threadRemovalTimeSeconds: get_thread_removal_time_secs()
+        };
+    };
 
-	},
+    var get_border = function() {
+        return get_has_border() ? "1px dotted #CCCCCC" : "";
+    };
 
-	get_options: function(callback) {
-		chrome.storage.sync.get("reddit_au_options", function(opts) {
-			opts = opts.reddit_au_options || {};
-			callback(opts);
-		});
-	},
+    var get_has_border = function() {
+        return options.border !== undefined ? options.border : true;
+    };
 
-	get_thread_id: function() {
-		var firstSiteTable = $("#siteTable").first();
-		if (!firstSiteTable)
-			return null;
+    var get_color = function() {
+        return options.color || "#FFFDCC";
+    };
 
-		var threadIDParts = $(firstSiteTable).children(":first").attr("data-fullname");
-		if (!threadIDParts)
-			return null;
-		else
-			return threadIDParts.split("_")[1];
-	},
+    var get_thread_removal_time_secs = function() {
+        return options.threadRemovalTimeSeconds || 604800;
+    };
 
-	highlight_comments: function(lastThreadVisitEpoch, opts) {
-		$(".tagline").each(function(index, commentTagline) {
+    var save = function(opts) {
+        options = opts;
+        storage.set(storage_key, options);
+    };
 
-			// Reddit comment date format: 2014-02-20T00:41:27+00:00
-			var commentDateString = $(commentTagline).find("time").attr("datetime");
-			if (!commentDateString)
-				return;
+    return {
+        save: save,
+        get_all: get_all,
+        get_border: get_border,
+        get_has_border: get_has_border,
+        get_color: get_color,
+        get_thread_removal_time_secs: get_thread_removal_time_secs
+    };
+})();
 
-			var commentDateEpoch = Date.parse(commentDateString);
+var threads = (function() {
+	var storage_key = "reddit_au_threads";
+    var collection  = {};
 
-			if (commentDateEpoch >= lastThreadVisitEpoch) {
-				$(commentTagline).next().find(".md").css("background-color", opts.color || "#FFFDCC");
-				$(commentTagline).next().find(".md").css("padding", "2px");
-				$(commentTagline).next().find(".md").css("border-radius", "2px");
+    (function constructor() {
+        storage.get(storage_key).then(function(data) {
+            collection = data || {};
+        });
+	})();
 
-				if (opts.border || opts.border === undefined)
-					$(commentTagline).next().find(".md").css("border", "1px dotted #CCCCCC");
-			}
-		});
-	},
+    var get_by_id = function(id) {
+        return {
+            id: id,
+            timestamp: collection[id]
+        }
+    };
 
-	clean_up_threads: function(opts) {
-		var self = this;
+	var get_oldest = function() {
+        return {
+            id: Object.keys(collection)[0],
+            timestamp: 0
+        };
+	};
 
-		chrome.storage.sync.get("reddit_au_threads", function(threads) {
-			threads = threads.reddit_au_threads || {};
-			var allKeys = Object.keys(threads);
+	var add = function(id) {
+        cleanup();
+        remove(id);
+        collection[id] = get_current_timestamp();
 
-			// If we have more than 490 keys stored, then we have very low space (limit is 512 for chrome sync)
-			if (allKeys.length > self.maximumSavedThreadHeap) {
+		storage.set(storage_key, collection);
+	};
 
-				$.each(threads, function(key, savedDate) {
-					if (savedDate < (self.get_timestamp() - opts.threadRemovalTimeSeconds || 432000))
-						delete threads[key];
-				});
+    var get_length = function() {
+        return Object.keys(collection).length;
+    };
 
-				chrome.storage.sync.set({"reddit_au_threads": threads});
-			}
-		});
-	},
+    var cleanup = function() {
+        var num_objects = get_length();
+        if (!num_objects)
+            return;
 
-	get_timestamp: function() {
-		return new Date().getTime();
-	}
-}
+        while (over_max_items_limit() || over_max_thread_age_limit() || over_max_byte_limit()) {
+            remove(get_oldest().id);
+        }
+    };
 
-reddit_au.init();
+    var remove = function(id) {
+        delete collection[id];
+    };
+
+    var over_max_items_limit = function() {
+        return get_length() >= storage.get_max_items();
+    };
+
+    var over_max_thread_age_limit = function() {
+        return get_oldest().timestamp
+            < (get_current_timestamp() - options.get_thread_removal_time_secs() || 432000);
+    };
+
+    var over_max_byte_limit = function() {
+        // Assume every character is two bytes
+        return JSON.stringify(collection).length * 2 >= storage.get_max_bytes();
+    };
+
+    return {
+        get_by_id: get_by_id,
+        add: add
+    };
+})();
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.method == "threads.get_by_id")
+        sendResponse(threads.get_by_id(request.id));
+    else if (request.method == "threads.add")
+        threads.add(request.id);
+    else if (request.method == "options.get_all")
+        sendResponse(options.get_all());
+});
