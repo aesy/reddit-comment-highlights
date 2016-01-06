@@ -1,71 +1,75 @@
-var options = {
-	selected_color: null,
-	color_picker: null,
+var options = (function() {
+	var selected_color = null;
+	var color_picker = null;
 
-	select_color: function(hex) {
-		this.selected_color = hex;
-	},
+	var save_options = function() {
+        chrome.extension.getBackgroundPage()
+            .options.save({
+                color: selected_color,
+                threadRemovalTimeSeconds: $("#frequency").val() * 86400,
+                border: $("#border").is(":checked")
+            });
 
-	save_options: function() {
-		var opts = {
-			color: "#" + this.selected_color,
-			threadRemovalTimeSeconds: $("#frequency").val() * 86400,
-			border: $("#border").is(":checked")
-		};
+        var status_area = $("#status-message");
+        status_area.text("Okay, got it!").fadeIn(function() {
+            setTimeout(function() {
+                status_area.fadeOut();
+            }, 2000);
+        });
+	};
 
-		chrome.storage.sync.set({"reddit_au_options": opts}, function() {
-			var status_area = $("#status-message");
+    var clear_options = function() {
+        chrome.extension.getBackgroundPage()
+            .storage.clear();
 
-			status_area.text("Okay, got it!").fadeIn(function() {
-				setTimeout(function() {
-					status_area.fadeOut();
-				}, 2000);
-			});
-		});
-	},
+        restore_options();
+    };
 
-	clear_storage: function(){
-		chrome.storage.sync.clear();
-		this.restore_options();
-	},
+	var restore_options = function() {
+        var color = chrome.extension.getBackgroundPage()
+            .options.get_color();
+		color_picker.colpickSetColor(color);
 
-	restore_options: function() {
-		var self = this;
+        var seconds = chrome.extension.getBackgroundPage()
+            .options.get_thread_removal_time_secs();
+		$("#frequency").val(seconds / 86400);
+		$("#frequency").trigger("input");
 
-		chrome.storage.sync.get("reddit_au_options", function(opts) {
-			opts = opts.reddit_au_options || {};
-			self.color_picker.colpickSetColor(opts.color || "#FFFDCC");
+        var border = chrome.extension.getBackgroundPage()
+            .options.get_has_border();
+		$("#border").prop("checked", border);
+	};
 
-			var seconds = opts.threadRemovalTimeSeconds || 604800;
-			$("#frequency").val(seconds / 86400);
-			$("#frequency").trigger("input");
-
-			$("#border").prop("checked", opts.border !== undefined ? opts.border : true);
-		});
-	},
-
-	init: function() {
-		var self = this;
-
-		var picker = $("#color").colpick({
+	var init = function() {
+		color_picker = $("#color").colpick({
 			flat: true,
 			layout: "rgbhex",
 			submit: false,
 			onChange: function(hsb, hex) {
-				self.select_color(hex);
+				selected_color = "#" + hex;
 			}
 		});
 
-		self.color_picker = picker;
+		restore_options();
+	};
 
-		self.restore_options();
-	}
-}
+    return {
+        init: init,
+        clear_options: clear_options,
+        save_options: save_options
+    };
+})();
 
 $(document).ready(function() {
 	options.init();
-	$("#save-options").click(function() { options.save_options(); });
-	$("#clear-options").click(function() { options.clear_storage(); });
+
+	$("#save-options").click(function() {
+        options.save_options();
+    });
+
+	$("#clear-options").click(function() {
+        options.clear_options();
+    });
 });
 
 $("#frequency").on("input", function() {
