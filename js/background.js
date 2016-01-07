@@ -215,6 +215,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 chrome.runtime.onInstalled.addListener(function(details) {
     if (details.reason == "update") {
-         storage.clear();
+         var opts = options.get_all();
+
+         storage.clear().then(function() {
+             options.save(opts);
+         });
     }
 });
