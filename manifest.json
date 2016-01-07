@@ -13,7 +13,7 @@
 	"short_name": "Highlight new Reddit comments.",
 	"background": {
 		"scripts": ["js/background.js"],
-        "persistent": true
+        "persistent": false
 	},
 	"content_scripts": [{
 		"matches": ["http://www.reddit.com/r/*","https://www.reddit.com/r/*"],
