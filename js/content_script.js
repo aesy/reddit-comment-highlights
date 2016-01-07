@@ -1,43 +1,48 @@
 var reddit_page = (function() {
-    var id = null;
-    var last_visited = null;
+    var id,
+        last_visited;
 
-    var init = function() {
+    return {
+        init: init
+    };
+
+    function init() {
         id = get_thread_id();
 
         if (!id)
             return;
 
         chrome.runtime.sendMessage({method: "threads.get_by_id", id: id}, function(response) {
-            last_visited = response.timestamp;
+            if (response)
+                last_visited = response.timestamp;
+
             process();
         });
-    };
+    }
 
-    var process = function() {
+    function process() {
         chrome.runtime.sendMessage({method: "options.get_all"}, function(response) {
             if (last_visited)
                 highlight_comments(response.border, response.color);
         });
 
         chrome.runtime.sendMessage({method: "threads.add", id: id});
-    };
+    }
 
-    var get_thread_id = function() {
-        var site_table = document.getElementsByClassName('nestedlisting')[0];
-
-        if (!site_table)
+    function get_thread_id() {
+        // Checks if currently in thread comment section
+        if (!document.getElementsByClassName('nestedlisting')[0])
             return null;
 
-        var thread_id = site_table.firstChild.getAttribute('data-fullname');
+        var thread_id = document.getElementById('siteTable').firstChild.getAttribute('data-fullname');
 
         if (!thread_id)
             return null;
 
         return thread_id.split("_")[1];
-    };
+    }
 
-    var highlight_comments = function(border, color) {
+    function highlight_comments(border, color) {
         var comments = document.getElementsByClassName('nestedlisting')[0].getElementsByClassName("tagline");
 
         for (var i = 0; i < comments.length - 1; i++) {
@@ -48,7 +53,7 @@ var reddit_page = (function() {
             if (!comment_date)
                 continue;
 
-            var comment_timestamp = Date.parse(comment_date);
+            var comment_timestamp = Math.floor(Date.parse(comment_date) / 1000);
             if (comment_timestamp < last_visited)
                 continue;
 
@@ -58,11 +63,7 @@ var reddit_page = (function() {
             comment_body.style.border = border;
             comment_body.style.backgroundColor = color;
         }
-    };
-
-    return {
-        init: init
-    };
+    }
 })();
 
 reddit_page.init();

@@ -1,46 +1,56 @@
 var options = (function() {
-	var selected_color = null;
-	var color_picker = null;
+	var selected_color,
+	    color_picker;
 
-	var save_options = function() {
-        chrome.extension.getBackgroundPage()
-            .options.save({
+    return {
+        init: init,
+        clear_storage: clear_storage,
+        save_options: save_options
+    };
+
+	function save_options() {
+        chrome.runtime.getBackgroundPage(function(background) {
+            var promise = background.options.save({
                 color: selected_color,
-                threadRemovalTimeSeconds: $("#frequency").val() * 86400,
+                thread_removal_time_seconds: $("#frequency").val() * 86400,
                 border: $("#border").is(":checked")
             });
 
-        var status_area = $("#status-message");
-        status_area.text("Okay, got it!").fadeIn(function() {
-            setTimeout(function() {
-                status_area.fadeOut();
-            }, 2000);
+            promise.then(function() {
+                var status_area = $("#status-message");
+                status_area.text("Okay, got it!").fadeIn(function() {
+                    setTimeout(function() {
+                        status_area.fadeOut();
+                    }, 2000);
+                });
+            });
         });
-	};
+	}
 
-    var clear_storage = function() {
-        chrome.extension.getBackgroundPage()
-            .storage.clear();
+    function clear_storage() {
+        chrome.runtime.getBackgroundPage(function(background) {
+            background.storage.clear().then(function() {
+                restore_options();
+            });
+        });
+    }
 
-        restore_options();
-    };
+	function restore_options() {
+        chrome.runtime.getBackgroundPage(function(background) {
+            var color = background.options.get_color();
+            color_picker.colpickSetColor(color);
 
-	var restore_options = function() {
-        var color = chrome.extension.getBackgroundPage()
-            .options.get_color();
-		color_picker.colpickSetColor(color);
+            var seconds = background.options.get_thread_removal_time_secs(),
+                frequency = $("#frequency");
+            frequency.val(seconds / 86400);
+            frequency.trigger("input");
 
-        var seconds = chrome.extension.getBackgroundPage()
-            .options.get_thread_removal_time_secs();
-		$("#frequency").val(seconds / 86400);
-		$("#frequency").trigger("input");
+            var border = background.options.get_has_border();
+            $("#border").prop("checked", border);
+        });
+	}
 
-        var border = chrome.extension.getBackgroundPage()
-            .options.get_has_border();
-		$("#border").prop("checked", border);
-	};
-
-	var init = function() {
+	function init() {
 		color_picker = $("#color").colpick({
 			flat: true,
 			layout: "rgbhex",
@@ -51,13 +61,7 @@ var options = (function() {
 		});
 
 		restore_options();
-	};
-
-    return {
-        init: init,
-        clear_storage: clear_storage,
-        save_options: save_options
-    };
+	}
 })();
 
 $(document).ready(function() {
