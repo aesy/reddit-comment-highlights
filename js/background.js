@@ -6,7 +6,7 @@
  */
 
 var get_current_timestamp = function() {
-	return Math.floor(Date().now() / 1000);
+	return Math.floor(new Date().getTime() / 1000);
 };
 
 var storage = (function() {
@@ -218,3 +218,5 @@ chrome.runtime.onInstalled.addListener(function(details) {
          storage.clear();
     }
 });
+
+console.log("woop");
