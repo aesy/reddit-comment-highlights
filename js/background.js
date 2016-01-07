@@ -218,5 +218,3 @@ chrome.runtime.onInstalled.addListener(function(details) {
          storage.clear();
     }
 });
-
-console.log("woop");
