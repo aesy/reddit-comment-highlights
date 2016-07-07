@@ -45,7 +45,7 @@ var reddit_page = (function() {
     function highlight_comments(border, color) {
         var comments = document.getElementsByClassName('nestedlisting')[0].getElementsByClassName("tagline");
 
-        for (var i = 0; i < comments.length - 1; i++) {
+        for (var i = 0; i < comments.length; i++) {
             var comment = comments[i];
 
             // reddit_page comment date format: 2014-02-20T00:41:27+00:00
