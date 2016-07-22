@@ -1,6 +1,6 @@
 {
 	"name": "Reddit (Au) Comment Highlights.",
-	"version": "0.6",
+	"version": "0.7",
 	"options_page": "options.html",
 	"manifest_version": 2,
 	"icons": {
@@ -8,7 +8,7 @@
 		"48": "img/gold_logo.png",
 		"128": "img/gold_logo.png"
 	},
-	"homepage_url": "https://github.com/staticfish/Reddit-Comment-Highlights",
+	"homepage_url": "https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights",
 	"description": "Highlight unread comments since your last visit to a Reddit discussion page. Syncs across all of your chrome sessions!",
 	"short_name": "Highlight new Reddit comments.",
 	"background": {
