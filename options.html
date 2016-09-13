@@ -20,7 +20,7 @@
 			</p>
 			<div id="back_color"></div>
 			<hr>
-			
+
 			<legend>Font foreground color</legend>
 			<p class="help-block">
 				<small>Specify the font (foreground) color of highlighted comments.</small>
@@ -29,13 +29,13 @@
 			<hr>
 
 			<legend>Dotted border</legend>
-			<input type="checkbox" id="border" class="input"></input>
+            <input type="checkbox" id="border" class="input"/>
 			<label for="border"><span></span><small>Specify whether you want a dotted border around highlighted comments.</small></label>
 			<hr>
 
 			<legend>Flush status of threads older than*...</legend>
 			<div class="control-group">
-				<input id="frequency" class="input" type="range" min="1" max="14" value="1" step="1">
+				<input id="frequency" class="input" type="range" min="1" max="14" value="1" step="1" title="frequency">
 				<span class="help-inline">
 					<span id="frequency_number"></span>
 					<span id="frequency_unit"></span>
@@ -44,7 +44,7 @@
 					<small>*thread status may still be flushed when storage is full.</small>
 				</p>
 			</div>
-			
+
 			<p id="status-message" class="alert"></p>
 			<input type="button" id="save-options" class="input" value="Save Options" />
 			<hr>

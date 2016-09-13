@@ -1,70 +1,77 @@
-var reddit_page = (function() {
-    var id,
-        last_visited;
+var redditPage = (function() {
+	var id;
+	var lastVisited;
 
-    return {
-        init: init
-    };
+	return {
+		init: init
+	};
 
-    function init() {
-        id = get_thread_id();
+	function init() {
+		id = getThreadId();
 
-        if (!id)
-            return;
+		if (!id) {
+			return;
+		}
 
-        chrome.runtime.sendMessage({method: "threads.get_by_id", id: id}, function(response) {
-            if (response)
-                last_visited = response.timestamp;
+		chrome.runtime.sendMessage({ method: 'threads.getById', id: id }, function(response) {
+			if (response) {
+				lastVisited = response.timestamp;
+			}
 
-            process();
-        });
-    }
+			process();
+		});
+	}
 
-    function process() {
-        chrome.runtime.sendMessage({method: "options.get_all"}, function(response) {
-            if (last_visited)
-                highlight_comments(response.border, response.color, response.front_color);
-        });
+	function process() {
+		chrome.runtime.sendMessage({ method: 'options.getAll' }, function(response) {
+			if (lastVisited) {
+				highlightComments(response.border, response.color, response.front_color);
+			}
+		});
 
-        chrome.runtime.sendMessage({method: "threads.add", id: id});
-    }
+		chrome.runtime.sendMessage({ method: 'threads.add', id: id });
+	}
 
-    function get_thread_id() {
-        // Checks if currently in thread comment section
-        if (!document.getElementsByClassName('nestedlisting')[0])
-            return null;
+	function getThreadId() {
+		// Checks if currently in thread comment section
+		if (!document.getElementsByClassName('nestedlisting')[0]) {
+			return null;
+		}
 
-        var thread_id = document.getElementById('siteTable').firstChild.getAttribute('data-fullname');
+		var threadId = document.getElementById('siteTable').firstChild.getAttribute('data-fullname');
 
-        if (!thread_id)
-            return null;
+		if (!threadId) {
+			return null;
+		}
 
-        return thread_id.split("_")[1];
-    }
+		return threadId.split('_')[1];
+	}
 
-    function highlight_comments(border, back_color, front_color) {
-        var comments = document.getElementsByClassName('nestedlisting')[0].getElementsByClassName("tagline");
+	function highlightComments(border, backColor, frontColor) {
+		var comments = document.getElementsByClassName('nestedlisting')[0].getElementsByClassName('tagline');
 
-        for (var i = 0; i < comments.length; i++) {
-            var comment = comments[i];
+		for (var i = 0; i < comments.length; i++) {
+			var comment = comments[i];
 
-            // reddit_page comment date format: 2014-02-20T00:41:27+00:00
-            var comment_date = comment.getElementsByTagName("time")[0].getAttribute("datetime");
-            if (!comment_date)
-                continue;
+			// reddit comment date format: 2014-02-20T00:41:27+00:00
+			var commentDate = comment.getElementsByTagName('time')[0].getAttribute('datetime');
+			if (!commentDate) {
+				continue;
+			}
 
-            var comment_timestamp = Math.floor(Date.parse(comment_date) / 1000);
-            if (comment_timestamp < last_visited)
-                continue;
+			var commentTimestamp = Math.floor(Date.parse(commentDate) / 1000);
+			if (commentTimestamp < lastVisited) {
+				continue;
+			}
 
-            var comment_body = comment.nextElementSibling.getElementsByClassName("md")[0];
-            comment_body.style.padding = "2px";
-            comment_body.style.borderRadius = "2px";
-            comment_body.style.border = border;
-            comment_body.style.backgroundColor = back_color;
-            comment_body.style.color = front_color;
-        }
-    }
+			var commentBody = comment.nextElementSibling.getElementsByClassName('md')[0];
+			commentBody.style.padding = '2px';
+			commentBody.style.borderRadius = '2px';
+			commentBody.style.border = border;
+			commentBody.style.backgroundColor = backColor;
+			commentBody.style.color = frontColor;
+		}
+	}
 })();
 
-reddit_page.init();
+redditPage.init();

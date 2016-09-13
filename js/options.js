@@ -1,114 +1,119 @@
 var options = (function() {
-	var selected_back_color,
-		selected_front_color,
-	    back_color_picker,
-		front_color_picker;
+	var selectedBackColor;
+	var selectedFrontColor;
+	var backColorPicker;
+	var frontColorPicker;
 
-    return {
-        init: init,
-        clear_storage: clear_storage,
-        save_options: save_options
-    };
+	return {
+		init: init,
+		clearStorage: clearStorage,
+		saveOptions: saveOptions
+	};
 
-	function save_options() {
-        chrome.runtime.getBackgroundPage(function(background) {
-            var promise = background.options.save({
-                back_color: selected_back_color,
-				front_color: selected_front_color,
-                thread_removal_time_seconds: $("#frequency").val() * 86400,
-                border: $("#border").is(":checked")
-            });
+	function showSaveSuccessMessage() {
+		var statusArea = $('#status-message');
 
-            promise.then(function() {
-                var status_area = $("#status-message");
-                status_area.text("Okay, got it!").fadeIn(function() {
-                    setTimeout(function() {
-                        status_area.fadeOut();
-                    }, 2000);
-                });
-            });
-        });
+		statusArea.text('Okay, got it!').fadeIn(function() {
+			setTimeout(function() {
+				statusArea.fadeOut();
+			}, 2000);
+		});
 	}
 
-    function clear_storage() {
-        chrome.runtime.getBackgroundPage(function(background) {
-            background.storage.clear().then(function() {
-                restore_options();
-            });
-        });
-    }
+	function saveOptions() {
+		chrome.runtime.getBackgroundPage(function(background) {
+			var promise = background.options.save({
+				backColor: selectedBackColor,
+				frontColor: selectedFrontColor,
+				threadRemovalTimeSeconds: $('#frequency').val() * 86400,
+				border: $('#border').is(':checked')
+			});
 
-	function restore_options() {
-        chrome.runtime.getBackgroundPage(function(background) {
-            var back_color = background.options.get_back_color();
-            back_color_picker.colpickSetColor(back_color);
-			
-            var front_color = background.options.get_front_color();
-            front_color_picker.colpickSetColor(front_color);
+			promise.then(showSaveSuccessMessage);
+		});
+	}
 
-            var seconds = background.options.get_thread_removal_time_secs(),
-                frequency = $("#frequency");
-            frequency.val(seconds / 86400);
-            frequency.trigger("input");
+	function clearStorage() {
+		chrome.runtime.getBackgroundPage(function(background) {
+			background.storage.clear().then(function() {
+				restoreOptions();
+			});
+		});
+	}
 
-            var border = background.options.get_has_border();
-            $("#border").prop("checked", border);
-        });
+	function restoreOptions() {
+		chrome.runtime.getBackgroundPage(function(background) {
+			var backColor = background.options.getBackColor();
+			backColorPicker.colpickSetColor(backColor);
+
+			var frontColor = background.options.getFrontColor();
+			frontColorPicker.colpickSetColor(frontColor);
+
+			var seconds = background.options.getThreadRemovalTimeSecs();
+			var frequency = $('#frequency');
+			frequency.val(seconds / 86400);
+			frequency.trigger('input');
+
+			var border = background.options.get_has_border();
+			$('#border').prop('checked', border);
+		});
 	}
 
 	function init() {
-		back_color_picker = $("#back_color").colpick({
+		backColorPicker = $('#back_color').colpick({
 			flat: true,
-			layout: "rgbhex",
+			layout: 'rgbhex',
 			submit: false,
 			onChange: function(hsb, hex) {
-				selected_back_color = "#" + hex;
-			}
-		});
-		
-		front_color_picker = $("#front_color").colpick({
-			flat: true,
-			layout: "rgbhex",
-			submit: false,
-			onChange: function(hsb, hex) {
-				selected_front_color = "#" + hex;
+				selectedBackColor = '#' + hex;
 			}
 		});
 
-		restore_options();
+		frontColorPicker = $('#front_color').colpick({
+			flat: true,
+			layout: 'rgbhex',
+			submit: false,
+			onChange: function(hsb, hex) {
+				selectedFrontColor = '#' + hex;
+			}
+		});
+
+		restoreOptions();
 	}
 })();
 
 $(document).ready(function() {
 	options.init();
 
-	$("#save-options").click(function() {
-        options.save_options();
-    });
+	$('#save-options').click(function() {
+		options.save_options();
+	});
 
-	$("#clear-options").click(function() {
-        options.clear_storage();
-    });
+	$('#clear-options').click(function() {
+		options.clear_storage();
+	});
 });
 
-$("#frequency").on("input", function() {
+$('#frequency').on('input', function() {
 	var frequency = $(this).val();
+	var frequencyNumber = $('#frequency_number');
+	var frequencyUnit = $('#frequency_unit');
 
-	switch (parseInt(frequency)) {
+	switch (parseInt(frequency, 10)) {
 		case 1:
-			$("#frequency_number").text(frequency);
-			$("#frequency_unit").text("day");
+			frequencyNumber.text(frequency);
+			frequencyUnit.text('day');
 			break;
 		case 7:
-			$("#frequency_number").text(1);
-			$("#frequency_unit").text("week");
+			frequencyNumber.text(1);
+			frequencyUnit.text('week');
 			break;
 		case 14:
-			$("#frequency_number").text(2);
-			$("#frequency_unit").text("weeks");
+			frequencyNumber.text(2);
+			frequencyUnit.text('weeks');
 			break;
 		default:
-			$("#frequency_number").text(frequency);
-			$("#frequency_unit").text("days");
+			frequencyNumber.text(frequency);
+			frequencyUnit.text('days');
 	}
 });
