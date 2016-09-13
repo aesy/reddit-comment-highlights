@@ -90,7 +90,7 @@ var options = (function() {
             border: get_border(),
             has_border: get_has_border(),
             back_color: get_back_color(),
-			front_color: get_front_color(),
+            front_color: get_front_color(),
             thread_removal_time_seconds: get_thread_removal_time_secs()
         };
     }

@@ -23,7 +23,7 @@ var reddit_page = (function() {
     function process() {
         chrome.runtime.sendMessage({method: "options.get_all"}, function(response) {
             if (last_visited)
-                highlight_comments(response.border, response.back_color, response.front_color);
+                highlight_comments(response.border, response.color, response.front_color);
         });
 
         chrome.runtime.sendMessage({method: "threads.add", id: id});
