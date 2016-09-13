@@ -23,7 +23,7 @@ var reddit_page = (function() {
     function process() {
         chrome.runtime.sendMessage({method: "options.get_all"}, function(response) {
             if (last_visited)
-                highlight_comments(response.border, response.color);
+                highlight_comments(response.border, response.back_color, response.front_color);
         });
 
         chrome.runtime.sendMessage({method: "threads.add", id: id});
@@ -42,7 +42,7 @@ var reddit_page = (function() {
         return thread_id.split("_")[1];
     }
 
-    function highlight_comments(border, color) {
+    function highlight_comments(border, back_color, front_color) {
         var comments = document.getElementsByClassName('nestedlisting')[0].getElementsByClassName("tagline");
 
         for (var i = 0; i < comments.length; i++) {
@@ -61,7 +61,8 @@ var reddit_page = (function() {
             comment_body.style.padding = "2px";
             comment_body.style.borderRadius = "2px";
             comment_body.style.border = border;
-            comment_body.style.backgroundColor = color;
+            comment_body.style.backgroundColor = back_color;
+            comment_body.style.color = front_color;
         }
     }
 })();

@@ -1,1 +1,226 @@
-body{margin:0;padding:10px;background-color:#f8f8f8;color:#373737;min-width:245px;overflow-x:hidden;font-family:"Helvetica","Arial",sans-serif;font-weight:300;line-height:1.6;font-size:14px;text-shadow:0 1px 1px #fff;}body h1,body h2,body h3{margin:0}body a:hover,body a:focus{text-decoration:underline;color:#666}body a,body a:visited,body a:active{color:#999;text-decoration:none}body #focus-stealer{position:absolute;left:-900px;top:0;width:1px;height:1px}body .hidden{display:none !important}body hr{border:none;border-top:1px solid #eee;border-bottom:1px solid #fff;margin:20px 0}body .pull-left{float:left}body .pull-right{float:right}body span.separator{display:inline-block;margin:0 5px}body.options{font-size:18px;margin:0;}body.options .header{margin-top:20px}body.options .logo{margin-right:20px}body.options a.btn{color:#696969;text-decoration:none}body.options .container{margin:0 auto;width:600px;position:relative}body.options h1{font-size:28px;font-weight:300;line-height:48px}body.options .footer{font-size:12px;color:#888;margin-top:20px;}body.options .footer span{display:inline-block;margin:0 1em}body.options label{display:inline-block;vertical-align:middle;font-size:12px}body.options small{color:#666;padding-left:5px;font-size:12px}body.options #status-message{display:none;width:82%;left:108px;margin-top:-4px;position:absolute}body.options .alert{color:#468847;background-color:#dff0d8;padding:5px 10px;box-sizing:border-box;margin:14px 0;text-shadow:0 1px 0 rgba(255,255,255,0.5);border:1px solid #d6e9c6;border-radius:4px;}body.options .alert .help-block{margin-left:13em;margin-top:0;}body.options .alert .help-block.flush-left{margin-left:0;}body.options .alert .help-block.flush-left > small{padding-left:0}body.options fieldset{border:none;padding:0;margin:6px 0}body.options .help-block{font-size:12px}body.options legend{font-size:12px;text-transform:uppercase;color:#999;font-style:italic}body .input.input[type="button"],body .input.input[type="text"],body .input.input[type='range']{display:inline-block;margin:0;padding:0 1em;height:2.5em;line-height:2.5em;background:#1794ce;outline:none;border:1px solid #137aaa;border-bottom-width:2px;border-radius:.2em;font-family:'Open Sans',Arial;font-size:12px;font-weight:normal;text-decoration:none;color:#fff;cursor:pointer}body .input.input[type="button"]{height:2.75em;}body .input.input[type="button"]:hover{background:#1c9fdc}body .input.input[type="button"]:active{background:#116f9a;border-color:#0e658c;box-shadow:inset 0 2px 20px #0c5374}body .input.input[type="button"].gray{background:#d0d0d0;border-color:#a9a9a9;}body .input.input[type="button"].gray:hover{background:#dadada}body .input.input[type="text"]{width:calc(75% - 2em);background:#fff;border-color:#ccc;cursor:text;color:#666;}body .input.input[type="text"]:focus{border-color:#1794ce}body .input.input[type="text"]:focus,body .input.input[type="text"]:hover{color:#1794ce}body .input.input[type="checkbox"]{display:none;}body .input.input[type="checkbox"] + label span{display:inline-block;width:18px;height:18px;margin:-1px 4px 0 0;vertical-align:middle;background:url("../img/checkbox.png") left top no-repeat;cursor:pointer;}body .input.input[type="checkbox"] + label span:hover{background:url("../img/checkbox.png") -18px top no-repeat}body .input.input[type="checkbox"]:checked + label span{background:url("../img/checkbox.png") -36px top no-repeat}body .input.input[type='range']{-webkit-appearance:none !important;background:#fff;border-color:#ccc;padding:0;height:10px;}body .input.input[type='range']:hover,body .input.input[type='range']:focus{border-color:#1794ce}body .input.input[type='range']::-webkit-slider-thumb{-webkit-appearance:none !important;background:#1794ce;height:12px;width:3px}
+body {
+    margin: 0;
+    padding: 10px;
+    background-color: #f8f8f8;
+    color: #373737;
+    min-width: 245px;
+    overflow-x: hidden;
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    font-size: 14px;
+    text-shadow: 0 1px 1px #fff;
+}
+body h1,
+body h2,
+body h3 {
+    margin: 0
+}
+body a:hover,
+body a:focus {
+    text-decoration: underline;
+    color: #666
+}
+body a,
+body a:visited,
+body a:active {
+    color: #999;
+    text-decoration: none
+}
+body #focus-stealer {
+    position: absolute;
+    left: -900px;
+    top: 0;
+    width: 1px;
+    height: 1px
+}
+body .hidden {
+    display: none !important
+}
+body hr {
+    border: none;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #fff;
+    margin: 20px 0
+}
+body .pull-left {
+    float: left
+}
+body .pull-right {
+    float: right
+}
+body span.separator {
+    display: inline-block;
+    margin: 0 5px
+}
+body.options {
+    font-size: 18px;
+    margin: 0;
+}
+body.options .header {
+    margin-top: 20px
+}
+body.options .logo {
+    margin-right: 20px
+}
+body.options a.btn {
+    color: #696969;
+    text-decoration: none
+}
+body.options .container {
+    margin: 0 auto;
+    width: 600px;
+    position: relative
+}
+body.options h1 {
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 48px
+}
+body.options .footer {
+    font-size: 12px;
+    color: #888;
+    margin-top: 20px;
+}
+body.options .footer span {
+    display: inline-block;
+    margin: 0 1em
+}
+body.options label {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 12px
+}
+body.options small {
+    color: #666;
+    padding-left: 5px;
+    font-size: 12px
+}
+body.options #status-message {
+    display: none;
+    width: 82%;
+    left: 108px;
+    margin-top: -4px;
+    position: absolute
+}
+body.options .alert {
+    color: #468847;
+    background-color: #dff0d8;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    margin: 14px 0;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid #d6e9c6;
+    border-radius: 4px;
+}
+body.options .alert .help-block {
+    margin-left: 13em;
+    margin-top: 0;
+}
+body.options .alert .help-block.flush-left {
+    margin-left: 0;
+}
+body.options .alert .help-block.flush-left > small {
+    padding-left: 0
+}
+body.options fieldset {
+    border: none;
+    padding: 0;
+    margin: 6px 0
+}
+body.options .help-block {
+    font-size: 12px
+}
+body.options legend {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #999;
+    font-style: italic
+}
+body .input.input[type="button"],
+body .input.input[type="text"],
+body .input.input[type='range'] {
+    display: inline-block;
+    margin: 0;
+    padding: 0 1em;
+    height: 2.5em;
+    line-height: 2.5em;
+    background: #1794ce;
+    outline: none;
+    border: 1px solid #137aaa;
+    border-bottom-width: 2px;
+    border-radius: .2em;
+    font-family: 'Open Sans', Arial;
+    font-size: 12px;
+    font-weight: normal;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer
+}
+body .input.input[type="button"] {
+    height: 2.75em;
+}
+body .input.input[type="button"]:hover {
+    background: #1c9fdc
+}
+body .input.input[type="button"]:active {
+    background: #116f9a;
+    border-color: #0e658c;
+    box-shadow: inset 0 2px 20px #0c5374
+}
+body .input.input[type="button"].gray {
+    background: #d0d0d0;
+    border-color: #a9a9a9;
+}
+body .input.input[type="button"].gray:hover {
+    background: #dadada
+}
+body .input.input[type="text"] {
+    width: calc(75% - 2em);
+    background: #fff;
+    border-color: #ccc;
+    cursor: text;
+    color: #666;
+}
+body .input.input[type="text"]:focus {
+    border-color: #1794ce
+}
+body .input.input[type="text"]:focus,
+body .input.input[type="text"]:hover {
+    color: #1794ce
+}
+body .input.input[type="checkbox"] {
+    display: none;
+}
+body .input.input[type="checkbox"] + label span {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin: -1px 4px 0 0;
+    vertical-align: middle;
+    background: url("../img/checkbox.png") left top no-repeat;
+    cursor: pointer;
+}
+body .input.input[type="checkbox"] + label span:hover {
+    background: url("../img/checkbox.png") -18px top no-repeat
+}
+body .input.input[type="checkbox"]:checked + label span {
+    background: url("../img/checkbox.png") -36px top no-repeat
+}
+body .input.input[type='range'] {
+    -webkit-appearance: none !important;
+    background: #fff;
+    border-color: #ccc;
+    padding: 0;
+    height: 10px;
+}
+body .input.input[type='range']:hover,
+body .input.input[type='range']:focus {
+    border-color: #1794ce
+}
+body .input.input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    background: #1794ce;
+    height: 12px;
+    width: 3px
+}

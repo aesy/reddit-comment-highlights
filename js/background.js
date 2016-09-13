@@ -70,7 +70,8 @@ var options = (function() {
         get_all: get_all,
         get_border: get_border,
         get_has_border: get_has_border,
-        get_color: get_color,
+        get_back_color: get_back_color,
+		get_front_color: get_front_color,
         get_thread_removal_time_secs: get_thread_removal_time_secs
     };
 
@@ -88,7 +89,8 @@ var options = (function() {
         return {
             border: get_border(),
             has_border: get_has_border(),
-            color: get_color(),
+            back_color: get_back_color(),
+			front_color: get_front_color(),
             thread_removal_time_seconds: get_thread_removal_time_secs()
         };
     }
@@ -101,8 +103,12 @@ var options = (function() {
         return options.border !== undefined ? options.border : true;
     }
 
-    function get_color() {
+    function get_back_color() {
         return options.color || "#FFFDCC";
+    }
+	
+    function get_front_color() {
+        return options.front_color || "#000000";
     }
 
     function get_thread_removal_time_secs() {
