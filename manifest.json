@@ -1,6 +1,6 @@
 {
 	"name": "Reddit (Au) Comment Highlights.",
-	"version": "0.7",
+	"version": "0.9",
 	"options_page": "options.html",
 	"manifest_version": 2,
 	"icons": {
