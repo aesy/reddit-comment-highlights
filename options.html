@@ -13,9 +13,6 @@
 				<h1>Reddit (Au) Comment Highlights Options</h1>
 				<hr>
 			</div>
-			<p id="status-message" class="alert"></p>
-			<input type="button" id="save-options" class="input" value="Save Options" />
-			<hr>
 
 			<legend>Background highlight color</legend>
 			<p class="help-block">
@@ -36,7 +33,7 @@
 			<label for="border"><span></span><small>Specify whether you want a dotted border around highlighted comments.</small></label>
 			<hr>
 
-			<legend>Flush status of threads older than...</legend>
+			<legend>Flush status of threads older than*...</legend>
 			<div class="control-group">
 				<input id="frequency" class="input" type="range" min="1" max="14" value="1" step="1">
 				<span class="help-inline">
@@ -44,9 +41,12 @@
 					<span id="frequency_unit"></span>
 				</span>
 				<p class="help-block flush-left">
-					<small>note: thread status may still be flushed when storage is full.</small>
+					<small>*thread status may still be flushed when storage is full.</small>
 				</p>
 			</div>
+			
+			<p id="status-message" class="alert"></p>
+			<input type="button" id="save-options" class="input" value="Save Options" />
 			<hr>
 
 			<input type="button" id="clear-options" class="input gray" value="Reset" />
