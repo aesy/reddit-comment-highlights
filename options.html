@@ -13,15 +13,19 @@
 				<h1>Reddit (Au) Comment Highlights Options</h1>
 				<hr>
 			</div>
-			<p id="status-message" class="alert"></p>
-			<input type="button" id="save-options" class="input" value="Save Options" />
-			<hr>
 
-			<legend>Highlight color</legend>
+			<legend>Background highlight color</legend>
 			<p class="help-block">
 				<small>Specify the background color of highlighted comments.</small>
 			</p>
-			<div id="color"></div>
+			<div id="back_color"></div>
+			<hr>
+			
+			<legend>Font foreground color</legend>
+			<p class="help-block">
+				<small>Specify the font (foreground) color of highlighted comments.</small>
+			</p>
+			<div id="front_color"></div>
 			<hr>
 
 			<legend>Dotted border</legend>
@@ -29,7 +33,7 @@
 			<label for="border"><span></span><small>Specify whether you want a dotted border around highlighted comments.</small></label>
 			<hr>
 
-			<legend>Flush status of threads older than...</legend>
+			<legend>Flush status of threads older than*...</legend>
 			<div class="control-group">
 				<input id="frequency" class="input" type="range" min="1" max="14" value="1" step="1">
 				<span class="help-inline">
@@ -37,9 +41,12 @@
 					<span id="frequency_unit"></span>
 				</span>
 				<p class="help-block flush-left">
-					<small>note: thread status may still be flushed when storage is full.</small>
+					<small>*thread status may still be flushed when storage is full.</small>
 				</p>
 			</div>
+			
+			<p id="status-message" class="alert"></p>
+			<input type="button" id="save-options" class="input" value="Save Options" />
 			<hr>
 
 			<input type="button" id="clear-options" class="input gray" value="Reset" />
@@ -47,7 +54,7 @@
 
 			<div class="footer">
 				<hr>
-				&copy; 2015 Daniel Watson
+				&copy; 2016 Isak Wertwein and Daniel Watson
 				<a href="https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights" target="_blank">View Source</a>
 			</div>
 		</div>
