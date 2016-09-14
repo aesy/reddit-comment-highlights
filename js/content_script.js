@@ -1,69 +1,103 @@
-var reddit_page = (function() {
-    var id,
-        last_visited;
+var redditPage = (function() {
+	var id;
+	var lastVisited;
 
-    return {
-        init: init
-    };
+	return {
+		init: init
+	};
 
-    function init() {
-        id = get_thread_id();
+	function init() {
+		id = getThreadId();
 
-        if (!id)
-            return;
+		if (!id) {
+			return;
+		}
 
-        chrome.runtime.sendMessage({method: "threads.get_by_id", id: id}, function(response) {
-            if (response)
-                last_visited = response.timestamp;
+		chrome.runtime.sendMessage({ method: 'threads.getById', id: id }, function(response) {
+			if (response) {
+				lastVisited = response.timestamp;
+			}
 
-            process();
-        });
-    }
+			process();
+		});
+	}
 
-    function process() {
-        chrome.runtime.sendMessage({method: "options.get_all"}, function(response) {
-            if (last_visited)
-                highlight_comments(response.border, response.color);
-        });
+	function process() {
+		chrome.runtime.sendMessage({ method: 'options.getAll' }, function(response) {
+			if (!lastVisited) {
+				return;
+			}
 
-        chrome.runtime.sendMessage({method: "threads.add", id: id});
-    }
+			var css = '';
 
-    function get_thread_id() {
-        // Checks if currently in thread comment section
-        if (!document.getElementsByClassName('nestedlisting')[0])
-            return null;
+			if (response.useCustomCSS) {
+				css += response.customCSS;
+			} else {
+				css += generateCSS(response.border, response.backColor, response.frontColor);
+			}
 
-        var thread_id = document.getElementById('siteTable').firstChild.getAttribute('data-fullname');
+			injectCSS(css);
+			highlightComments();
+		});
 
-        if (!thread_id)
-            return null;
+		chrome.runtime.sendMessage({ method: 'threads.add', id: id });
+	}
 
-        return thread_id.split("_")[1];
-    }
+	function getThreadId() {
+		// Checks if currently in thread comment section
+		if (!document.getElementsByClassName('nestedlisting')[0]) {
+			return null;
+		}
 
-    function highlight_comments(border, color) {
-        var comments = document.getElementsByClassName('nestedlisting')[0].getElementsByClassName("tagline");
+		var threadId = document.getElementById('siteTable').firstChild.getAttribute('data-fullname');
 
-        for (var i = 0; i < comments.length; i++) {
-            var comment = comments[i];
+		if (!threadId) {
+			return null;
+		}
 
-            // reddit_page comment date format: 2014-02-20T00:41:27+00:00
-            var comment_date = comment.getElementsByTagName("time")[0].getAttribute("datetime");
-            if (!comment_date)
-                continue;
+		return threadId.split('_')[1];
+	}
 
-            var comment_timestamp = Math.floor(Date.parse(comment_date) / 1000);
-            if (comment_timestamp < last_visited)
-                continue;
+	function highlightComments() {
+		var comments = document.getElementsByClassName('comment');
 
-            var comment_body = comment.nextElementSibling.getElementsByClassName("md")[0];
-            comment_body.style.padding = "2px";
-            comment_body.style.borderRadius = "2px";
-            comment_body.style.border = border;
-            comment_body.style.backgroundColor = color;
-        }
-    }
+		for (var i = 0; i < comments.length; i++) {
+			var comment = comments[i];
+
+			// reddit comment date format: 2014-02-20T00:41:27+00:00
+			var commentDate = comment.getElementsByTagName('time')[0].getAttribute('datetime');
+			if (!commentDate) {
+				continue;
+			}
+
+			var commentTimestamp = Math.floor(Date.parse(commentDate) / 1000);
+			if (commentTimestamp < lastVisited) {
+				continue;
+			}
+
+			comment.classList.add('highlight');
+		}
+	}
+
+	function injectCSS(css) {
+		var head = document.getElementsByTagName('head')[0];
+		var style = document.createElement('style');
+		style.setAttribute('type', 'text/css');
+		style.appendChild(document.createTextNode(css));
+		head.appendChild(style);
+	}
+
+	function generateCSS(border, backColor, frontColor) {
+		return [
+			'.comment.highlight .md {',
+			'  padding: 2px;',
+			'  border: ' + border + ';',
+			'  border-radius: 2px;',
+			'  background-color: ' + backColor + ';',
+			'  color: ' + frontColor + ';',
+			'}'
+		].join('');
+	}
 })();
 
-reddit_page.init();
+redditPage.init();
