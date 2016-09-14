@@ -1,6 +1,8 @@
 var options = (function() {
-	var selected_color,
-	    color_picker;
+	var selected_back_color,
+		selected_front_color,
+	    back_color_picker,
+		front_color_picker;
 
     return {
         init: init,
@@ -11,7 +13,8 @@ var options = (function() {
 	function save_options() {
         chrome.runtime.getBackgroundPage(function(background) {
             var promise = background.options.save({
-                color: selected_color,
+                back_color: selected_back_color,
+				front_color: selected_front_color,
                 thread_removal_time_seconds: $("#frequency").val() * 86400,
                 border: $("#border").is(":checked")
             });
@@ -37,8 +40,11 @@ var options = (function() {
 
 	function restore_options() {
         chrome.runtime.getBackgroundPage(function(background) {
-            var color = background.options.get_color();
-            color_picker.colpickSetColor(color);
+            var back_color = background.options.get_back_color();
+            back_color_picker.colpickSetColor(back_color);
+			
+            var front_color = background.options.get_front_color();
+            front_color_picker.colpickSetColor(front_color);
 
             var seconds = background.options.get_thread_removal_time_secs(),
                 frequency = $("#frequency");
@@ -51,12 +57,21 @@ var options = (function() {
 	}
 
 	function init() {
-		color_picker = $("#color").colpick({
+		back_color_picker = $("#back_color").colpick({
 			flat: true,
 			layout: "rgbhex",
 			submit: false,
 			onChange: function(hsb, hex) {
-				selected_color = "#" + hex;
+				selected_back_color = "#" + hex;
+			}
+		});
+		
+		front_color_picker = $("#front_color").colpick({
+			flat: true,
+			layout: "rgbhex",
+			submit: false,
+			onChange: function(hsb, hex) {
+				selected_front_color = "#" + hex;
 			}
 		});
 
