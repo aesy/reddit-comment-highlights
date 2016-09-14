@@ -121,7 +121,7 @@ options = (function() {
 	}
 
 	function getBorder() {
-		return getHasBorder() ? '1px dotted #CCCCCC' : '';
+		return getHasBorder() ? '1px dotted #CCCCCC' : '0';
 	}
 
 	function getHasBorder() {
