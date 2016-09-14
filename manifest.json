@@ -1,27 +1,28 @@
 {
-	"name": "Reddit (Au) Comment Highlights.",
-	"version": "0.9",
-	"options_page": "options.html",
-	"manifest_version": 2,
-	"icons": {
-		"16": "img/gold_logo.png",
-		"48": "img/gold_logo.png",
-		"128": "img/gold_logo.png"
-	},
-	"homepage_url": "https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights",
-	"description": "Highlight unread comments since your last visit to a Reddit discussion page. Syncs across all of your chrome sessions!",
-	"short_name": "Highlight new Reddit comments.",
-	"background": {
-		"scripts": ["js/background.js"],
-        "persistent": false
-	},
-	"content_scripts": [{
-		"matches": ["http://www.reddit.com/r/*","https://www.reddit.com/r/*"],
-		"js": ["js/content_script.js"]
-	}],
-	"permissions": [
-		"storage",
-		"http://www.reddit.com/r/*",
-		"https://www.reddit.com/r/*"
-	]
+  "name": "Reddit (Au) Comment Highlights.",
+  "version": "0.9",
+  "options_page": "options.html",
+  "manifest_version": 2,
+  "minimum_chrome_version": "32",
+  "icons": {
+  	"16": "img/gold_logo.png",
+  	"48": "img/gold_logo.png",
+  	"128": "img/gold_logo.png"
+  },
+  "homepage_url": "https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights",
+  "description": "Highlight unread comments since your last visit to a Reddit discussion page. Syncs across all of your chrome sessions!",
+  "short_name": "Highlight new Reddit comments.",
+  "background": {
+  	"scripts": ["js/background.js"],
+      "persistent": false
+  },
+  "content_scripts": [{
+  	"matches": ["http://www.reddit.com/r/*","https://www.reddit.com/r/*"],
+  	"js": ["js/content_script.js"]
+  }],
+  "permissions": [
+  	"storage",
+  	"http://www.reddit.com/r/*",
+  	"https://www.reddit.com/r/*"
+  ]
 }

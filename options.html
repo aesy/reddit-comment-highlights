@@ -14,24 +14,59 @@
 				<hr>
 			</div>
 
-			<legend>Background highlight color</legend>
-			<p class="help-block">
-				<small>Specify the background color of highlighted comments.</small>
-			</p>
-			<div id="back_color"></div>
-			<hr>
+            <legend>Set styling with:</legend>
+            <input type="radio" name="style-mode" id="use-color-picker" value="color-pickers">
+            <label for="use-color-picker"><span></span>
+                Color pickers
+            </label>
+            <input type="radio" name="style-mode" id="use-custom-css" value="custom-css">
+            <label for="use-custom-css"><span></span>
+                Custom CSS
+            </label>
+            <hr>
 
-			<legend>Font foreground color</legend>
-			<p class="help-block">
-				<small>Specify the font (foreground) color of highlighted comments.</small>
-			</p>
-			<div id="front_color"></div>
-			<hr>
+            <div class="tab hidden" id="color-pickers">
+                <legend>Background highlight color</legend>
+                <p class="help-block">
+                    <small>Specify the background color of highlighted comments.</small>
+                </p>
+                <div id="back_color"></div>
+                <hr>
 
-			<legend>Dotted border</legend>
-            <input type="checkbox" id="border" class="input"/>
-			<label for="border"><span></span><small>Specify whether you want a dotted border around highlighted comments.</small></label>
-			<hr>
+                <legend>Font foreground color</legend>
+                <p class="help-block">
+                    <small>Specify the font (foreground) color of highlighted comments.</small>
+                </p>
+                <div id="front_color"></div>
+                <hr>
+
+                <legend>Dotted border</legend>
+                <input type="checkbox" id="border" class="input"/>
+                <label for="border"><span></span>
+                    <small>Specify whether you want a dotted border around highlighted comments.</small>
+                </label>
+                <hr>
+            </div>
+
+            <div class="tab hidden" id="custom-css">
+                <legend>Custom CSS</legend>
+                <p class="help-block flush-left">
+                    <small>
+                        Tips: You can style all highlighted comments with '.comment.highlight { /* style */ }'.
+                    </small>
+                    <br/>
+                    <small>
+                        For <a href="https://redditenhancementsuite.com/">RES</a>-users: Select highlighted comments
+                        in night-mode with '.res-nightmode .comment.highlight'.
+                    </small>
+                    <br/>
+                    <small>
+                        Your CSS is not validated, so you will have to make sure you get it right.
+                    </small>
+                </p>
+                <textarea id="css" cols="30" rows="10" maxlength="500" title="css"></textarea>
+                <hr>
+            </div>
 
 			<legend>Flush status of threads older than*...</legend>
 			<div class="control-group">

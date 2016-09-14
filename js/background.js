@@ -1,6 +1,10 @@
 
+function errorHandler(error) {
+	console.log('Error: ', error);
+}
+
 function getCurrentTimestamp() {
-	return Math.floor(new Date().getTime() / 1000);
+	return Math.floor(Date.now() / 1000);
 }
 
 var storage;
@@ -25,8 +29,14 @@ storage = (function() {
 	}
 
 	function clear() {
-		return new Promise(function(resolve) {
+		return new Promise(function(resolve, reject) {
 			chrome.storage.sync.clear(function() {
+				var error = chrome.runtime.lastError;
+
+				if (error) {
+					return reject();
+				}
+
 				options.refresh().then(function() {
 					resolve();
 				});
@@ -37,9 +47,15 @@ storage = (function() {
 	}
 
 	function get(key) {
-		return new Promise(function(resolve) {
+		return new Promise(function(resolve, reject) {
 			chrome.storage.sync.get(key, function(data) {
-				resolve(data[key]);
+				var error = chrome.runtime.lastError;
+
+				if (error) {
+					reject();
+				} else {
+					resolve(data[key]);
+				}
 			});
 		});
 	}
@@ -48,9 +64,15 @@ storage = (function() {
 		var obj = {};
 		obj[key] = value;
 
-		return new Promise(function(resolve) {
+		return new Promise(function(resolve, reject) {
 			chrome.storage.sync.set(obj, function() {
-				resolve();
+				var error = chrome.runtime.lastError;
+
+				if (error) {
+					reject();
+				} else {
+					resolve();
+				}
 			});
 		});
 	}
@@ -70,7 +92,10 @@ options = (function() {
 		getHasBorder: getHasBorder,
 		getBackColor: getBackColor,
 		getFrontColor: getFrontColor,
-		getThreadRemovalTimeSecs: getThreadRemovalTimeSecs
+		getUseCustomCSS: getUseCustomCSS,
+		getCustomCSS: getCustomCSS,
+		getThreadRemovalTimeSecs: getThreadRemovalTimeSecs,
+		clear: clear
 	};
 
 	function refresh() {
@@ -79,7 +104,7 @@ options = (function() {
 				options = data || {};
 
 				resolve();
-			});
+			}).catch(errorHandler);
 		});
 	}
 
@@ -89,6 +114,8 @@ options = (function() {
 			hasBorder: getHasBorder(),
 			backColor: getBackColor(),
 			frontColor: getFrontColor(),
+			useCustomCSS: getUseCustomCSS(),
+			customCSS: getCustomCSS(),
 			threadRemovalTimeSeconds: getThreadRemovalTimeSecs()
 		};
 	}
@@ -102,20 +129,32 @@ options = (function() {
 	}
 
 	function getBackColor() {
-		return options.color || '#FFFDCC';
+		return options.backColor || '#FFFDCC';
 	}
 
 	function getFrontColor() {
-		return options.front_color || '#000000';
+		return options.frontColor || '#000000';
+	}
+
+	function getUseCustomCSS() {
+		return options.useCustomCSS || false;
+	}
+
+	function getCustomCSS() {
+		return options.customCSS || '';
 	}
 
 	function getThreadRemovalTimeSecs() {
-		return options.thread_removal_time_seconds || 604800;
+		return options.threadRemovalTimeSeconds || 604800;
 	}
 
 	function save(opts) {
 		options = opts;
-		return storage.set(storageKey, options);
+		return storage.set(storageKey, options).catch(errorHandler);
+	}
+
+	function clear() {
+		return save({});
 	}
 })();
 
@@ -137,7 +176,7 @@ threads = (function() {
 				collection = data || [];
 
 				resolve();
-			});
+			}).catch(errorHandler);
 		});
 	}
 
@@ -152,11 +191,7 @@ threads = (function() {
 	}
 
 	function getIndex(id) {
-		for (var i in collection) {
-			if (!Object.hasOwnProperty.call(collection, i)) {
-				return;
-			}
-
+		for (var i = 0; i < collection.length; i++) {
 			var thread = collection[i];
 
 			if (id === thread.id) {
@@ -179,7 +214,7 @@ threads = (function() {
 			timestamp: getCurrentTimestamp()
 		});
 
-		storage.set(storageKey, collection);
+		storage.set(storageKey, collection).catch(errorHandler);
 	}
 
 	function cleanup() {
@@ -201,7 +236,7 @@ threads = (function() {
 	}
 
 	function isOverMaxItemsLimit() {
-		return collection.length >= storage.get_max_items();
+		return collection.length >= storage.getMaxItems();
 	}
 
 	function isOverMaxThreadAgeLimit() {
@@ -210,20 +245,20 @@ threads = (function() {
 
 	function isOverMaxByteLimit() {
 		// Assume every character is two bytes
-		return JSON.stringify(collection).length * 2 >= storage.get_max_bytes();
+		return JSON.stringify(collection).length * 2 >= storage.getMaxBytes();
 	}
 })();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	switch (request.method) {
-		case 'threads.get_by_id':
-			sendResponse(threads.get_by_id(request.id));
+		case 'threads.getById':
+			sendResponse(threads.getById(request.id));
 			break;
 		case 'threads.add':
 			threads.add(request.id);
 			break;
-		case 'options.get_all':
-			sendResponse(options.get_all());
+		case 'options.getAll':
+			sendResponse(options.getAll());
 			break;
 		default:
 			break;
@@ -232,10 +267,22 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 chrome.runtime.onInstalled.addListener(function(details) {
 	if (details.reason === 'update') {
-		var opts = options.get_all();
+		if (details.version === chrome.app.getDetails().version) {
+			return;
+		}
 
-		storage.clear().then(function() {
-			options.save(opts);
+		// Update stored options if outdated
+		storage.get('reddit_au_options').then(function(opts) {
+			options.clear().then(function() {
+				options.save({
+					backColor: opts.color || opts.backColor,
+					frontColor: opts.front_color || opts.frontColor,
+					threadRemovalTimeSeconds: opts.thread_removal_time_seconds || opts.threadRemovalTimeSeconds,
+					border: opts.has_border || opts.border,
+					useCustomCSS: opts.useCustomCSS,
+					customCSS: opts.customCSS
+				});
+			});
 		});
 	}
 });

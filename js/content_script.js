@@ -24,9 +24,20 @@ var redditPage = (function() {
 
 	function process() {
 		chrome.runtime.sendMessage({ method: 'options.getAll' }, function(response) {
-			if (lastVisited) {
-				highlightComments(response.border, response.color, response.front_color);
+			if (!lastVisited) {
+				return;
 			}
+
+			var css = '';
+
+			if (response.useCustomCSS) {
+				css += response.customCSS;
+			} else {
+				css += generateCSS(response.border, response.backColor, response.frontColor);
+			}
+
+			injectCSS(css);
+			highlightComments();
 		});
 
 		chrome.runtime.sendMessage({ method: 'threads.add', id: id });
@@ -47,8 +58,8 @@ var redditPage = (function() {
 		return threadId.split('_')[1];
 	}
 
-	function highlightComments(border, backColor, frontColor) {
-		var comments = document.getElementsByClassName('nestedlisting')[0].getElementsByClassName('tagline');
+	function highlightComments() {
+		var comments = document.getElementsByClassName('comment');
 
 		for (var i = 0; i < comments.length; i++) {
 			var comment = comments[i];
@@ -64,13 +75,28 @@ var redditPage = (function() {
 				continue;
 			}
 
-			var commentBody = comment.nextElementSibling.getElementsByClassName('md')[0];
-			commentBody.style.padding = '2px';
-			commentBody.style.borderRadius = '2px';
-			commentBody.style.border = border;
-			commentBody.style.backgroundColor = backColor;
-			commentBody.style.color = frontColor;
+			comment.classList.add('highlight');
 		}
+	}
+
+	function injectCSS(css) {
+		var head = document.getElementsByTagName('head')[0];
+		var style = document.createElement('style');
+		style.setAttribute('type', 'text/css');
+		style.appendChild(document.createTextNode(css));
+		head.appendChild(style);
+	}
+
+	function generateCSS(border, backColor, frontColor) {
+		return [
+			'.comment.highlight .md {',
+			'  padding: 2px;',
+			'  border: ' + border + ';',
+			'  border-radius: 2px;',
+			'  background-color: ' + backColor + ';',
+			'  color: ' + frontColor + ';',
+			'}'
+		].join('');
 	}
 })();
 

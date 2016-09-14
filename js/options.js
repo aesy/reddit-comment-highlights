@@ -3,6 +3,7 @@ var options = (function() {
 	var selectedFrontColor;
 	var backColorPicker;
 	var frontColorPicker;
+	var customCSSTextArea;
 
 	return {
 		init: init,
@@ -26,7 +27,9 @@ var options = (function() {
 				backColor: selectedBackColor,
 				frontColor: selectedFrontColor,
 				threadRemovalTimeSeconds: $('#frequency').val() * 86400,
-				border: $('#border').is(':checked')
+				border: $('#border').is(':checked'),
+				useCustomCSS: $('#use-custom-css').is(':checked'),
+				customCSS: customCSSTextArea.val()
 			});
 
 			promise.then(showSaveSuccessMessage);
@@ -43,6 +46,12 @@ var options = (function() {
 
 	function restoreOptions() {
 		chrome.runtime.getBackgroundPage(function(background) {
+			var useCustomCSS = background.options.getUseCustomCSS();
+			$(useCustomCSS ? '#use-custom-css' : '#use-color-picker').trigger('click');
+
+			var customCSS = background.options.getCustomCSS();
+			customCSSTextArea.val(customCSS);
+
 			var backColor = background.options.getBackColor();
 			backColorPicker.colpickSetColor(backColor);
 
@@ -54,12 +63,14 @@ var options = (function() {
 			frequency.val(seconds / 86400);
 			frequency.trigger('input');
 
-			var border = background.options.get_has_border();
+			var border = background.options.getHasBorder();
 			$('#border').prop('checked', border);
 		});
 	}
 
 	function init() {
+		customCSSTextArea = $('#css');
+
 		backColorPicker = $('#back_color').colpick({
 			flat: true,
 			layout: 'rgbhex',
@@ -86,34 +97,46 @@ $(document).ready(function() {
 	options.init();
 
 	$('#save-options').click(function() {
-		options.save_options();
+		options.saveOptions();
 	});
 
 	$('#clear-options').click(function() {
-		options.clear_storage();
+		options.clearStorage();
 	});
-});
 
-$('#frequency').on('input', function() {
-	var frequency = $(this).val();
-	var frequencyNumber = $('#frequency_number');
-	var frequencyUnit = $('#frequency_unit');
+	$('#frequency').on('input', function() {
+		var frequency = $(this).val();
+		var frequencyNumber = $('#frequency_number');
+		var frequencyUnit = $('#frequency_unit');
 
-	switch (parseInt(frequency, 10)) {
-		case 1:
-			frequencyNumber.text(frequency);
-			frequencyUnit.text('day');
-			break;
-		case 7:
-			frequencyNumber.text(1);
-			frequencyUnit.text('week');
-			break;
-		case 14:
-			frequencyNumber.text(2);
-			frequencyUnit.text('weeks');
-			break;
-		default:
-			frequencyNumber.text(frequency);
-			frequencyUnit.text('days');
-	}
+		switch (parseInt(frequency, 10)) {
+			case 1:
+				frequencyNumber.text(frequency);
+				frequencyUnit.text('day');
+				break;
+			case 7:
+				frequencyNumber.text(1);
+				frequencyUnit.text('week');
+				break;
+			case 14:
+				frequencyNumber.text(2);
+				frequencyUnit.text('weeks');
+				break;
+			default:
+				frequencyNumber.text(frequency);
+				frequencyUnit.text('days');
+		}
+	});
+
+	$('input[name="style-mode"]').click(function() {
+		var selection = $(this).val();
+
+		$('.tab').each(function(i, tab) {
+			if (tab.id === selection) {
+				$(tab).removeClass('hidden');
+			} else {
+				$(tab).addClass('hidden');
+			}
+		});
+	});
 });
