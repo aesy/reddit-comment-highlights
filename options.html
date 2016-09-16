@@ -30,18 +30,18 @@
                 <p class="help-block">
                     <small>Specify the background color of highlighted comments.</small>
                 </p>
-                <div id="back_color"></div>
+                <div id="back-color"></div>
                 <hr>
 
                 <legend>Font foreground color</legend>
                 <p class="help-block">
                     <small>Specify the font (foreground) color of highlighted comments.</small>
                 </p>
-                <div id="front_color"></div>
+                <div id="front-color"></div>
                 <hr>
 
                 <legend>Dotted border</legend>
-                <input type="checkbox" id="border" class="input"/>
+                <input type="checkbox" name="border" id="border"/>
                 <label for="border"><span></span>
                     <small>Specify whether you want a dotted border around highlighted comments.</small>
                 </label>
@@ -52,44 +52,58 @@
                 <legend>Custom CSS</legend>
                 <p class="help-block flush-left">
                     <small>
-                        Tips: You can style all highlighted comments with '.comment.highlight { /* style */ }'.
+                        Tips: You can style all highlighted comments with '.comment.<span class="class-name"></span> { /* style */ }'.
                     </small>
                     <br/>
                     <small>
                         For <a href="https://redditenhancementsuite.com/">RES</a>-users: Select highlighted comments
-                        in night-mode with '.res-nightmode .comment.highlight'.
+                        in night-mode with '.res-nightmode .comment.<span class="class-name"></span>'.
                     </small>
                     <br/>
                     <small>
                         Your CSS is not validated, so you will have to make sure you get it right.
                     </small>
                 </p>
-                <textarea id="css" cols="30" rows="10" maxlength="500" title="css"></textarea>
+                <textarea name="css" cols="30" rows="10" maxlength="500" title="css"></textarea>
+                <hr>
+
+                <legend>Custom Class Name (OPTIONAL)</legend>
+                <p class="help-block">
+                    <small>
+                        Specify a custom class name to be applied to all highlighted comments.
+                    </small>
+                    <br/>
+                    <small>
+                        Leave blank to use the default class name.
+                    </small>
+                </p>
+                <small>.<input type="text" name="class-name" title="Class Name"/> {</small>
                 <hr>
             </div>
 
-			<legend>Flush status of threads older than*...</legend>
+			<legend>Flush status of threads older than... *</legend>
 			<div class="control-group">
-				<input id="frequency" class="input" type="range" min="1" max="14" value="1" step="1" title="frequency">
+				<input name="frequency" type="range" min="1" max="14" value="1" step="1" title="frequency">
 				<span class="help-inline">
-					<span id="frequency_number"></span>
-					<span id="frequency_unit"></span>
+					<span id="frequency-number"></span>
+					<span id="frequency-unit"></span>
 				</span>
-				<p class="help-block flush-left">
-					<small>*thread status may still be flushed when storage is full.</small>
-				</p>
+                <p class="help-block flush-left">
+                    <small>* thread status may still be flushed when storage is full.</small>
+                </p>
+                <hr>
 			</div>
 
 			<p id="status-message" class="alert"></p>
-			<input type="button" id="save-options" class="input" value="Save Options" />
+			<input type="button" name="save-options" value="Save Options" />
 			<hr>
 
-			<input type="button" id="clear-options" class="input danger" value="Reset" />
+			<input type="button" name="clear-options" class="danger" value="Reset" />
             <small>note: this will also flush your storage.</small>
 
 			<div class="footer">
 				<hr>
-				&copy; 2016 Isak Wertwein and Daniel Watson
+				&copy; <span id="year"></span> Isak Wertwein and Daniel Watson
 				<a href="https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights" target="_blank">View Source</a>
 			</div>
 		</div>

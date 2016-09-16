@@ -94,6 +94,9 @@ options = (function() {
 		getFrontColor: getFrontColor,
 		getUseCustomCSS: getUseCustomCSS,
 		getCustomCSS: getCustomCSS,
+		getCustomCSSClassName: getCustomCSSClassName,
+		isValidCSSClassName: isValidCSSClassName,
+		getDefaultCSSClassName: getDefaultCSSClassName,
 		getThreadRemovalTimeSecs: getThreadRemovalTimeSecs,
 		clear: clear
 	};
@@ -116,6 +119,7 @@ options = (function() {
 			frontColor: getFrontColor(),
 			useCustomCSS: getUseCustomCSS(),
 			customCSS: getCustomCSS(),
+			customCSSClassName: getCustomCSSClassName(),
 			threadRemovalTimeSeconds: getThreadRemovalTimeSecs()
 		};
 	}
@@ -142,6 +146,21 @@ options = (function() {
 
 	function getCustomCSS() {
 		return options.customCSS || '';
+	}
+
+	function getCustomCSSClassName() {
+		var className = options.customCSSClassName.trim();
+		var valid = isValidCSSClassName(className);
+
+		return valid ? className : getDefaultCSSClassName();
+	}
+
+	function isValidCSSClassName(className) {
+		return /^([a-z_]|-[a-z_-])[a-z\d_-]*$/i.test(className);
+	}
+
+	function getDefaultCSSClassName() {
+		return 'highlight';
 	}
 
 	function getThreadRemovalTimeSecs() {
@@ -280,7 +299,8 @@ chrome.runtime.onInstalled.addListener(function(details) {
 					threadRemovalTimeSeconds: opts.thread_removal_time_seconds || opts.threadRemovalTimeSeconds,
 					border: opts.has_border || opts.border,
 					useCustomCSS: opts.useCustomCSS,
-					customCSS: opts.customCSS
+					customCSS: opts.customCSS,
+					customCSSClassName: opts.customCSSClassName
 				});
 			});
 		});
