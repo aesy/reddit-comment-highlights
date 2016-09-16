@@ -120,6 +120,7 @@ options = (function() {
 			useCustomCSS: getUseCustomCSS(),
 			customCSS: getCustomCSS(),
 			customCSSClassName: getCustomCSSClassName(),
+			defaultCSSClassName: getDefaultCSSClassName(),
 			threadRemovalTimeSeconds: getThreadRemovalTimeSecs()
 		};
 	}

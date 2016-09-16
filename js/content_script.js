@@ -29,6 +29,7 @@ var redditPage = (function() {
 			}
 
 			var css = '';
+			var className = response.useCustomCSS ? response.CSSClassName : response.defaultCSSClassName;
 
 			if (response.useCustomCSS) {
 				css += response.customCSS;
@@ -37,7 +38,7 @@ var redditPage = (function() {
 			}
 
 			injectCSS(css);
-			highlightComments(response.customCSSClassName);
+			highlightComments(className);
 		});
 
 		chrome.runtime.sendMessage({ method: 'threads.add', id: id });
