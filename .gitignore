@@ -1,0 +1,4 @@
+.idea/
+*.zip
+img/webstore/
+!icon.png
