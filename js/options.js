@@ -1,22 +1,40 @@
 var options = (function() {
-	var selectedBackColor;
-	var selectedFrontColor;
-	var backColorPicker;
-	var frontColorPicker;
-	var customCSSTextArea;
+	var $frequency;
+	var $border;
+	var $selectedBackColor;
+	var $selectedFrontColor;
+	var $backColorPicker;
+	var $frontColorPicker;
+	var $customCSSTextArea;
+	var $customCSSClassName;
 
 	return {
 		init: init,
+		updateClassNames: updateClassNames,
 		clearStorage: clearStorage,
 		saveOptions: saveOptions
 	};
 
-	function showSaveSuccessMessage() {
-		var statusArea = $('#status-message');
+	function updateClassNames() {
+		chrome.runtime.getBackgroundPage(function(background) {
+			var className = $customCSSClassName.val().trim();
+			var invalid = !background.options.isValidCSSClassName(className);
 
-		statusArea.text('Okay, got it!').fadeIn(function() {
+			if (invalid) {
+				className = background.options.getDefaultCSSClassName();
+			}
+
+			$customCSSClassName.toggleClass('invalid', invalid);
+			$('.class-name').text(className);
+		});
+	}
+
+	function showSaveSuccessMessage() {
+		var $statusArea = $('#status-message');
+
+		$statusArea.text('Okay, got it!').fadeIn(function() {
 			setTimeout(function() {
-				statusArea.fadeOut();
+				$statusArea.fadeOut();
 			}, 2000);
 		});
 	}
@@ -24,12 +42,13 @@ var options = (function() {
 	function saveOptions() {
 		chrome.runtime.getBackgroundPage(function(background) {
 			var promise = background.options.save({
-				backColor: selectedBackColor,
-				frontColor: selectedFrontColor,
-				threadRemovalTimeSeconds: $('#frequency').val() * 86400,
-				border: $('#border').is(':checked'),
+				backColor: $selectedBackColor,
+				frontColor: $selectedFrontColor,
+				threadRemovalTimeSeconds: $frequency.val() * 86400,
+				border: $border.is(':checked'),
 				useCustomCSS: $('#use-custom-css').is(':checked'),
-				customCSS: customCSSTextArea.val()
+				customCSS: $customCSSTextArea.val(),
+				customCSSClassName: $customCSSClassName.val()
 			});
 
 			promise.then(showSaveSuccessMessage);
@@ -50,42 +69,48 @@ var options = (function() {
 			$(useCustomCSS ? '#use-custom-css' : '#use-color-picker').trigger('click');
 
 			var customCSS = background.options.getCustomCSS();
-			customCSSTextArea.val(customCSS);
+			$customCSSTextArea.val(customCSS);
+
+			var customCSSClassName = background.options.getCustomCSSClassName();
+			$customCSSClassName.val(customCSSClassName);
+			$customCSSClassName.trigger('input');
 
 			var backColor = background.options.getBackColor();
-			backColorPicker.colpickSetColor(backColor);
+			$backColorPicker.colpickSetColor(backColor);
 
 			var frontColor = background.options.getFrontColor();
-			frontColorPicker.colpickSetColor(frontColor);
+			$frontColorPicker.colpickSetColor(frontColor);
 
 			var seconds = background.options.getThreadRemovalTimeSecs();
-			var frequency = $('#frequency');
-			frequency.val(seconds / 86400);
-			frequency.trigger('input');
+			$frequency.val(seconds / 86400);
+			$frequency.trigger('input');
 
 			var border = background.options.getHasBorder();
-			$('#border').prop('checked', border);
+			$border.prop('checked', border);
 		});
 	}
 
 	function init() {
-		customCSSTextArea = $('#css');
+		$customCSSTextArea = $('textarea[name="css"]');
+		$customCSSClassName = $('input[name="class-name"]');
+		$border = $('input[name="border"]');
+		$frequency = $('input[name="frequency"]');
 
-		backColorPicker = $('#back_color').colpick({
+		$backColorPicker = $('#back-color').colpick({
 			flat: true,
 			layout: 'rgbhex',
 			submit: false,
 			onChange: function(hsb, hex) {
-				selectedBackColor = '#' + hex;
+				$selectedBackColor = '#' + hex;
 			}
 		});
 
-		frontColorPicker = $('#front_color').colpick({
+		$frontColorPicker = $('#front-color').colpick({
 			flat: true,
 			layout: 'rgbhex',
 			submit: false,
 			onChange: function(hsb, hex) {
-				selectedFrontColor = '#' + hex;
+				$selectedFrontColor = '#' + hex;
 			}
 		});
 
@@ -96,35 +121,31 @@ var options = (function() {
 $(document).ready(function() {
 	options.init();
 
-	$('#save-options').click(function() {
-		options.saveOptions();
-	});
+	$('input[name="save-options"]').click(options.saveOptions);
+	$('input[name="clear-options"]').click(options.clearStorage);
+	$('input[name="class-name"]').on('input', options.updateClassNames);
 
-	$('#clear-options').click(function() {
-		options.clearStorage();
-	});
-
-	$('#frequency').on('input', function() {
+	$('input[name="frequency"]').on('input', function() {
 		var frequency = $(this).val();
-		var frequencyNumber = $('#frequency_number');
-		var frequencyUnit = $('#frequency_unit');
+		var $frequencyNumber = $('#frequency-number');
+		var $frequencyUnit = $('#frequency-unit');
 
 		switch (parseInt(frequency, 10)) {
 			case 1:
-				frequencyNumber.text(frequency);
-				frequencyUnit.text('day');
+				$frequencyNumber.text(frequency);
+				$frequencyUnit.text('day');
 				break;
 			case 7:
-				frequencyNumber.text(1);
-				frequencyUnit.text('week');
+				$frequencyNumber.text(1);
+				$frequencyUnit.text('week');
 				break;
 			case 14:
-				frequencyNumber.text(2);
-				frequencyUnit.text('weeks');
+				$frequencyNumber.text(2);
+				$frequencyUnit.text('weeks');
 				break;
 			default:
-				frequencyNumber.text(frequency);
-				frequencyUnit.text('days');
+				$frequencyNumber.text(frequency);
+				$frequencyUnit.text('days');
 		}
 	});
 
@@ -139,4 +160,6 @@ $(document).ready(function() {
 			}
 		});
 	});
+
+	$('#year').text(new Date().getFullYear());
 });

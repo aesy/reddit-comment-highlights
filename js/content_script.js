@@ -37,7 +37,7 @@ var redditPage = (function() {
 			}
 
 			injectCSS(css);
-			highlightComments();
+			highlightComments(response.customCSSClassName);
 		});
 
 		chrome.runtime.sendMessage({ method: 'threads.add', id: id });
@@ -58,7 +58,7 @@ var redditPage = (function() {
 		return threadId.split('_')[1];
 	}
 
-	function highlightComments() {
+	function highlightComments(className) {
 		var comments = document.getElementsByClassName('comment');
 
 		for (var i = 0; i < comments.length; i++) {
@@ -75,7 +75,7 @@ var redditPage = (function() {
 				continue;
 			}
 
-			comment.classList.add('highlight');
+			comment.classList.add(className);
 		}
 	}
 
