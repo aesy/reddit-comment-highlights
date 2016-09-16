@@ -90,7 +90,7 @@ var redditPage = (function() {
 
 	function generateCSS(border, backColor, frontColor) {
 		return [
-			'.comment.highlight .md {',
+			'.comment.highlight > .entry .md {',
 			'  padding: 2px;',
 			'  border: ' + border + ';',
 			'  border-radius: 2px;',

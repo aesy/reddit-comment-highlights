@@ -5,9 +5,9 @@
   "manifest_version": 2,
   "minimum_chrome_version": "32",
   "icons": {
-  	"16": "img/gold_logo.png",
-  	"48": "img/gold_logo.png",
-  	"128": "img/gold_logo.png"
+  	"16": "img/webstore/icon.png",
+  	"48": "img/webstore/icon.png",
+  	"128": "img/webstore/icon.png"
   },
   "homepage_url": "https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights",
   "description": "Highlight unread comments since your last visit to a Reddit discussion page. Syncs across all of your chrome sessions!",

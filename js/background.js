@@ -150,8 +150,8 @@ options = (function() {
 	}
 
 	function getCustomCSSClassName() {
-		var className = options.customCSSClassName.trim();
-		var valid = isValidCSSClassName(className);
+		var className = options.customCSSClassName;
+		var valid = className && isValidCSSClassName(className);
 
 		return valid ? className : getDefaultCSSClassName();
 	}
