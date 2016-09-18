@@ -29,7 +29,7 @@ var redditPage = (function() {
 			}
 
 			var css = '';
-			var className = response.useCustomCSS ? response.CSSClassName : response.defaultCSSClassName;
+			var className = response.useCustomCSS ? response.customCSSClassName : response.defaultCSSClassName;
 
 			if (response.useCustomCSS) {
 				css += response.customCSS;
