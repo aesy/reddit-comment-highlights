@@ -61,6 +61,7 @@ var redditPage = (function() {
 
 	function highlightComments(className) {
 		var comments = document.getElementsByClassName('comment');
+		var currentUser = getCurrentUser();
 
 		for (var i = 0; i < comments.length; i++) {
 			var comment = comments[i];
@@ -71,8 +72,15 @@ var redditPage = (function() {
 				continue;
 			}
 
+			// check and skip if comment is'nt new
 			var commentTimestamp = Math.floor(Date.parse(commentDate) / 1000);
 			if (commentTimestamp < lastVisited) {
+				continue;
+			}
+
+			// check and skip if comment is by current user
+			var commentAuthor = comment.querySelector('.author').innerText;
+			if (currentUser.name && currentUser.name === commentAuthor) {
 				continue;
 			}
 
@@ -98,6 +106,19 @@ var redditPage = (function() {
 			'  color: ' + frontColor + ';',
 			'}'
 		].join('');
+	}
+
+	function getCurrentUser() {
+		var user = {};
+		var usernameElement = document.querySelector('.user a');
+
+		if (usernameElement.contains('login-required')) {
+			user.name = null;
+		} else {
+			user.name = usernameElement.innerText;
+		}
+
+		return user;
 	}
 })();
 
