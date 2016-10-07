@@ -18,4 +18,4 @@ Screenshots
 
 To-do List
 ----------
--
+- Remove jQuery dependency
