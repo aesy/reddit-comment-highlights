@@ -1,4 +1,9 @@
+dist
+public
+node_modules
+*.iml
 .idea/
+*.log
 *.zip
 img/webstore/*
-!icon.png
+!src/img/icon.png
