@@ -1,35 +1,68 @@
+import { injectCSS } from './DOMUtils';
 
+/**
+ * Represents a reddit page (supposed to, anyway) with relevant methods for the chrome extension
+ * @class
+ */
 class RedditPage {
+	/**
+	 * @private
+	 * @instance
+	 * @type {string|null}
+	 */
 	id = this.getId();
+
+	/**
+	 * @private
+	 * @instance
+	 * @type {number}
+	 */
 	lastVisited;
 
+	/**
+	 * TODO better name
+	 * @public
+	 */
 	highlightNewComments() {
 		if (!this.id) {
 			// not a comment section
 			return;
 		}
 
-		chrome.runtime.sendMessage({ method: 'threads.getById', id: this.id }, thread => {
-			if (thread) {
-				this.lastVisited = thread.timestamp;
+		chrome.runtime.getBackgroundPage(background => {
+			const ThreadStorage = background.ThreadStorage;
+			const ExtensionOptions = background.ExtensionOptions;
+
+			const thread = ThreadStorage.getById(this.id);
+
+			if (!thread) {
+				// first time in comment section
+				return;
 			}
 
-			chrome.runtime.sendMessage({ method: 'options.getAll' }, function(options) {
-				const className = options.useCustomCSS ? options.customCSSClassName : options.defaultCSSClassName;
-				const css = options.useCustomCSS ? options.customCSS : this.generateCSS(options.border, options.backColor, options.frontColor);
+			this.lastVisited = thread.timestamp;
+			const className = ExtensionOptions.getClassName();
+			const css = ExtensionOptions.getCSS();
 
-				this.injectCSS(css);
-				this.highlightComments(className);
-			});
-
-			chrome.runtime.sendMessage({ method: 'threads.add', id: this.id });
+			injectCSS(css, document.getElementsByTagName('head')[0]);
+			this.highlightComments(className);
 		});
 	}
 
+	/**
+	 * Checks whether the currently open page is a reddit comment section
+	 * @public
+	 * @returns {boolean}
+	 */
 	isCommentSection() {
 		return Boolean(document.getElementsByClassName('nestedlisting')[0]);
 	}
 
+	/**
+	 * Gets the id of the currently open page
+	 * @public
+	 * @returns {string|null} id, null if current page is not a reddit comment section
+	 */
 	getId() {
 		if (!this.isCommentSection()) {
 			return null;
@@ -44,6 +77,11 @@ class RedditPage {
 		return id.split('_')[1];
 	}
 
+	/**
+	 * Highlights all new comments
+	 * @public
+	 * @param {string} className class to add to all new comments
+	 */
 	highlightComments(className) {
 		const comments = document.getElementsByClassName('comment');
 		const currentUser = this.getCurrentUser();
@@ -81,27 +119,11 @@ class RedditPage {
 		}
 	}
 
-	injectCSS(css) {
-		const head = document.getElementsByTagName('head')[0];
-		const style = document.createElement('style');
-		style.setAttribute('type', 'text/css');
-		style.appendChild(document.createTextNode(css));
-		head.appendChild(style);
-	}
-
-	generateCSS(border, backColor, frontColor) {
-		return `
-		.comment.highlight > .entry .md {
-		    padding: 2px;
-		    border: ${border};
-		    border-radius: 2px;
-		    background-color: ${backColor};
-		    color: ${frontColor};
-		    transition-property: background-color, border, color;
-            transition-duration: 0.5s;
-		}`;
-	}
-
+	/**
+	 * Gets the current logged in user. It checks if the username is visible in the page header. It's a bit of a hack.
+	 * @public
+	 * @returns {{name: string}} user
+	 */
 	getCurrentUser() {
 		const user = {};
 		const usernameElement = document.querySelector('.user a');
@@ -116,6 +138,5 @@ class RedditPage {
 	}
 }
 
-const redditPage = new RedditPage();
-
-export { redditPage as RedditPage };
+// only one instance of this class needed
+export default new RedditPage();

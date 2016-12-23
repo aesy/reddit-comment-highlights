@@ -10,6 +10,7 @@
     "lint:styles": "stylelint src/**/*.scss --config ./config/.stylelintrc.json --syntax scss"
   },
   "dependencies": {
+    "mini-signals": "^1.1.1",
     "normalize.css": "^5.0.0",
     "simple-color-picker": "^0.1.1"
   },

@@ -8,9 +8,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
 	context: path.join(__dirname, '..'),
 	entry: {
-		background: ['./src/js/background.js'],
-		content_script: ['./src/js/content_script.js'],
-		options: ['./src/js/options_page.js']
+		BackgroundScript: ['./src/js/BackgroundScript.js'],
+		ContentScript: ['./src/js/ContentScript.js'],
+		Options: ['./src/js/OptionsPage.js']
 	},
 	output: {
 		path: 'dist',
@@ -68,9 +68,9 @@ module.exports = {
 		new webpack.NamedModulesPlugin(),
 		new HtmlWebpackPlugin({
 			hash: false,
-			template: 'src/options.html',
-			filename: 'options.html',
-			chunks: ['vendor', 'options']
+			template: 'src/Options.html',
+			filename: 'Options.html',
+			chunks: ['Options']
 		}),
 		new ExtractTextPlugin('css/[name].css', {
 			allChunks: true
