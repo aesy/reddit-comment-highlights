@@ -4,13 +4,14 @@ import { currentTimestampSeconds } from './TimeUtils';
 import MiniSignal from 'mini-signals';
 
 /**
- * Wrapper for chrome storage for working with reddit thread history
+ * Wrapper for chrome storage for getting and saving reddit thread history
  * @class
  */
 class ThreadStorage {
 	/**
 	 * @public
 	 * @instance
+	 * @readonly
 	 * @type {MiniSignal}
 	 */
 	onChange = new MiniSignal();
@@ -19,6 +20,7 @@ class ThreadStorage {
 	 * @private
 	 * @static
 	 * @instance
+	 * @readonly
 	 * @type {string}
 	 */
 	static STORAGE_KEY = 'reddit_au_threads';

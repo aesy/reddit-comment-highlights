@@ -20,7 +20,7 @@ module.exports = {
 		libraryTarget: 'window'
 	},
 	resolve: {
-		extensions: ['', '.js', '.json', '.css', '.scss', '.sass']
+		extensions: ['', '.js', '.css', '.scss', '.sass']
 	},
 	module: {
 		loaders: [{
@@ -29,9 +29,7 @@ module.exports = {
 			loader: 'babel',
 			query: {
 				presets: ['es2015', 'stage-0'],
-				plugins: [
-					'transform-decorators-legacy'
-				]
+				plugins: []
 			}
 		}, {
 			test: /\.(css|sass|scss)/,

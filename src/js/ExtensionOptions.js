@@ -2,13 +2,14 @@ import ChromeStorage from './ChromeStorage';
 import MiniSignal from 'mini-signals';
 
 /**
- * Wrapper for chrome storage for working with extension options
+ * Wrapper for chrome storage for getting and setting extension options
  * @class
  */
 class ExtensionOptions {
 	/**
 	 * @public
 	 * @instance
+	 * @readonly
 	 * @type {MiniSignal}
 	 */
 	onChange = new MiniSignal();
@@ -17,6 +18,7 @@ class ExtensionOptions {
 	 * @private
 	 * @static
 	 * @instance
+	 * @readonly
 	 * @type {string}
 	 */
 	static STORAGE_KEY = 'reddit_au_options';
@@ -172,15 +174,16 @@ class ExtensionOptions {
 		}
 
 		return `
-		.comment.highlight > .entry .md {
-		    padding: 2px;
-		    border: ${this.getBorder()};
-		    border-radius: 2px;
-		    background-color: ${this.getBackgroundColor()};
-		    color: ${this.getTextColor()};
-		    transition-property: background-color, border, color;
-            transition-duration: 0.5s;
-		}`;
+			.comment.${this.getDefaultCSSClassName()} > .entry .md {
+			    padding: 2px;
+			    border: ${this.getBorder()};
+			    border-radius: 2px;
+			    background-color: ${this.getBackgroundColor()};
+			    color: ${this.getTextColor()};
+			    transition-property: background-color, border, color;
+                transition-duration: 0.5s;
+			}
+		`;
 	}
 
 	/**
