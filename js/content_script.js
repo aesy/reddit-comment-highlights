@@ -7,22 +7,37 @@ var redditPage = (function() {
 	};
 
 	function init() {
-		id = getThreadId();
-
-		if (!id) {
+		chrome.runtime.sendMessage({ method: 'options.getShouldRedirect'}, function(shouldRedirect) {
+			if (shouldRedirect) {
+				redirectToDesktop();
+			}
+		});
+        
+        var threadId = getThreadId();
+		if (!threadId) {
 			return;
 		}
 
-		chrome.runtime.sendMessage({ method: 'threads.getById', id: id }, function(response) {
-			if (response) {
+		chrome.runtime.sendMessage({ method: 'threads.getById', threadId: threadId }, function(response) {
+            if (response) {
 				lastVisited = response.timestamp;
 			}
 
-			process();
+			process(threadId);
 		});
 	}
+    
+    function redirectToDesktop() {
+        var url = document.location;                         
+    
+        // Replace an m.reddit.com url with www.reddit.com (keeping the original scheme and path).
+        if (url.host == 'm.reddit.com') {
+            var desktopUri = url.href.replace("m.reddit.com", "www.reddit.com");
+            document.location.replace(desktopUri);            
+        }
+    }
 
-	function process() {
+	function process(threadId) {
 		chrome.runtime.sendMessage({ method: 'options.getAll' }, function(response) {
 			if (!lastVisited) {
 				return;
@@ -41,22 +56,23 @@ var redditPage = (function() {
 			highlightComments(className);
 		});
 
-		chrome.runtime.sendMessage({ method: 'threads.add', id: id });
+		chrome.runtime.sendMessage({ method: 'threads.add', threadId: threadId });
 	}
 
 	function getThreadId() {
-		// Checks if currently in thread comment section
-		if (!document.getElementsByClassName('nestedlisting')[0]) {
-			return null;
-		}
-
-		var threadId = document.getElementById('siteTable').firstChild.getAttribute('data-fullname');
-
-		if (!threadId) {
-			return null;
-		}
-
-		return threadId.split('_')[1];
+        // Get the path of the thread (works on mobile, too).
+        var urlPath = document.location.pathname;
+        var pathPieces = urlPath.split('/')
+        
+        // Checks the page is a reddit thread.
+        if (pathPieces[1] != 'r') {
+            return;
+        }
+        
+        // The 4th item in the path *should* always be the thread identifier.
+        // '/r/worldnews/comments/5jwax4/name_of_article/.attributes
+        var threadId = pathPieces[4];
+        return threadId;
 	}
 
 	function highlightComments(className) {

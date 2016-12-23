@@ -7,6 +7,7 @@ var options = (function() {
 	var $frontColorPicker;
 	var $customCSSTextArea;
 	var $customCSSClassName;
+	var $shouldRedirect;
 
 	return {
 		init: init,
@@ -46,6 +47,7 @@ var options = (function() {
 				frontColor: $selectedFrontColor,
 				threadRemovalTimeSeconds: $frequency.val() * 86400,
 				border: $border.is(':checked'),
+                shouldRedirect: $shouldRedirect.is(':checked'),
 				useCustomCSS: $('#use-custom-css').is(':checked'),
 				customCSS: $customCSSTextArea.val(),
 				customCSSClassName: $customCSSClassName.val()
@@ -87,6 +89,9 @@ var options = (function() {
 
 			var border = background.options.getHasBorder();
 			$border.prop('checked', border);
+            
+			var shouldRedirect = background.options.getShouldRedirect();
+			$shouldRedirect.prop('checked', shouldRedirect);
 		});
 	}
 
@@ -94,6 +99,7 @@ var options = (function() {
 		$customCSSTextArea = $('textarea[name="css"]');
 		$customCSSClassName = $('input[name="class-name"]');
 		$border = $('input[name="border"]');
+		$shouldRedirect = $('input[name="redirect"]');
 		$frequency = $('input[name="frequency"]');
 
 		$backColorPicker = $('#back-color').colpick({
