@@ -98,6 +98,7 @@ options = (function() {
 		isValidCSSClassName: isValidCSSClassName,
 		getDefaultCSSClassName: getDefaultCSSClassName,
 		getThreadRemovalTimeSecs: getThreadRemovalTimeSecs,
+        getShouldRedirect: getShouldRedirect,
 		clear: clear
 	};
 
@@ -121,7 +122,8 @@ options = (function() {
 			customCSS: getCustomCSS(),
 			customCSSClassName: getCustomCSSClassName(),
 			defaultCSSClassName: getDefaultCSSClassName(),
-			threadRemovalTimeSeconds: getThreadRemovalTimeSecs()
+			threadRemovalTimeSeconds: getThreadRemovalTimeSecs(),
+			shouldRedirect: getShouldRedirect()
 		};
 	}
 
@@ -167,6 +169,10 @@ options = (function() {
 	function getThreadRemovalTimeSecs() {
 		return options.threadRemovalTimeSeconds || 604800;
 	}
+    
+    function getShouldRedirect() {
+		return options.shouldRedirect === undefined ? true : options.shouldRedirect;
+    }
 
 	function save(opts) {
 		options = opts;
@@ -226,11 +232,11 @@ threads = (function() {
 		return collection[0];
 	}
 
-	function add(id) {
+	function add(threadId) {
 		cleanup();
-		remove(id);
+		remove(threadId);
 		collection.push({
-			id: id,
+			id: threadId,
 			timestamp: getCurrentTimestamp()
 		});
 
@@ -272,13 +278,16 @@ threads = (function() {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	switch (request.method) {
 		case 'threads.getById':
-			sendResponse(threads.getById(request.id));
+			sendResponse(threads.getById(request.threadId));
 			break;
 		case 'threads.add':
-			threads.add(request.id);
+			threads.add(request.threadId);
 			break;
 		case 'options.getAll':
 			sendResponse(options.getAll());
+			break;
+		case 'options.getShouldRedirect':
+			sendResponse(options.getShouldRedirect());
 			break;
 		default:
 			break;
@@ -301,7 +310,8 @@ chrome.runtime.onInstalled.addListener(function(details) {
 					border: opts.has_border || opts.border,
 					useCustomCSS: opts.useCustomCSS,
 					customCSS: opts.customCSS,
-					customCSSClassName: opts.customCSSClassName
+					customCSSClassName: opts.customCSSClassName,
+                    shouldRedirect: opts.shouldRedirect
 				});
 			});
 		});

@@ -1,6 +1,6 @@
 {
   "name": "Reddit (Au) Comment Highlights.",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "options_page": "options.html",
   "manifest_version": 2,
   "minimum_chrome_version": "32",
@@ -17,12 +17,12 @@
       "persistent": false
   },
   "content_scripts": [{
-  	"matches": ["http://www.reddit.com/r/*","https://www.reddit.com/r/*"],
+  	"matches": ["http://*.reddit.com/*", "https://*.reddit.com/*"],
   	"js": ["js/content_script.js"]
   }],
   "permissions": [
   	"storage",
-  	"http://www.reddit.com/r/*",
-  	"https://www.reddit.com/r/*"
+  	"http://*.reddit.com/*",
+  	"https://*.reddit.com/*"
   ]
 }
