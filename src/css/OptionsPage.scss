@@ -167,6 +167,10 @@ legend {
     font-style: italic;
 }
 
+.class-name {
+    color: #1794ce;
+}
+
 input[type='text'] {
     padding: 3px;
 }
@@ -185,25 +189,11 @@ textarea {
     outline: 0;
     box-sizing: border-box;
     font-size: 12px;
-}
 
-input[type='text']:focus,
-textarea:focus {
-    border-color: #1794ce;
-}
-
-.class-name {
-    color: #1794ce;
-}
-
-input[type='text'] {
-    &:focus,
-    &:hover {
-        color: #1794ce;
+    &:focus {
+        border-color: #1794ce;
     }
-}
 
-textarea {
     &:focus,
     &:hover {
         color: #1794ce;

@@ -8,6 +8,7 @@ class RedditPage {
 	/**
 	 * @private
 	 * @instance
+	 * @readonly
 	 * @type {string|null}
 	 */
 	id = this.getId();
@@ -20,7 +21,7 @@ class RedditPage {
 	lastVisited;
 
 	/**
-	 * TODO better name
+	 * Highlights new comments on the current page
 	 * @public
 	 */
 	highlightNewComments() {
@@ -43,9 +44,33 @@ class RedditPage {
 			this.lastVisited = thread.timestamp;
 			const className = ExtensionOptions.getClassName();
 			const css = ExtensionOptions.getCSS();
+			const head = document.getElementsByTagName('head')[0];
 
-			injectCSS(css, document.getElementsByTagName('head')[0]);
-			this.highlightComments(className);
+			injectCSS(css, head);
+
+			for (const comment of this.getNewComments()) {
+				this.highlightComment(comment, className);
+			}
+		});
+	}
+
+	/**
+	 * Highlights a single comment element
+	 * @public
+	 * @param {Element} comment element
+	 * @param {string} className CSS class name to add to element
+	 */
+	highlightComment(comment, className) {
+		// add highlight styling
+		comment.classList.add(className);
+
+		// remove CSS when clicked
+		comment.querySelector('.usertext').addEventListener('click', () => {
+			comment.classList.remove(className);
+		}, {
+			capture: false,
+			once: true,
+			passive: true
 		});
 	}
 
@@ -78,11 +103,12 @@ class RedditPage {
 	}
 
 	/**
-	 * Highlights all new comments
+	 * Gets all new comments
 	 * @public
-	 * @param {string} className class to add to all new comments
+	 * @returns {Element[]} elements of new comments
 	 */
-	highlightComments(className) {
+	getNewComments() {
+		const results = [];
 		const comments = document.getElementsByClassName('comment');
 		const currentUser = this.getCurrentUser();
 
@@ -105,18 +131,10 @@ class RedditPage {
 				continue;
 			}
 
-			// remove class when clicked
-			comment.querySelector('.usertext').addEventListener('click', () => {
-				comment.classList.remove(className);
-			}, {
-				capture: false,
-				once: true,
-				passive: true
-			});
-
-			// add highlight styling
-			comment.classList.add(className);
+			results.push(comment);
 		}
+
+		return results;
 	}
 
 	/**

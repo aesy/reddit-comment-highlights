@@ -8,6 +8,7 @@ class ChromeStorage {
 	/**
 	 * @public
 	 * @instance
+	 * @readonly
 	 */
 	onChange = new MiniSignal();
 
@@ -27,16 +28,17 @@ class ChromeStorage {
 	 * Available storage types. SYNC will sync storage across devices.
 	 * @public
 	 * @static
+	 * @readonly
 	 * @enum {string}
 	 */
-	static TYPE = {
+	static Type = {
 		LOCAL: 'local',
 		SYNC: 'sync'
 	};
 
 	/**
 	 * @constructor
-	 * @param {ChromeStorage.TYPE} type
+	 * @param {ChromeStorage.Type} type
 	 */
 	constructor(type) {
 		this.type = type;
@@ -140,4 +142,4 @@ class ChromeStorage {
 	}
 }
 // only one instance of this class needed
-export default new ChromeStorage(ChromeStorage.TYPE.SYNC);
+export default new ChromeStorage(ChromeStorage.Type.SYNC);
