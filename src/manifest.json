@@ -17,12 +17,12 @@
       "persistent": false
   },
   "content_scripts": [{
-  	"matches": ["http://www.reddit.com/r/*","https://www.reddit.com/r/*"],
+  	"matches": ["http://*.reddit.com/r/*","https://*.reddit.com/r/*"],
   	"js": ["js/ContentScript.js"]
   }],
   "permissions": [
   	"storage",
-  	"http://www.reddit.com/r/*",
-  	"https://www.reddit.com/r/*"
+  	"http://*.reddit.com/r/*",
+  	"https://*.reddit.com/r/*"
   ]
 }
