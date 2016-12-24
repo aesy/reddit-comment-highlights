@@ -22,6 +22,7 @@ chrome.runtime.onInstalled.addListener(details => {
 					.setBorder(opts.has_border || opts.border)
 					.setCustomCSS(opts.customCSS)
 					.setCustomCSSClassName(opts.customCSSClassName)
+					.setRedirect(opts.redirect)
 					.save();
 			});
 		});

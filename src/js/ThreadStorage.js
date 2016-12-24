@@ -40,7 +40,7 @@ class ThreadStorage {
 		ChromeStorage.onChange.add(changes => {
 			changes = changes[ThreadStorage.STORAGE_KEY];
 
-			if (!changes) {
+			if (changes === undefined) {
 				// no changes in thread history
 				return;
 			}

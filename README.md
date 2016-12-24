@@ -28,16 +28,18 @@ Options page                      |
 If you are a [RES](https://redditenhancementsuite.com/)-user and want a different look in night-mode, you can achieve this by using Custom CSS.
 Here's an example of what you could use:
 
-	.comment.highlight > .entry .md {
-	    padding: 2px;
-	    border: 1px dotted #CCCCCC;
-	    border-radius: 2px;
-	    background-color: #fffdcc;
-	}
-	
-	.res-nightmode .comment.highlight > .entry .md {
-	    background-color: #424242;
-	}
+```css
+.comment.highlight > .entry .md {
+    padding: 2px;
+    border: 1px dotted #CCCCCC;
+    border-radius: 2px;
+    background-color: #fffdcc;
+}
+
+.res-nightmode .comment.highlight > .entry .md {
+    background-color: #424242;
+}
+```
 
 ###Support
 A minimum Chrome version of 32 is required because of the use of [Promises](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) without a [polyfill](https://developer.mozilla.org/en-US/docs/Glossary/Polyfill).
@@ -45,3 +47,6 @@ A minimum Chrome version of 32 is required because of the use of [Promises](http
 ###Contribute
 Please use the [issue tracker](https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights/issues) to report bugs or feature requests.
 Pull requests are welcome, but please make sure compiliation still works (`npm run build:prod`) and lint (`npm run lint`) beforehand.
+
+### License
+chrome-reddit-comment-highlights is licensed under the MIT License (see LICENSE file).

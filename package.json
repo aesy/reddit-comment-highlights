@@ -12,7 +12,7 @@
   "dependencies": {
     "mini-signals": "^1.1.1",
     "normalize.css": "^5.0.0",
-    "simple-color-picker": "^0.1.1"
+    "simple-color-picker": "^0.1.2"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.0",
@@ -21,7 +21,7 @@
     "babel-loader": "^6.2.5",
     "babel-preset-es2015": "^6.16.0",
     "babel-preset-stage-0": "^6.16.0",
-    "copy-webpack-plugin": "^3.0.1",
+    "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.25.0",
     "eslint": "^3.7.1",
     "eslint-config-xo": "^0.16.0",
@@ -30,11 +30,11 @@
     "html-webpack-plugin": "^2.22.0",
     "node-sass": "^4.1.1",
     "npm-run-all": "^3.1.0",
-    "postcss-loader": "^0.13.0",
+    "postcss-loader": "^1.2.1",
     "rimraf": "^2.5.4",
     "sass-loader": "^4.0.2",
     "style-loader": "^0.13.1",
-    "stylelint-config-standard": "^13.0.2",
+    "stylelint-config-standard": "^15.0.1",
     "stylelint-scss": "^1.3.4",
     "webpack": "^1.13.2",
     "webpack-archive-plugin": "^2.0.0",

@@ -2,207 +2,189 @@ import '../css/OptionsPage.scss';
 import ColorPicker from 'simple-color-picker';
 
 /**
- * Class consisting of relevant methods for the options page
- * @class
+ * Collection of commonly used DOM Elements
+ * @type {object<string, Element|ColorPicker>}
  */
-class OptionsPage {
-	// TODO redo EEVVERRYYYTHIIINNNNGGG
-	$customCSSTextArea;
-	$customCSSClassName;
-	$border;
-	$frequency;
-	backgroundColorPicker;
-	textColorPicker;
+const element = {
+	CSSTextArea: document.querySelector('textarea[name="css"]'),
+	CSSClassNameInput: document.querySelector('input[name="class-name"]'),
+	CSSClassName: document.querySelector('.class-name'),
+	borderInput: document.querySelector('input[name="border"]'),
+	frequencyInput: document.querySelector('input[name="frequency"]'),
+	frequencyNumber: document.getElementById('frequency-number'),
+	frequencyUnit: document.getElementById('frequency-unit'),
+	redirectInput: document.querySelector('input[name="redirect"]'),
+	colorPickerRadioButton: document.getElementById('use-color-picker'),
+	customCSSRadioButton: document.getElementById('use-custom-css'),
+	statusMessage: document.getElementById('status-message'),
+	styleModes: document.querySelectorAll('input[name="style-mode"]'),
+	saveButton: document.querySelector('input[name="save-options"]'),
+	resetButton: document.querySelector('input[name="clear-options"]'),
+	year: document.getElementById('year'),
 
-	constructor() {
-		this.$customCSSTextArea = document.querySelector('textarea[name="css"]');
-		this.$customCSSClassName = document.querySelector('input[name="class-name"]');
-		this.$border = document.querySelector('input[name="border"]');
-		this.$frequency = document.querySelector('input[name="frequency"]');
+	// not actually DOM Elements...
+	backgroundColorPicker: new ColorPicker({
+		el: document.getElementById('back-color'),
+		background: '#ccc',
+		width: 300,
+		height: 150
+	}),
+	textColorPicker: new ColorPicker({
+		el: document.getElementById('front-color'),
+		background: '#ccc',
+		width: 300,
+		height: 150
+	})
+};
 
-		this.update();
-	}
+/**
+ * Initializes view, adds listeners and updates view
+ */
+function initialize() {
+	initializeListeners();
+	load();
+}
 
-	/**
-	 * Saves the current options to chrome storage
-	 */
-	save() {
-		chrome.runtime.getBackgroundPage(background => {
-			const ExtensionOptions = background.ExtensionOptions;
+/**
+ * Adds listeners to elements
+ */
+function initializeListeners() {
+	element.saveButton.addEventListener('click', save);
+	element.resetButton.addEventListener('click', reset);
+	element.CSSClassNameInput.addEventListener('input', update);
+	element.frequencyInput.addEventListener('input', update);
 
-			ExtensionOptions
-				.setBackgroundColor(this.backgroundColorPicker.getHexString())
-				.setTextColor(this.textColorPicker.getHexString())
-				.setThreadRemovalSeconds(this.$frequency.value * 86400)
-				.setBorder(this.$border.checked)
-				.setCustomCSS(document.getElementById('use-custom-css').checked ? this.$customCSSTextArea.value : '')
-				.setCustomCSSClassName(this.$customCSSClassName.value);
-
-			ExtensionOptions.save().then(() => {
-				this.showMessage('Settings saved!');
-			});
-		});
-	}
-
-	/**
-	 * Resets the options in storage and view
-	 */
-	reset() {
-		chrome.runtime.getBackgroundPage(background => {
-			const ThreadStorage = background.ThreadStorage;
-			const ChromeStorage = background.ChromeStorage;
-
-			ThreadStorage.onChange.once(this.update.bind(this));
-
-			ChromeStorage.clear().then(() => {
-				this.showMessage('Settings reset!');
-			});
-		});
-	}
-
-	/**
-	 * Updates the view
-	 */
-	update() {
-		chrome.runtime.getBackgroundPage(background => {
-			const ExtensionOptions = background.ExtensionOptions;
-
-			const usesCustomCSS = ExtensionOptions.usesCustomCSS();
-			document.getElementById(usesCustomCSS ? 'use-custom-css' : 'use-color-picker').click();
-
-			// have to create color pickers when relevant tab is visible, or else they will break
-			if (!usesCustomCSS && (!this.backgroundColorPicker || !this.textColorPicker)) {
-				this.createColorPickers();
-			}
-
-			// if (this.backgroundColorPicker && this.textColorPicker) {
-			// 	const backColor = ExtensionOptions.getBackgroundColor();
-			// 	this.backgroundColorPicker.setColor(backColor);
-			//
-			// 	const frontColor = ExtensionOptions.getTextColor();
-			// 	this.textColorPicker.setColor(frontColor);
-			// }
-
-			this.$customCSSTextArea.value = ExtensionOptions.getCustomCSS();
-			this.$customCSSClassName.value = ExtensionOptions.getCustomCSSClassName();
-			this.$customCSSClassName.dispatchEvent(new Event('input'));
-
-			const seconds = ExtensionOptions.getThreadRemovalTimeSecs();
-			this.$frequency.value = seconds / 86400;
-			this.$frequency.dispatchEvent(new Event('input'));
-
-			this.$border.checked = ExtensionOptions.hasBorder();
-		});
-	}
-
-	/**
-	 * Creates color pickers and appends them to the DOM
-	 */
-	createColorPickers() {
-		this.backgroundColorPicker = new ColorPicker({
-			el: document.getElementById('back-color'),
-			background: '#ccc',
-			width: 300,
-			height: 150
-		});
-
-		this.textColorPicker = new ColorPicker({
-			el: document.getElementById('front-color'),
-			background: '#ccc',
-			width: 300,
-			height: 150
-		});
-	}
-
-	/**
-	 * Updates class-name fields
-	 */
-	updateClassNames() {
-		chrome.runtime.getBackgroundPage(background => {
-			const ExtensionOptions = background.ExtensionOptions;
-
-			let className = this.$customCSSClassName.value.trim();
-			const invalid = !ExtensionOptions.isValidCSSClassName(className);
-
-			if (invalid) {
-				className = ExtensionOptions.getDefaultCSSClassName();
-			}
-
-			this.$customCSSClassName.classList.toggle('invalid', invalid);
-			document.querySelector('.class-name').textContent = className;
-		});
-	}
-
-	/**
-	 * Shows a message
-	 * @param {string} message to display
-	 */
-	showMessage(message) {
-		const $statusArea = document.getElementById('status-message');
-
-		$statusArea.textContent = message;
-
-		$statusArea.classList.add('visible');
-
-		if (this.messageTimeOutId) {
-			clearTimeout(this.messageTimeOutId);
-		}
-
-		this.messageTimeOutId = setTimeout(() => {
-			$statusArea.classList.remove('visible');
-		}, 2000);
+	for (const styleMode of element.styleModes) {
+		styleMode.addEventListener('click', update);
 	}
 }
 
-window.addEventListener('load', () => {
-	const options = new OptionsPage();
+/**
+ * Shows a message
+ * @param {string} message to display
+ */
+const showMessage = (() => {
+	let messageTimeOutId;
 
-	document.querySelector('input[name="save-options"]')
-		.addEventListener('click', options.save.bind(options));
-	document.querySelector('input[name="clear-options"]')
-		.addEventListener('click', options.reset.bind(options));
-	document.querySelector('input[name="class-name"]')
-		.addEventListener('input', options.updateClassNames.bind(options));
+	return message => {
+		element.statusMessage.textContent = message;
+		element.statusMessage.classList.add('visible');
 
-	const $frequency = document.querySelector('input[name="frequency"]');
-
-	$frequency.addEventListener('input', () => {
-		const frequency = $frequency.value;
-		const $frequencyNumber = document.getElementById('frequency-number');
-		const $frequencyUnit = document.getElementById('frequency-unit');
-
-		switch (parseInt(frequency, 10)) {
-			case 1:
-				$frequencyNumber.textContent = 1;
-				$frequencyUnit.textContent = 'day';
-				break;
-			case 7:
-				$frequencyNumber.textContent = 1;
-				$frequencyUnit.textContent = 'week';
-				break;
-			case 14:
-				$frequencyNumber.textContent = 2;
-				$frequencyUnit.textContent = 'weeks';
-				break;
-			default:
-				$frequencyNumber.textContent = frequency;
-				$frequencyUnit.textContent = 'days';
+		if (messageTimeOutId) {
+			clearTimeout(messageTimeOutId);
 		}
+
+		messageTimeOutId = setTimeout(() => {
+			element.statusMessage.classList.remove('visible');
+		}, 2000);
+	};
+})();
+
+/**
+ * Saves the current options to chrome storage
+ */
+function save() {
+	chrome.runtime.getBackgroundPage(background => {
+		const ExtensionOptions = background.ExtensionOptions;
+
+		ExtensionOptions
+			.setBackgroundColor(element.backgroundColorPicker.getHexString())
+			.setTextColor(element.textColorPicker.getHexString())
+			.setThreadRemovalSeconds(element.frequencyInput.value * 86400)
+			.setBorder(element.borderInput.checked)
+			.setRedirect(element.redirectInput.checked)
+			.setCustomCSS(element.customCSSRadioButton.checked ? element.CSSTextArea.value : '')
+			.setCustomCSSClassName(element.CSSClassNameInput.value);
+
+		ExtensionOptions.save().then(() => {
+			showMessage('Settings saved!');
+		});
+	});
+}
+
+/**
+ * Resets the options in storage and view
+ */
+function reset() {
+	chrome.runtime.getBackgroundPage(background => {
+		const ExtensionOptions = background.ExtensionOptions;
+		const ChromeStorage = background.ChromeStorage;
+
+		ExtensionOptions.onChange.once(load);
+
+		ChromeStorage.clear().then(() => {
+			showMessage('Settings reset!');
+		});
+	});
+}
+
+/**
+ * Loads the options in storage and updates view
+ */
+function load() {
+	chrome.runtime.getBackgroundPage(background => {
+		const ExtensionOptions = background.ExtensionOptions;
+
+		element.backgroundColorPicker.setColor(ExtensionOptions.getBackgroundColor());
+		element.textColorPicker.setColor(ExtensionOptions.getTextColor());
+		element.CSSTextArea.value = ExtensionOptions.getCustomCSS();
+		element.CSSClassNameInput.value = ExtensionOptions.getCSSClassName();
+		element.frequencyInput.value = ExtensionOptions.getThreadRemovalTimeSecs() / 86400;
+		element.redirectInput.checked = ExtensionOptions.getRedirect();
+		element.borderInput.checked = ExtensionOptions.hasBorder();
+
+		if (ExtensionOptions.usesCustomCSS()) {
+			element.customCSSRadioButton.click();
+		} else {
+			element.colorPickerRadioButton.click();
+		}
+
+		update();
 	});
 
-	const styleModes = document.querySelectorAll('input[name="style-mode"]');
+	element.year.textContent = String(new Date().getFullYear());
+}
 
-	for (const $styleMode of styleModes) {
-		$styleMode.addEventListener('click', () => {
-			// TODO move into update method
-			const selection = $styleMode.value;
-			const tabs = document.querySelectorAll('.tab');
+/**
+ * Updates the view
+ */
+function update() {
+	chrome.runtime.getBackgroundPage(background => {
+		const ExtensionOptions = background.ExtensionOptions;
 
-			for (const tab of tabs) {
-				tab.classList.toggle('hidden', tab.id !== selection);
-			}
-		});
-	}
+		const className = element.CSSClassNameInput.value.trim();
+		const valid = !ExtensionOptions.isValidCSSClassName(className);
 
-	document.getElementById('year').textContent = String(new Date().getFullYear());
-});
+		element.CSSClassNameInput.classList.toggle('invalid', !valid);
+		element.CSSClassNameInput.textContent = className;
+		element.CSSClassName.textContent = className;
+
+		// update visible page/tab
+		// const selection = styleMode.value; // TODO
+		const selection = 'use-custom-css';
+		const tabs = document.querySelectorAll('.tab');
+
+		for (const tab of tabs) {
+			tab.classList.toggle('hidden', tab.id !== selection);
+		}
+
+		// update frequency values
+		switch (parseInt(element.frequencyInput.value, 10)) {
+			case 1:
+				element.frequencyUnit.textContent = 'day';
+				break;
+			case 7:
+				element.frequencyNumber.textContent = 1;
+				element.frequencyUnit.textContent = 'week';
+				break;
+			case 14:
+				element.frequencyNumber.textContent = 2;
+				element.frequencyUnit.textContent = 'weeks';
+				break;
+			default:
+				element.frequencyUnit.textContent = 'days';
+		}
+	});
+}
+
+document.addEventListener('DOMContentLoaded', initialize);
