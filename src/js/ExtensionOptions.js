@@ -38,7 +38,7 @@ class ExtensionOptions {
 		ChromeStorage.onChange.add(changes => {
 			changes = changes[ExtensionOptions.STORAGE_KEY];
 
-			if (!changes) {
+			if (changes === undefined) {
 				// no changes to extension options
 				return;
 			}
@@ -61,6 +61,33 @@ class ExtensionOptions {
 	 */
 	onError(error) {
 		console.warn('Error: ', error);
+	}
+
+	/**
+	 * Gets whether mobile site should redirect to desktop site
+	 * @returns {boolean} should redirect
+	 */
+	getRedirect() {
+		return this.options.redirect || this.getDefaultRedirect();
+	}
+
+	/**
+	 * Gets whether mobile site should redirect to desktop site by default
+	 * @returns {boolean}
+	 */
+	getDefaultRedirect() {
+		return false;
+	}
+
+	/**
+	 * Sets whether mobile site should redirect to desktop site
+	 * @param {boolean} redirect
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setRedirect(redirect) {
+		this.options.redirect = redirect;
+
+		return this;
 	}
 
 	/**
@@ -226,7 +253,7 @@ class ExtensionOptions {
 		const isValid = this.isValidCSSClassName(className);
 
 		if (this.usesCustomCSS() && isValid) {
-			return this.getCustomCSSClassName();
+			return className;
 		}
 
 		return this.getDefaultCSSClassName();

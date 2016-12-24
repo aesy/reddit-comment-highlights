@@ -141,5 +141,6 @@ class ChromeStorage {
 		});
 	}
 }
+
 // only one instance of this class needed
 export default new ChromeStorage(ChromeStorage.Type.SYNC);

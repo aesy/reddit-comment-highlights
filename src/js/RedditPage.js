@@ -11,7 +11,7 @@ class RedditPage {
 	 * @readonly
 	 * @type {string|null}
 	 */
-	id = this.getId();
+	threadId = this.getId();
 
 	/**
 	 * @private
@@ -25,7 +25,7 @@ class RedditPage {
 	 * @public
 	 */
 	highlightNewComments() {
-		if (!this.id) {
+		if (!this.threadId) {
 			// not a comment section
 			return;
 		}
@@ -34,7 +34,11 @@ class RedditPage {
 			const ThreadStorage = background.ThreadStorage;
 			const ExtensionOptions = background.ExtensionOptions;
 
-			const thread = ThreadStorage.getById(this.id);
+			if (ExtensionOptions.shouldRedirect() && this.isMobileSite()) {
+				this.redirectToDesktop();
+			}
+
+			const thread = ThreadStorage.getById(this.threadId);
 
 			if (!thread) {
 				// first time in comment section
@@ -80,7 +84,10 @@ class RedditPage {
 	 * @returns {boolean}
 	 */
 	isCommentSection() {
-		return Boolean(document.getElementsByClassName('nestedlisting')[0]);
+		const pathPieces = document.location.pathname.split('/');
+
+		// check if url is in the form of '/r/<subreddit>/comments/...
+		return pathPieces[1] === 'r' && pathPieces[3] === 'comments';
 	}
 
 	/**
@@ -93,13 +100,11 @@ class RedditPage {
 			return null;
 		}
 
-		const id = document.getElementById('siteTable').firstChild.getAttribute('data-fullname');
+		// get the path of the thread (works on mobile, too)
+		const pathPieces = document.location.pathname.split('/');
 
-		if (!id) {
-			return null;
-		}
-
-		return id.split('_')[1];
+		// the 4th item in the path *should* always be the thread id
+		return pathPieces[4] || null;
 	}
 
 	/**
@@ -119,15 +124,15 @@ class RedditPage {
 				continue;
 			}
 
-			// check and skip if comment is'nt new
 			const commentTimestamp = Math.floor(Date.parse(commentDate) / 1000);
 			if (commentTimestamp < this.lastVisited) {
+				// skip if comment is'nt new
 				continue;
 			}
 
-			// check and skip if comment is by current user
 			const commentAuthor = comment.querySelector('.author').innerText;
 			if (currentUser.name && currentUser.name === commentAuthor) {
+				// skip if comment is by current user
 				continue;
 			}
 
@@ -138,7 +143,7 @@ class RedditPage {
 	}
 
 	/**
-	 * Gets the current logged in user. It checks if the username is visible in the page header. It's a bit of a hack.
+	 * Gets the currently logged in user. It checks if the username is visible in the page header. It's a bit of a hack.
 	 * @public
 	 * @returns {{name: string}} user
 	 */
@@ -147,12 +152,32 @@ class RedditPage {
 		const usernameElement = document.querySelector('.user a');
 
 		if (usernameElement.classList.contains('login-required')) {
+			// noone logged in
 			user.name = null;
 		} else {
-			user.name = usernameElement.innerText;
+			user.name = usernameElement.innerText || null;
 		}
 
 		return user;
+	}
+
+	/**
+	 * Redirects the browser to desktop version of the site
+	 * @public
+	 */
+	redirectToDesktop() {
+		const desktopURL = document.location.href.replace('m.reddit.com', 'reddit.com');
+
+		document.location.replace(desktopURL);
+	}
+
+	/**
+	 * Checks whether current site is the mobile version of the site
+	 * @public
+	 * @returns {boolean} is mobile site
+	 */
+	isMobileSite() {
+		return document.location.hostname === 'm.reddit.com';
 	}
 }
 
