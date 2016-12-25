@@ -7,3 +7,4 @@ node_modules
 *.zip
 img/webstore/*
 !src/img/icon.png
+Thumbs.db
