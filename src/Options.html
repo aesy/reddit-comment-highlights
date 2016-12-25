@@ -13,17 +13,17 @@
 			</div>
 
             <legend>Set styling with:</legend>
-            <input type="radio" name="style-mode" id="use-color-picker" value="color-pickers">
-            <label for="use-color-picker"><span></span>
+            <input type="radio" name="style-mode" id="color-pickers" value="color-pickers">
+            <label for="color-pickers"><span></span>
                 Color pickers
             </label>
-            <input type="radio" name="style-mode" id="use-custom-css" value="custom-css">
-            <label for="use-custom-css"><span></span>
+            <input type="radio" name="style-mode" id="custom-css" value="custom-css">
+            <label for="custom-css"><span></span>
                 Custom CSS
             </label>
             <hr>
 
-            <div class="tab hidden" id="color-pickers">
+            <div class="tab hidden color-pickers">
                 <legend>Background highlight color</legend>
                 <p class="help-block">
                     <small>Specify the background color of highlighted comments.</small>
@@ -46,7 +46,7 @@
                 <hr>
             </div>
 
-            <div class="tab hidden" id="custom-css">
+            <div class="tab hidden custom-css">
                 <legend>Custom CSS</legend>
                 <p class="help-block flush-left">
                     <small>

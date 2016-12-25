@@ -3,7 +3,7 @@ import ColorPicker from 'simple-color-picker';
 
 /**
  * Collection of commonly used DOM Elements
- * @type {object<string, Element|ColorPicker>}
+ * @type {object<string, Element|Element[]|ColorPicker>}
  */
 const element = {
 	CSSTextArea: document.querySelector('textarea[name="css"]'),
@@ -14,8 +14,8 @@ const element = {
 	frequencyNumber: document.getElementById('frequency-number'),
 	frequencyUnit: document.getElementById('frequency-unit'),
 	redirectInput: document.querySelector('input[name="redirect"]'),
-	colorPickerRadioButton: document.getElementById('use-color-picker'),
-	customCSSRadioButton: document.getElementById('use-custom-css'),
+	colorPickerRadioButton: document.getElementById('color-pickers'),
+	customCSSRadioButton: document.getElementById('custom-css'),
 	statusMessage: document.getElementById('status-message'),
 	styleModes: document.querySelectorAll('input[name="style-mode"]'),
 	saveButton: document.querySelector('input[name="save-options"]'),
@@ -160,17 +160,18 @@ function update() {
 		element.CSSClassName.textContent = className;
 
 		// update visible page/tab
-		// const selection = styleMode.value; // TODO
-		const selection = 'use-custom-css';
-		const tabs = document.querySelectorAll('.tab');
+		const selection = document.querySelector('input[name="style-mode"]:checked');
 
-		for (const tab of tabs) {
-			tab.classList.toggle('hidden', tab.id !== selection);
+		for (const tab of document.querySelectorAll('.tab')) {
+			tab.classList.toggle('hidden', !tab.classList.contains(selection.id));
 		}
 
 		// update frequency values
-		switch (parseInt(element.frequencyInput.value, 10)) {
+		const frequencyValue = element.frequencyInput.value;
+
+		switch (parseInt(frequencyValue, 10)) {
 			case 1:
+				element.frequencyNumber.textContent = 1;
 				element.frequencyUnit.textContent = 'day';
 				break;
 			case 7:
@@ -182,6 +183,7 @@ function update() {
 				element.frequencyUnit.textContent = 'weeks';
 				break;
 			default:
+				element.frequencyNumber.textContent = frequencyValue;
 				element.frequencyUnit.textContent = 'days';
 		}
 	});
