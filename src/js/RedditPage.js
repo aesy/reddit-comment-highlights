@@ -30,31 +30,28 @@ class RedditPage {
 			return;
 		}
 
-		chrome.runtime.getBackgroundPage(background => {
-			const ThreadStorage = background.ThreadStorage;
-			const ExtensionOptions = background.ExtensionOptions;
+		chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
+			chrome.runtime.sendMessage({ method: 'ThreadStorage.getById', threadId: this.threadId }, thread => {
+				if (options.redirect && this.isMobileSite()) {
+					this.redirectToDesktop();
+					return;
+				}
 
-			if (ExtensionOptions.shouldRedirect() && this.isMobileSite()) {
-				this.redirectToDesktop();
-			}
+				chrome.runtime.sendMessage({ method: 'ThreadStorage.add', threadId: this.threadId });
 
-			const thread = ThreadStorage.getById(this.threadId);
+				if (!thread) {
+					// first time in comment section
+					return;
+				}
 
-			if (!thread) {
-				// first time in comment section
-				return;
-			}
+				this.lastVisited = thread.timestamp;
 
-			this.lastVisited = thread.timestamp;
-			const className = ExtensionOptions.getClassName();
-			const css = ExtensionOptions.getCSS();
-			const head = document.getElementsByTagName('head')[0];
+				injectCSS(options.css, document.getElementsByTagName('head')[0]);
 
-			injectCSS(css, head);
-
-			for (const comment of this.getNewComments()) {
-				this.highlightComment(comment, className);
-			}
+				for (const comment of this.getNewComments()) {
+					this.highlightComment(comment, options.className);
+				}
+			});
 		});
 	}
 
@@ -68,13 +65,31 @@ class RedditPage {
 		// add highlight styling
 		comment.classList.add(className);
 
-		// remove CSS when clicked
-		comment.querySelector('.usertext').addEventListener('click', () => {
-			comment.classList.remove(className);
-		}, {
-			capture: false,
-			once: true,
-			passive: true
+		chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
+			// comments to clear on click
+			const clear = [];
+
+			if (options.clearComment.atAll) {
+				clear.push(comment);
+			} else {
+				return;
+			}
+
+			if (options.clearComment.includeChildren) {
+				const childComments = comment.getElementsByClassName('comment');
+				clear.push.apply(clear, childComments);
+			}
+
+			// remove CSS of this and all child comments when clicked
+			comment.addEventListener('click', () => {
+				for (const comment of clear) {
+					comment.classList.remove(className);
+				}
+			}, {
+				capture: false,
+				once: true,
+				passive: true
+			});
 		});
 	}
 

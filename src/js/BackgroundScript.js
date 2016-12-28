@@ -4,6 +4,28 @@ import ChromeStorage from './ChromeStorage';
 
 /* this file should really be called 'EventScript' as it's only loaded when needed */
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	switch (request.method) {
+		case 'ThreadStorage.getById':
+			sendResponse(ThreadStorage.getById(request.threadId));
+			break;
+		case 'ThreadStorage.add':
+			ThreadStorage.add(request.threadId);
+			ThreadStorage.save();
+			break;
+		case 'ExtensionOptions.getAll':
+			sendResponse({
+				redirect: ExtensionOptions.getRedirect(),
+				className: ExtensionOptions.getCSSClassName(),
+				css: ExtensionOptions.getCSS(),
+				clearComment: ExtensionOptions.getClearComment()
+			});
+			break;
+		default:
+			break;
+	}
+});
+
 chrome.runtime.onInstalled.addListener(details => {
 	if (details.reason === 'update') {
 		if (details.version === chrome.app.getDetails().version) {
@@ -20,6 +42,7 @@ chrome.runtime.onInstalled.addListener(details => {
 					.setTextColor(opts.front_color || opts.frontColor)
 					.setThreadRemovalSeconds(opts.thread_removal_time_seconds || opts.threadRemovalTimeSeconds)
 					.setBorder(opts.has_border || opts.border)
+					.setClearComment(opts.clearCommentOnClick, opts.clearCommentincludeChildren)
 					.setCustomCSS(opts.customCSS)
 					.setCustomCSSClassName(opts.customCSSClassName)
 					.setRedirect(opts.redirect)

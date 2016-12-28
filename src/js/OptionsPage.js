@@ -10,6 +10,8 @@ const element = {
 	CSSClassNameInput: document.querySelector('input[name="class-name"]'),
 	CSSClassName: document.querySelector('.class-name'),
 	borderInput: document.querySelector('input[name="border"]'),
+	clearCommentInput: document.querySelector('input[name="clear-comment"]'),
+	clearChildrenInput: document.querySelector('input[name="clear-child-comments"]'),
 	frequencyInput: document.querySelector('input[name="frequency"]'),
 	frequencyNumber: document.getElementById('frequency-number'),
 	frequencyUnit: document.getElementById('frequency-unit'),
@@ -92,6 +94,7 @@ function save() {
 			.setTextColor(element.textColorPicker.getHexString())
 			.setThreadRemovalSeconds(element.frequencyInput.value * 86400)
 			.setBorder(element.borderInput.checked)
+			.setClearComment(element.clearCommentInput.checked, element.clearChildrenInput.checked)
 			.setRedirect(element.redirectInput.checked)
 			.setCustomCSS(element.customCSSRadioButton.checked ? element.CSSTextArea.value : '')
 			.setCustomCSSClassName(element.CSSClassNameInput.value);
@@ -132,6 +135,8 @@ function load() {
 		element.frequencyInput.value = ExtensionOptions.getThreadRemovalTimeSecs() / 86400;
 		element.redirectInput.checked = ExtensionOptions.getRedirect();
 		element.borderInput.checked = ExtensionOptions.hasBorder();
+		element.clearCommentInput.checked = ExtensionOptions.getClearComment().atAll;
+		element.clearChildrenInput.checked = ExtensionOptions.getClearComment().includeChildren;
 
 		if (ExtensionOptions.usesCustomCSS()) {
 			element.customCSSRadioButton.click();
