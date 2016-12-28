@@ -2,30 +2,28 @@
 <html>
 	<head>
 		<title>Reddit (Au) Comment Highlights Options</title>
-		<link rel="stylesheet" type="text/css" media="screen" href="css/reddit-comment-highlights.css">
-		<link rel="stylesheet" type="text/css" href="css/colpick.css">
 	</head>
 
 	<body class="options">
 		<div class="container">
 			<div class="header">
-				<img src="img/webstore/icon.png" width="48" height="48" alt="Reddit Notifier logo" class="pull-left logo">
+				<img src="img/icon.png" width="48" height="48" alt="Reddit Notifier logo" class="pull-left logo">
 				<h1>Reddit (Au) Comment Highlights Options</h1>
 				<hr>
 			</div>
 
             <legend>Set styling with:</legend>
-            <input type="radio" name="style-mode" id="use-color-picker" value="color-pickers">
-            <label for="use-color-picker"><span></span>
+            <input type="radio" name="style-mode" id="color-pickers" value="color-pickers">
+            <label for="color-pickers"><span></span>
                 Color pickers
             </label>
-            <input type="radio" name="style-mode" id="use-custom-css" value="custom-css">
-            <label for="use-custom-css"><span></span>
+            <input type="radio" name="style-mode" id="custom-css" value="custom-css">
+            <label for="custom-css"><span></span>
                 Custom CSS
             </label>
             <hr>
 
-            <div class="tab hidden" id="color-pickers">
+            <div class="tab hidden color-pickers">
                 <legend>Background highlight color</legend>
                 <p class="help-block">
                     <small>Specify the background color of highlighted comments.</small>
@@ -48,7 +46,7 @@
                 <hr>
             </div>
 
-            <div class="tab hidden" id="custom-css">
+            <div class="tab hidden custom-css">
                 <legend>Custom CSS</legend>
                 <p class="help-block flush-left">
                     <small>
@@ -81,13 +79,24 @@
                 <hr>
             </div>
 
+            <legend>Clear highlight on click</legend>
+            <input type="checkbox" name="clear-comment" id="clear-comment"/>
+            <label for="clear-comment"><span></span>
+                <small>Specify whether highlight should disappear when a comment is clicked.</small>
+            </label>
+            <input type="checkbox" name="clear-child-comments" id="clear-child-comments"/>
+            <label for="clear-child-comments"><span></span>
+                <small>Specify whether child comments should be included (doesn't matter if the previous box is unchecked).</small>
+            </label>
+            <hr>
+
             <legend>Redirect all mobile pages to desktop</legend>
             <input type="checkbox" name="redirect" id="redirect"/>
             <label for="redirect"><span></span>
-                <small>Redirect <b>m</b>.reddit.com (mobile) pages to the regular site.</small>
+                <small>Specify whether <b>m</b>.reddit.com (mobile) pages should redirect to the regular site.</small>
             </label>
             <hr>
-            
+
 			<legend>Flush status of threads older than... *</legend>
 			<div class="control-group">
 				<input name="frequency" type="range" min="1" max="14" value="1" step="1" title="frequency">
@@ -114,9 +123,5 @@
 				<a href="https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights" target="_blank">View Source</a>
 			</div>
 		</div>
-
-		<script src="js/jquery-2.0.0.min.js"></script>
-		<script src="js/colpick.js"></script>
-		<script src="js/options.js"></script>
 	</body>
 </html>
