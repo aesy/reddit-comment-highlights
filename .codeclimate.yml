@@ -1,0 +1,5 @@
+eslint:
+  enabled: true
+  channel: eslint-3
+stylelint:
+  enabled: true
