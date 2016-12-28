@@ -1,28 +1,28 @@
 {
   "name": "Reddit (Au) Comment Highlights.",
-  "version": "0.11.0",
-  "options_page": "options.html",
+  "version": "1.0.0",
+  "options_page": "Options.html",
   "manifest_version": 2,
   "minimum_chrome_version": "32",
   "icons": {
-  	"16": "img/webstore/icon.png",
-  	"48": "img/webstore/icon.png",
-  	"128": "img/webstore/icon.png"
+  	"16": "img/icon.png",
+  	"48": "img/icon.png",
+  	"128": "img/icon.png"
   },
   "homepage_url": "https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights",
   "description": "Highlight unread comments since your last visit to a Reddit comment section. Syncs across all of your chrome sessions!",
   "short_name": "Highlight new Reddit comments.",
   "background": {
-  	"scripts": ["js/background.js"],
+  	"scripts": ["js/BackgroundScript.js"],
       "persistent": false
   },
   "content_scripts": [{
-  	"matches": ["http://*.reddit.com/*", "https://*.reddit.com/*"],
-  	"js": ["js/content_script.js"]
+  	"matches": ["http://*.reddit.com/r/*","https://*.reddit.com/r/*"],
+  	"js": ["js/ContentScript.js"]
   }],
   "permissions": [
   	"storage",
-  	"http://*.reddit.com/*",
-  	"https://*.reddit.com/*"
+  	"http://*.reddit.com/r/*",
+  	"https://*.reddit.com/r/*"
   ]
 }
