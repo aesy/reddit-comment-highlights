@@ -91,6 +91,41 @@ class ExtensionOptions {
 	}
 
 	/**
+	 * Gets whether comment (and possibly its' children) highlights should be cleared when clicked
+	 * @returns {{atAll: boolean, includeChildren: boolean}}
+	 */
+	getClearComment() {
+		return {
+			atAll: this.options.clearCommentOnClick || this.getDefaultClearComment().atAll,
+			includeChildren: this.options.clearCommentincludeChildren || this.getDefaultClearComment().includeChildren
+		};
+	}
+
+	/**
+	 * Gets whether comment (and possiblt its' children) highlights should be cleared when clicked by default
+	 * @returns {{atAll: boolean, includeChildren: boolean}}
+	 */
+	getDefaultClearComment() {
+		return {
+			atAll: false,
+			includeChildren: true
+		};
+	}
+
+	/**
+	 * Sets whether comment (and possibly its' children) highlights should be cleared whn clicked
+	 * @param clear
+	 * @param includeChildren
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setClearComment(clear, includeChildren) {
+		this.options.clearCommentOnClick = clear;
+		this.options.clearCommentincludeChildren = includeChildren;
+
+		return this;
+	}
+
+	/**
 	 * Gets the border in the form of a CSS property value
 	 * @public
 	 * @returns {string} border
