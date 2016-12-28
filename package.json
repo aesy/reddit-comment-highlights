@@ -7,7 +7,8 @@
     "build:watch": "npm run build:dev -- --watch",
     "lint": "npm-run-all --parallel lint:scripts lint:styles",
     "lint:scripts": "eslint src --config ./config/.eslintrc.json",
-    "lint:styles": "stylelint src/**/*.scss --config ./config/.stylelintrc.json --syntax scss"
+    "lint:styles": "stylelint src/**/*.scss --config ./config/.stylelintrc.json --syntax scss",
+    "travis": "npm-run-all --parallel lint build:prod"
   },
   "dependencies": {
     "mini-signals": "^1.1.1",
