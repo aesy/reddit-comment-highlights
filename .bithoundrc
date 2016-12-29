@@ -1,0 +1,11 @@
+{
+	"ignore": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/config/**"
+    ],
+    "critics": {
+		"lint": { "engine": "eslint" }
+        "wc": { "limit": 1000 }
+    }
+}

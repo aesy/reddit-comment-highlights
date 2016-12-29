@@ -53,8 +53,21 @@ function initialize() {
 function initializeListeners() {
 	element.saveButton.addEventListener('click', save);
 	element.resetButton.addEventListener('click', reset);
-	element.CSSClassNameInput.addEventListener('input', update);
 	element.frequencyInput.addEventListener('input', update);
+	element.CSSClassNameInput.addEventListener('input', () => {
+		const selection = {
+			start: element.CSSClassNameInput.selectionStart,
+			end: element.CSSClassNameInput.selectionEnd
+		};
+
+		// this loses the selection of the input for some reason
+		update();
+
+		// restore selection (has to be async)
+		setTimeout(() => {
+			element.CSSClassNameInput.setSelectionRange(selection.start, selection.end);
+		}, 0);
+	});
 
 	for (const styleMode of element.styleModes) {
 		styleMode.addEventListener('click', update);
@@ -158,7 +171,7 @@ function update() {
 		const ExtensionOptions = background.ExtensionOptions;
 
 		const className = element.CSSClassNameInput.value.trim();
-		const valid = !ExtensionOptions.isValidCSSClassName(className);
+		const valid = ExtensionOptions.isValidCSSClassName(className);
 
 		element.CSSClassNameInput.classList.toggle('invalid', !valid);
 		element.CSSClassNameInput.textContent = className;

@@ -49,4 +49,4 @@ Please use the [issue tracker](https://github.com/easyfuckingpeasy/chrome-reddit
 Pull requests are welcome, but please make sure compiliation still works (`npm run build:prod`) and lint (`npm run lint`) beforehand.
 
 ### License
-chrome-reddit-comment-highlights is licensed under the MIT License (see LICENSE file).
+chrome-reddit-comment-highlights is licensed under the MIT License (see [LICENSE](./blob/master/LICENSE) file).

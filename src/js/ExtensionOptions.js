@@ -65,14 +65,20 @@ class ExtensionOptions {
 
 	/**
 	 * Gets whether mobile site should redirect to desktop site
+	 * @public
 	 * @returns {boolean} should redirect
 	 */
 	getRedirect() {
-		return this.options.redirect || this.getDefaultRedirect();
+		if (this.options.redirect === undefined) {
+			return this.getDefaultRedirect();
+		}
+
+		return this.options.redirect;
 	}
 
 	/**
 	 * Gets whether mobile site should redirect to desktop site by default
+	 * @public
 	 * @returns {boolean}
 	 */
 	getDefaultRedirect() {
@@ -81,6 +87,7 @@ class ExtensionOptions {
 
 	/**
 	 * Sets whether mobile site should redirect to desktop site
+	 * @public
 	 * @param {boolean} redirect
 	 * @returns {ExtensionOptions} this instance for chaining purposes
 	 */
@@ -92,17 +99,23 @@ class ExtensionOptions {
 
 	/**
 	 * Gets whether comment (and possibly its' children) highlights should be cleared when clicked
+	 * @public
 	 * @returns {{atAll: boolean, includeChildren: boolean}}
 	 */
 	getClearComment() {
 		return {
-			atAll: this.options.clearCommentOnClick || this.getDefaultClearComment().atAll,
-			includeChildren: this.options.clearCommentincludeChildren || this.getDefaultClearComment().includeChildren
+			atAll: this.options.clearCommentOnClick === undefined ?
+								this.options.clearCommentOnClick :
+								this.getDefaultClearComment().atAll,
+			includeChildren: this.options.clearCommentincludeChildren === undefined ?
+								this.options.clearCommentincludeChildren :
+								this.getDefaultClearComment().includeChildren
 		};
 	}
 
 	/**
 	 * Gets whether comment (and possiblt its' children) highlights should be cleared when clicked by default
+	 * @public
 	 * @returns {{atAll: boolean, includeChildren: boolean}}
 	 */
 	getDefaultClearComment() {
@@ -114,6 +127,7 @@ class ExtensionOptions {
 
 	/**
 	 * Sets whether comment (and possibly its' children) highlights should be cleared whn clicked
+	 * @public
 	 * @param clear
 	 * @param includeChildren
 	 * @returns {ExtensionOptions} this instance for chaining purposes
