@@ -6,3 +6,5 @@ install:
     - npm i
 script:
     - npm run travis
+notifications:
+    email: false

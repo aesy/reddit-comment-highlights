@@ -63,6 +63,7 @@ class RedditPage {
 	 */
 	highlightComment(comment, className) {
 		// add highlight styling
+		comment.classList.add(`${className}--transition`);
 		comment.classList.add(className);
 
 		chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {

@@ -65,14 +65,20 @@ class ExtensionOptions {
 
 	/**
 	 * Gets whether mobile site should redirect to desktop site
+	 * @public
 	 * @returns {boolean} should redirect
 	 */
 	getRedirect() {
-		return this.options.redirect || this.getDefaultRedirect();
+		if (this.options.redirect === undefined) {
+			return this.getDefaultRedirect();
+		}
+
+		return this.options.redirect;
 	}
 
 	/**
 	 * Gets whether mobile site should redirect to desktop site by default
+	 * @public
 	 * @returns {boolean}
 	 */
 	getDefaultRedirect() {
@@ -81,6 +87,7 @@ class ExtensionOptions {
 
 	/**
 	 * Sets whether mobile site should redirect to desktop site
+	 * @public
 	 * @param {boolean} redirect
 	 * @returns {ExtensionOptions} this instance for chaining purposes
 	 */
@@ -92,17 +99,23 @@ class ExtensionOptions {
 
 	/**
 	 * Gets whether comment (and possibly its' children) highlights should be cleared when clicked
+	 * @public
 	 * @returns {{atAll: boolean, includeChildren: boolean}}
 	 */
 	getClearComment() {
 		return {
-			atAll: this.options.clearCommentOnClick || this.getDefaultClearComment().atAll,
-			includeChildren: this.options.clearCommentincludeChildren || this.getDefaultClearComment().includeChildren
+			atAll: this.options.clearCommentOnClick === undefined ?
+								this.getDefaultClearComment().atAll :
+								this.options.clearCommentOnClick,
+			includeChildren: this.options.clearCommentincludeChildren === undefined ?
+								this.getDefaultClearComment().includeChildren :
+								this.options.clearCommentincludeChildren
 		};
 	}
 
 	/**
 	 * Gets whether comment (and possiblt its' children) highlights should be cleared when clicked by default
+	 * @public
 	 * @returns {{atAll: boolean, includeChildren: boolean}}
 	 */
 	getDefaultClearComment() {
@@ -114,8 +127,9 @@ class ExtensionOptions {
 
 	/**
 	 * Sets whether comment (and possibly its' children) highlights should be cleared whn clicked
-	 * @param clear
-	 * @param includeChildren
+	 * @public
+	 * @param {boolean} clear
+	 * @param {boolean} includeChildren
 	 * @returns {ExtensionOptions} this instance for chaining purposes
 	 */
 	setClearComment(clear, includeChildren) {
@@ -236,14 +250,17 @@ class ExtensionOptions {
 		}
 
 		return `
+			.comment.${this.getDefaultCSSClassName()}--transition  > .entry .md {
+				transition-property: padding, border, background-color, color;
+                transition-duration: 0.2s;
+			}
+			
 			.comment.${this.getDefaultCSSClassName()} > .entry .md {
 			    padding: 2px;
 			    border: ${this.getBorder()};
 			    border-radius: 2px;
 			    background-color: ${this.getBackgroundColor()};
 			    color: ${this.getTextColor()};
-			    transition-property: background-color, border, color;
-                transition-duration: 0.5s;
 			}
 		`;
 	}
