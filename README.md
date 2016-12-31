@@ -2,6 +2,7 @@
 
 A Chrome extension that highlights unread comments on [Reddit](https://www.reddit.com) since your last visit.
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f6815a4161b54d4d97a05968c289431d)](https://www.codacy.com/app/isak-wertwein/chrome-reddit-comment-highlights?utm_source=github.com&utm_medium=referral&utm_content=easyfuckingpeasy/chrome-reddit-comment-highlights&utm_campaign=badger)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/jeodebnjeecpbmbgimbpinccfkihhjid.svg?maxAge=2592000)](https://chrome.google.com/webstore/detail/reddit-au-comment-highlig/jeodebnjeecpbmbgimbpinccfkihhjid)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/d/jeodebnjeecpbmbgimbpinccfkihhjid.svg?maxAge=2592000)](https://chrome.google.com/webstore/detail/reddit-au-comment-highlig/jeodebnjeecpbmbgimbpinccfkihhjid)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/rating/jeodebnjeecpbmbgimbpinccfkihhjid.svg?maxAge=2592000)](https://chrome.google.com/webstore/detail/reddit-au-comment-highlig/jeodebnjeecpbmbgimbpinccfkihhjid)
