@@ -8,8 +8,6 @@ module.exports = merge.smart({
 		filename: 'app.js'
 	},
 	plugins: [
-		new webpack.optimize.OccurenceOrderPlugin(true),
-		new webpack.optimize.DedupePlugin(),
 		new webpack.optimize.UglifyJsPlugin({
 			compress: {
 				warnings: false,

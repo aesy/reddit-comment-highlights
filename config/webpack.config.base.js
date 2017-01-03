@@ -1,6 +1,5 @@
 const webpack = require('webpack');
 const path = require('path');
-const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -15,52 +14,50 @@ module.exports = {
 	output: {
 		path: 'dist',
 		publicPath: '/',
-		pathInfo: true,
 		filename: 'js/[name].js',
 		libraryTarget: 'window'
 	},
 	resolve: {
-		extensions: ['', '.js', '.css', '.scss', '.sass']
+		extensions: ['.js', '.css', '.scss', '.sass']
 	},
 	module: {
-		loaders: [{
+		rules: [{
 			test: /\.(js)$/,
 			exclude: /node_modules/,
-			loader: 'babel',
-			query: {
-				presets: ['es2015', 'stage-0'],
-				plugins: []
-			}
+			use: [{
+				loader: 'babel-loader',
+				options: {
+					presets: ['es2015', 'stage-0'],
+					plugins: []
+				}
+			}]
 		}, {
 			test: /\.(css|sass|scss)/,
 			exclude: /node_modules/,
-			loader: ExtractTextPlugin.extract('style', 'css!postcss!sass')
+			loader: ExtractTextPlugin.extract({
+				fallbackLoader: 'style-loader',
+				loader: [{
+					loader: 'css-loader',
+					query: { // will change to 'options' in the future?
+						minimize: true,
+						sourceMap: false
+					}
+				}, {
+					loader: 'sass-loader'
+				}]
+			})
 		}, {
 			test: /\.(ico|gif|png|jpg)$/,
 			exclude: /node_modules/,
-			loader: 'file',
-			query: {
-				limit: 100000,
-				name: 'img/[name].[ext]'
-			}
-		}, {
-			test: /\.(svg)$/,
-			exclude: /node_modules/,
-			loader: 'file',
-			query: {
-				limit: 100000,
-				name: 'img/[name].[ext]'
-			}
-		}, {
-			test: /\.(eot|ttf|woff)$/,
-			exclude: /node_modules/,
-			loader: 'file',
-			query: {
-				name: 'fonts/[name].[ext]'
-			}
+			use: [{
+				loader: 'url-loader',
+				options: {
+					limit: 100000,
+					name: 'img/[name].[ext]'
+				}
+			}]
 		}]
 	},
-	postcss: [ autoprefixer ],
 	plugins: [
 		new webpack.NoErrorsPlugin(),
 		new webpack.NamedModulesPlugin(),
@@ -70,7 +67,8 @@ module.exports = {
 			filename: 'Options.html',
 			chunks: ['Options']
 		}),
-		new ExtractTextPlugin('css/[name].css', {
+		new ExtractTextPlugin({
+			filename: 'css/[name].css',
 			allChunks: true
 		}),
 		new CopyWebpackPlugin([{
@@ -80,5 +78,8 @@ module.exports = {
 			context: 'src',
 			from: 'img/icon*.*'
 		}])
-	]
+	],
+	performance: {
+		hints: false
+	}
 };
