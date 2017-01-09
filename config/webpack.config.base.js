@@ -7,9 +7,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
 	context: path.join(__dirname, '..'),
 	entry: {
-		BackgroundScript: ['./src/js/BackgroundScript.js'],
-		ContentScript: ['./src/js/ContentScript.js'],
-		Options: ['./src/js/OptionsPage.js']
+		backgroundScript: ['./src/js/backgroundScript.js'],
+		contentScript: ['./src/js/contentScript.js'],
+		options: ['./src/js/optionsPage.js']
 	},
 	output: {
 		path: 'dist',
@@ -38,7 +38,7 @@ module.exports = {
 				fallbackLoader: 'style-loader',
 				loader: [{
 					loader: 'css-loader',
-					query: { // will change to 'options' in the future?
+					query: { // may change to 'options' in the future
 						minimize: true,
 						sourceMap: false
 					}
@@ -50,7 +50,7 @@ module.exports = {
 			test: /\.(ico|gif|png|jpg)$/,
 			exclude: /node_modules/,
 			use: [{
-				loader: 'url-loader',
+				loader: 'file-loader',
 				options: {
 					limit: 100000,
 					name: 'img/[name].[ext]'
@@ -63,13 +63,16 @@ module.exports = {
 		new webpack.NamedModulesPlugin(),
 		new HtmlWebpackPlugin({
 			hash: false,
-			template: 'src/Options.html',
-			filename: 'Options.html',
-			chunks: ['Options']
+			template: 'src/options.html',
+			filename: 'options.html',
+			chunks: ['options'],
+			minify: {
+				collapseWhitespace: true,
+				removeComments: true
+			}
 		}),
 		new ExtractTextPlugin({
-			filename: 'css/[name].css',
-			allChunks: true
+			filename: 'css/[name].css'
 		}),
 		new CopyWebpackPlugin([{
 			context: 'src',

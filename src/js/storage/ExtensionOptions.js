@@ -373,18 +373,20 @@ class ExtensionOptions {
 	}
 
 	/**
-	 * Saves internal options to browser storage. This is an async operation, hence the promise.
+	 * Saves internal options to browser storage
+	 * This is an async operation
 	 * @public
-	 * @returns {Promise}
+	 * @returns {Promise} resolves on completion
 	 */
 	save() {
 		return ChromeStorage.set(ExtensionOptions.STORAGE_KEY, this.options).catch(this.onError.bind(this));
 	}
 
 	/**
-	 * Clears the options, setting everything to their default settings. This is an async operation, hence the promise.
+	 * Clears the options, setting everything to their default settings
+	 * This is an async operation
 	 * @public
-	 * @returns {Promise}
+	 * @returns {Promise} resolves on completion
 	 */
 	clear() {
 		this.options = {};

@@ -74,10 +74,11 @@ class ChromeStorage {
 	}
 
 	/**
-	 * Gets an item by its' key. This is an async operation, hence the promise.
+	 * Gets an item by its' key
+	 * This is an async operation
 	 * @public
 	 * @param {string} key of the item
-	 * @returns {Promise}
+	 * @returns {Promise} resolves on completion
 	 */
 	get(key) {
 		return new Promise((resolve, reject) => {
@@ -94,11 +95,12 @@ class ChromeStorage {
 	}
 
 	/**
-	 * Sets the value of a key. This is an async operation, hence the promise.
+	 * Sets the value of a key
+	 * This is an async operation
 	 * @public
 	 * @param {string} key
 	 * @param {*} value
-	 * @returns {Promise}
+	 * @returns {Promise} resolves on completion
 	 */
 	set(key, value) {
 		return new Promise((resolve, reject) => {
@@ -116,9 +118,10 @@ class ChromeStorage {
 
 	/**
 	 * Clears all, one or multiple keys, depending on provided arguments.
+	 * This is an async operation
 	 * @public
 	 * @param {void|string[]|string} keys. Clears all keys if not defined.
-	 * @returns {Promise}
+	 * @returns {Promise} resolves on completion
 	 */
 	clear(keys) {
 		return new Promise((resolve, reject) => {

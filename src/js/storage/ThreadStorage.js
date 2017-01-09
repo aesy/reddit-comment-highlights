@@ -1,6 +1,6 @@
 import ExtensionOptions from './ExtensionOptions';
 import ChromeStorage from './ChromeStorage';
-import { currentTimestampSeconds } from './TimeUtils';
+import { currentTimestampSeconds } from '../utils/TimeUtils';
 import MiniSignal from 'mini-signals';
 
 /**
@@ -190,18 +190,20 @@ class ThreadStorage {
 	}
 
 	/**
-	 * Saves internal thread storage to browser storage. This is an async operation, hence the promise.
+	 * Saves internal thread storage to browser storage
+	 * This is an async operation
 	 * @public
-	 * @returns {Promise}
+	 * @returns {Promise} resolves on completion
 	 */
 	save() {
 		return ChromeStorage.set(ThreadStorage.STORAGE_KEY, this.collection).catch(this.onError.bind(this));
 	}
 
 	/**
-	 * Clears the thread storage. This is an async operation, hence the promise.
+	 * Clears the thread storage
+	 * This is an async operation
 	 * @public
-	 * @returns {Promise}
+	 * @returns {Promise} resolves on completion
 	 */
 	clear() {
 		this.collection = [];

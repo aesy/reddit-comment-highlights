@@ -1,6 +1,6 @@
 
 /**
- * Appends a CSS style tag to an element
+ * Creates a CSS style tag and appends it to an element
  * @param {string} css
  * @param {Element} element
  */

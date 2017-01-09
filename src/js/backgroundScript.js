@@ -1,8 +1,8 @@
-import ExtensionOptions from './ExtensionOptions';
-import ThreadStorage from './ThreadStorage';
-import ChromeStorage from './ChromeStorage';
+import ExtensionOptions from './storage/ExtensionOptions';
+import ThreadStorage from './storage/ThreadStorage';
+import ChromeStorage from './storage/ChromeStorage';
 
-/* this file should really be called 'EventScript' as it's only loaded when needed */
+/* this file should really be called 'eventScript' as it's only loaded when needed */
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	switch (request.method) {

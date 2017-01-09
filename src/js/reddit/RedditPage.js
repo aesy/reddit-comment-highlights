@@ -1,4 +1,4 @@
-import { injectCSS } from './DOMUtils';
+import { injectCSS } from '../utils/DOMUtils';
 
 /**
  * Represents a reddit page (supposed to, anyway) with relevant methods for the chrome extension
@@ -25,20 +25,19 @@ class RedditPage {
 	 * @public
 	 */
 	highlightNewComments() {
-		if (!this.threadId) {
-			// not a comment section
-			return;
-		}
-
 		chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
+			if (options.redirect && this.isMobileSite()) {
+				this.redirectToDesktop();
+				return;
+			}
+
+			if (!this.threadId) {
+				// not a comment section
+				return;
+			}
+
 			chrome.runtime.sendMessage({ method: 'ThreadStorage.getById', threadId: this.threadId }, thread => {
-				if (options.redirect && this.isMobileSite()) {
-					this.redirectToDesktop();
-					return;
-				}
-
 				chrome.runtime.sendMessage({ method: 'ThreadStorage.add', threadId: this.threadId });
-
 				if (!thread) {
 					// first time in comment section
 					return;
@@ -161,20 +160,25 @@ class RedditPage {
 	/**
 	 * Gets the currently logged in user. It checks if the username is visible in the page header. It's a bit of a hack.
 	 * @public
-	 * @returns {{name: string}} user
+	 * @returns {{name: string}|null} user
 	 */
 	getCurrentUser() {
-		const user = {};
 		const usernameElement = document.querySelector('.user a');
 
 		if (usernameElement.classList.contains('login-required')) {
 			// noone logged in
-			user.name = null;
-		} else {
-			user.name = usernameElement.innerText || null;
+			return null;
 		}
 
-		return user;
+		const username = usernameElement.innerText;
+
+		if (!username) {
+			return null;
+		}
+
+		return {
+			name: username
+		};
 	}
 
 	/**
