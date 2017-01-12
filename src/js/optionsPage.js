@@ -196,7 +196,6 @@ function update() {
 		element.CSSClassNameInput.classList.toggle('text-input--invalid', !valid);
 		element.CSSClassNameInput.textContent = className;
 		element.CSSClassName.textContent = className;
-		debugger;
 		element.clearChildrenInput.disabled = !element.clearCommentInput.checked;
 
 		// update visible page/tab
