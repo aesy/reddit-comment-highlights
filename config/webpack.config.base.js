@@ -59,7 +59,7 @@ module.exports = {
 		}]
 	},
 	plugins: [
-		new webpack.NoErrorsPlugin(),
+		new webpack.NoEmitOnErrorsPlugin(),
 		new webpack.NamedModulesPlugin(),
 		new HtmlWebpackPlugin({
 			hash: false,

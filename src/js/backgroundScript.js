@@ -52,7 +52,7 @@ chrome.runtime.onInstalled.addListener(details => {
 	}
 });
 
-// this is necessary to expose the classes for when the ContentScript gets the 'window' object of the background page
+// this is necessary to expose the classes for when the content script gets the 'window' object of the background page
 // via 'chrome.extension.getBackgroundPage()'
 export {
 	ExtensionOptions,

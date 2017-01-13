@@ -114,7 +114,7 @@ class ExtensionOptions {
 	}
 
 	/**
-	 * Gets whether comment (and possiblt its' children) highlights should be cleared when clicked by default
+	 * Gets whether comment (and possibly its' children) highlights should be cleared when clicked by default
 	 * @public
 	 * @returns {{atAll: boolean, includeChildren: boolean}}
 	 */
@@ -126,7 +126,7 @@ class ExtensionOptions {
 	}
 
 	/**
-	 * Sets whether comment (and possibly its' children) highlights should be cleared whn clicked
+	 * Sets whether comment (and possibly its' children) highlights should be cleared when clicked
 	 * @public
 	 * @param {boolean} clear
 	 * @param {boolean} includeChildren

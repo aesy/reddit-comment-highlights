@@ -90,7 +90,7 @@ class Message {
 	/**
 	 * Shows a message
 	 * @param {string} text to display
-	 * @param {boolean} [isError = true]
+	 * @param {boolean} [isError = false]
 	 */
 	static show(text, isError = false) {
 		element.statusMessage.textContent = text;
@@ -155,7 +155,7 @@ function reset() {
 }
 
 /**
- * Loads the options in storage and updates view
+ * Loads the options from storage and updates view
  */
 function load() {
 	chrome.runtime.getBackgroundPage(background => {
