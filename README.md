@@ -15,8 +15,7 @@ A Chrome extension that highlights unread comments on [Reddit](https://www.reddi
 * Syncs across chrome sessions
 * Requires minimal permissions
 
-###Screenshots
-
+### Screenshots
 ![](img/Screenshot_highlight.png) |
 --------------------------------- |
 Highlighted comments              |
@@ -42,10 +41,10 @@ Here's an example of what you could use:
 }
 ```
 
-###Support
+### Support
 A minimum Chrome version of 32 is required because of the use of [Promises](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) without a [polyfill](https://developer.mozilla.org/en-US/docs/Glossary/Polyfill).
 
-###Contribute
+### Contribute
 Please use the [issue tracker](https://github.com/easyfuckingpeasy/chrome-reddit-comment-highlights/issues) to report bugs or feature requests.
 Pull requests are welcome, but please make sure compiliation still works (`npm run build:prod`) and lint (`npm run lint`) beforehand.
 
