@@ -5,14 +5,14 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-	context: path.join(__dirname, '..'),
+	context: path.resolve(__dirname, '..'),
 	entry: {
 		backgroundScript: ['./src/js/backgroundScript.js'],
 		contentScript: ['./src/js/contentScript.js'],
 		options: ['./src/js/optionsPage.js']
 	},
 	output: {
-		path: 'dist',
+		path: path.resolve(__dirname, '../dist/'),
 		publicPath: '/',
 		filename: 'js/[name].js',
 		libraryTarget: 'window'
@@ -34,11 +34,11 @@ module.exports = {
 		}, {
 			test: /\.(css|sass|scss)/,
 			exclude: /node_modules/,
-			loader: ExtractTextPlugin.extract({
-				fallbackLoader: 'style-loader',
-				loader: [{
+			use: ExtractTextPlugin.extract({
+				fallback: 'style-loader',
+				use: [{
 					loader: 'css-loader',
-					query: { // may change to 'options' in the future
+					query: { // May change to 'options' in the future
 						minimize: true,
 						sourceMap: false
 					}

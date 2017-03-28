@@ -11,6 +11,7 @@ module.exports = merge.smart({
 		new webpack.optimize.UglifyJsPlugin({
 			compress: {
 				warnings: false,
+				/* eslint camelcase:0 */
 				drop_console: true
 			},
 			comments: false,
@@ -24,8 +25,13 @@ module.exports = merge.smart({
 			minimize: true
 		}),
 		new ArchivePlugin({
-			output: 'package',
+			output: 'dist/app',
 			format: 'zip'
+		}),
+		new ArchivePlugin({
+			output: 'dist/app',
+			format: 'zip',
+			ext: 'crx'
 		})
 	]
 }, config);

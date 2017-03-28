@@ -1,10 +1,10 @@
 dist
 public
 node_modules
-*.iml
-.idea/
+.idea
 *.log
 *.zip
-img/webstore/*
+*.crx
+img/webstore
 !src/img/icon.png
 Thumbs.db
