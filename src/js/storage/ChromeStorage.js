@@ -44,10 +44,10 @@ class ChromeStorage {
 		this.type = type;
 		this.storage = chrome.storage[type];
 
-		// setup onChange listener
+		// Setup onChange listener
 		chrome.storage.onChanged.addListener((changes, namespace) => {
 			if (namespace !== this.type) {
-				// changes in wrong storage type
+				// Changes in wrong storage type
 				return;
 			}
 
@@ -138,12 +138,12 @@ class ChromeStorage {
 			if (arguments.length === 0) {
 				this.storage.clear(callback);
 			} else {
-				keys = [].concat(keys); // make sure it's an array
+				keys = [].concat(keys); // Make sure it's an array
 				this.storage.remove(keys, callback);
 			}
 		});
 	}
 }
 
-// only one instance of this class needed
+// Only one instance of this class needed
 export default new ChromeStorage(ChromeStorage.Type.SYNC);

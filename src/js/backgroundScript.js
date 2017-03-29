@@ -2,7 +2,7 @@ import ExtensionOptions from './storage/ExtensionOptions';
 import ThreadStorage from './storage/ThreadStorage';
 import ChromeStorage from './storage/ChromeStorage';
 
-/* this file should really be called 'eventScript' as it's only loaded when needed */
+/* This file should really be called 'eventScript' as it's only loaded when needed */
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	switch (request.method) {
@@ -32,7 +32,7 @@ chrome.runtime.onInstalled.addListener(details => {
 			return;
 		}
 
-		// update stored options if outdated
+		// Update stored options if outdated
 		ChromeStorage.get('reddit_au_options').then(opts => {
 			ExtensionOptions.clear().then(() => {
 				opts = opts || {};
@@ -52,7 +52,7 @@ chrome.runtime.onInstalled.addListener(details => {
 	}
 });
 
-// this is necessary to expose the classes for when the content script gets the 'window' object of the background page
+// This is necessary to expose the classes for when the content script gets the 'window' object of the background page
 // via 'chrome.extension.getBackgroundPage()'
 export {
 	ExtensionOptions,

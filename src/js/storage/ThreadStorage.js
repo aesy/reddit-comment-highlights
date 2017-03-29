@@ -36,12 +36,12 @@ class ThreadStorage {
 	 * @constructor
 	 */
 	constructor() {
-		// listen for changes in storage and update internal storage
+		// Listen for changes in storage and update internal storage
 		ChromeStorage.onChange.add(changes => {
 			changes = changes[ThreadStorage.STORAGE_KEY];
 
 			if (changes === undefined) {
-				// no changes in thread history
+				// No changes in thread history
 				return;
 			}
 
@@ -50,7 +50,7 @@ class ThreadStorage {
 			this.onChange.dispatch();
 		});
 
-		// sync internal storage with chrome storage
+		// Sync internal storage with chrome storage
 		ChromeStorage.get(ThreadStorage.STORAGE_KEY).then(data => {
 			this.collection = data || [];
 		}).catch(this.onError.bind(this));
@@ -109,7 +109,7 @@ class ThreadStorage {
 			return null;
 		}
 
-		// array is sorted
+		// Array is sorted
 		return this.collection[0];
 	}
 
@@ -185,7 +185,7 @@ class ThreadStorage {
 	 * @returns {boolean} is over max byte limit
 	 */
 	isOverMaxByteLimit() {
-		// assume every character is two bytes
+		// Assume every character is two bytes
 		return JSON.stringify(this.collection).length * 2 >= ChromeStorage.MAX_BYTES;
 	}
 
@@ -211,5 +211,5 @@ class ThreadStorage {
 	}
 }
 
-// only one instance of this class needed
+// Only one instance of this class needed
 export default new ThreadStorage();

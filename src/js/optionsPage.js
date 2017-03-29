@@ -24,7 +24,7 @@ const element = {
 	resetButton: document.getElementById('clear-options'),
 	year: document.getElementById('footer__year'),
 
-	// not actually DOM Elements...
+	// Not actually DOM Elements...
 	backgroundColorPicker: new ColorPicker({
 		el: document.getElementById('back-color'),
 		background: '#ccc',
@@ -61,10 +61,10 @@ function initializeListeners() {
 			end: element.CSSClassNameInput.selectionEnd
 		};
 
-		// this loses the selection of the input for some reason
+		// This loses the selection of the input for some reason
 		update();
 
-		// restore selection (has to be async)
+		// Restore selection (has to be async)
 		setTimeout(() => {
 			element.CSSClassNameInput.setSelectionRange(selection.start, selection.end);
 		}, 0);
@@ -198,14 +198,14 @@ function update() {
 		element.CSSClassName.textContent = className;
 		element.clearChildrenInput.disabled = !element.clearCommentInput.checked;
 
-		// update visible page/tab
+		// Update visible page/tab
 		const selection = document.querySelector('input[name="style-mode"]:checked');
 
 		for (const tab of document.querySelectorAll('.main-content__tab')) {
 			tab.classList.toggle('main-content__tab--is-visible', tab.classList.contains(selection.id));
 		}
 
-		// update frequency values
+		// Update frequency values
 		const frequencyValue = element.frequencyInput.value;
 
 		switch (parseInt(frequencyValue, 10)) {

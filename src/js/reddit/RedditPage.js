@@ -32,14 +32,14 @@ class RedditPage {
 			}
 
 			if (!this.threadId) {
-				// not a comment section
+				// Not a comment section
 				return;
 			}
 
 			chrome.runtime.sendMessage({ method: 'ThreadStorage.getById', threadId: this.threadId }, thread => {
 				chrome.runtime.sendMessage({ method: 'ThreadStorage.add', threadId: this.threadId });
 				if (!thread) {
-					// first time in comment section
+					// First time in comment section
 					return;
 				}
 
@@ -61,12 +61,12 @@ class RedditPage {
 	 * @param {string} className CSS class name to add to element
 	 */
 	highlightComment(comment, className) {
-		// add highlight styling
+		// Add highlight styling
 		comment.classList.add(`${className}--transition`);
 		comment.classList.add(className);
 
 		chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
-			// comments to clear on click
+			// Comments to clear on click
 			const clear = [];
 
 			if (options.clearComment.atAll) {
@@ -80,7 +80,7 @@ class RedditPage {
 				clear.push.apply(clear, childComments);
 			}
 
-			// remove CSS of this and all child comments when clicked
+			// Remove CSS of this and all child comments when clicked
 			comment.addEventListener('click', () => {
 				for (const comment of clear) {
 					comment.classList.remove(className);
@@ -101,7 +101,7 @@ class RedditPage {
 	isCommentSection() {
 		const pathPieces = document.location.pathname.split('/');
 
-		// check if url is in the form of '/r/<subreddit>/comments/...
+		// Check if url is in the form of '/r/<subreddit>/comments/...
 		return pathPieces[1] === 'r' && pathPieces[3] === 'comments';
 	}
 
@@ -115,10 +115,10 @@ class RedditPage {
 			return null;
 		}
 
-		// get the path of the thread (works on mobile, too)
+		// Get the path of the thread (works on mobile, too)
 		const pathPieces = document.location.pathname.split('/');
 
-		// the 4th item in the path *should* always be the thread id
+		// The 4th item in the path *should* always be the thread id
 		return pathPieces[4] || null;
 	}
 
@@ -133,7 +133,7 @@ class RedditPage {
 		const currentUser = this.getCurrentUser();
 
 		for (const comment of comments) {
-			// reddit comment date format: 2014-02-20T00:41:27+00:00
+			// Reddit comment date format: 2014-02-20T00:41:27+00:00
 			const commentDate = comment.getElementsByTagName('time')[0].getAttribute('datetime');
 			if (!commentDate) {
 				continue;
@@ -141,13 +141,13 @@ class RedditPage {
 
 			const commentTimestamp = Math.floor(Date.parse(commentDate) / 1000);
 			if (commentTimestamp < this.lastVisited) {
-				// skip if comment is'nt new
+				// Skip if comment is'nt new
 				continue;
 			}
 
 			const commentAuthor = comment.querySelector('.author').innerText;
 			if (currentUser.name && currentUser.name === commentAuthor) {
-				// skip if comment is by current user
+				// Skip if comment is by current user
 				continue;
 			}
 
@@ -166,7 +166,7 @@ class RedditPage {
 		const usernameElement = document.querySelector('.user a');
 
 		if (usernameElement.classList.contains('login-required')) {
-			// noone logged in
+			// Noone logged in
 			return null;
 		}
 
@@ -201,5 +201,5 @@ class RedditPage {
 	}
 }
 
-// only one instance of this class needed
+// Only one instance of this class needed
 export default new RedditPage();

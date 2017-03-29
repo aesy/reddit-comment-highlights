@@ -34,12 +34,12 @@ class ExtensionOptions {
 	 * @constructor
 	 */
 	constructor() {
-		// listen for changes in storage and update internal storage
+		// Listen for changes in storage and update internal storage
 		ChromeStorage.onChange.add(changes => {
 			changes = changes[ExtensionOptions.STORAGE_KEY];
 
 			if (changes === undefined) {
-				// no changes to extension options
+				// No changes to extension options
 				return;
 			}
 
@@ -48,7 +48,7 @@ class ExtensionOptions {
 			this.onChange.dispatch();
 		});
 
-		// sync internal storage with chrome storage
+		// Sync internal storage with chrome storage
 		ChromeStorage.get(ExtensionOptions.STORAGE_KEY).then(data => {
 			this.options = data || {};
 		}).catch(this.onError.bind(this));
@@ -175,7 +175,7 @@ class ExtensionOptions {
 	 * @returns {boolean} is set
 	 */
 	hasBorder() {
-		// there is a border by default hence returning true if undefined
+		// There is a border by default hence returning true if undefined
 		return (this.options.border === undefined) || Boolean(this.options.border);
 	}
 
@@ -357,7 +357,7 @@ class ExtensionOptions {
 	 * @returns {number} default time limit
 	 */
 	getDefaultThreadRemovalSeconds() {
-		return 604800; // a week
+		return 604800; // A week
 	}
 
 	/**
@@ -394,5 +394,5 @@ class ExtensionOptions {
 	}
 }
 
-// only one instance of this class needed
+// Only one instance of this class needed
 export default new ExtensionOptions();
