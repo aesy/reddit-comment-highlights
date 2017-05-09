@@ -64,6 +64,29 @@ class ExtensionOptions {
 	}
 
 	/**
+	 * Gets whether user is also a RES user
+	 * @returns {boolean|null} is a RES user. Returns null if unknown
+	 */
+	isResUser() {
+		if (this.options.usesRES === undefined) {
+			return null;
+		}
+
+		return this.options.usesRES;
+	}
+
+	/**
+	 * Sets whether user is also a RES user
+	 * @param {boolean} bool
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setIsResUser(bool) {
+		this.options.usesRES = bool;
+
+		return this;
+	}
+
+	/**
 	 * Gets whether mobile site should redirect to desktop site
 	 * @public
 	 * @returns {boolean} should redirect
@@ -154,7 +177,7 @@ class ExtensionOptions {
 	 * @returns {string} border
 	 */
 	getDefaultBorder() {
-		return '1px dotted #ccc';
+		return '1px dotted #cccccc';
 	}
 
 	/**
@@ -210,6 +233,36 @@ class ExtensionOptions {
 	}
 
 	/**
+	 * Gets the background color in night mode as a hex color
+	 * @public
+	 * @returns {string} background hex color
+	 */
+	getBackgroundNightColor() {
+		return this.options.backNightColor || this.getDefaultBackgroundNightColor();
+	}
+
+	/**
+	 * Gets the default background color in night mode as a hex color
+	 * @public
+	 * @returns {string} default background hex color
+	 */
+	getDefaultBackgroundNightColor() {
+		return '#424242';
+	}
+
+	/**
+	 * Sets the background color in night mode
+	 * @public
+	 * @param {string} color as a hex color
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setBackgroundNightColor(color) {
+		this.options.backNightColor = color;
+
+		return this;
+	}
+
+	/**
 	 * Gets the text color as a hex color
 	 * @public
 	 * @returns {string} text hex color
@@ -224,7 +277,7 @@ class ExtensionOptions {
 	 * @returns {string} default text hex color
 	 */
 	getDefaultTextColor() {
-		return '#000';
+		return '#000000';
 	}
 
 	/**
@@ -240,6 +293,156 @@ class ExtensionOptions {
 	}
 
 	/**
+	 * Gets the text color in night mode as a hex color
+	 * @public
+	 * @returns {string} text hex color
+	 */
+	getTextNightColor() {
+		return this.options.frontNightColor || this.getDefaultTextNightColor();
+	}
+
+	/**
+	 * Gets the default text color in night mode as a hex color
+	 * @public
+	 * @returns {string} default text hex color
+	 */
+	getDefaultTextNightColor() {
+		return '#ffffff';
+	}
+
+	/**
+	 * Sets the text color in night mode
+	 * @public
+	 * @param {string} color as a hex color
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setTextNightColor(color) {
+		this.options.frontColor = color;
+
+		return this;
+	}
+
+	/**
+	 * Gets the link color as a hex color
+	 * @public
+	 * @returns {string} text hex color
+	 */
+	getLinkColor() {
+		return this.options.linkColor || this.getDefaultLinkColor();
+	}
+
+	/**
+	 * Gets the default link color as a hex color
+	 * @public
+	 * @returns {string} default text hex color
+	 */
+	getDefaultLinkColor() {
+		return '#0079d3';
+	}
+
+	/**
+	 * Sets the link color
+	 * @public
+	 * @param {string} color as a hex color
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setLinkColor(color) {
+		this.options.linkColor = color;
+
+		return this;
+	}
+
+	/**
+	 * Gets the link color in night mode as a hex color
+	 * @public
+	 * @returns {string} text hex color
+	 */
+	getLinkNightColor() {
+		return this.options.linkNightColor || this.getDefaultLinkNightColor();
+	}
+
+	/**
+	 * Gets the default link color in night mode as a hex color
+	 * @public
+	 * @returns {string} default text hex color
+	 */
+	getDefaultLinkNightColor() {
+		return '#8cb3d9';
+	}
+
+	/**
+	 * Sets the link color in night mode
+	 * @public
+	 * @param {string} color as a hex color
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setLinkNightColor(color) {
+		this.options.linkNightColor = color;
+
+		return this;
+	}
+
+	/**
+	 * Gets the quote text color as a hex color
+	 * @public
+	 * @returns {string} text hex color
+	 */
+	getQuoteTextColor() {
+		return this.options.quoteTextColor || this.getDefaultQuoteTextColor();
+	}
+
+	/**
+	 * Gets the default quote text color as a hex color
+	 * @public
+	 * @returns {string} default text hex color
+	 */
+	getDefaultQuoteTextColor() {
+		return '#4f4f4f';
+	}
+
+	/**
+	 * Sets the quote text color
+	 * @public
+	 * @param {string} color as a hex color
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setQuoteTextColor(color) {
+		this.options.quoteTextColor = color;
+
+		return this;
+	}
+
+	/**
+	 * Gets the quote text color in night mode as a hex color
+	 * @public
+	 * @returns {string} text hex color
+	 */
+	getQuoteTextNightColor() {
+		return this.options.quoteTextNightColor || this.getDefaultQuoteTextNightColor();
+	}
+
+	/**
+	 * Gets the default quote text color in night mode as a hex color
+	 * @public
+	 * @returns {string} default text hex color
+	 */
+	getDefaultQuoteTextNightColor() {
+		return '#a0a0a0';
+	}
+
+	/**
+	 * Sets the quote text color in night mode
+	 * @public
+	 * @param {string} color as a hex color
+	 * @returns {ExtensionOptions} this instance for chaining purposes
+	 */
+	setQuoteTextNightColor(color) {
+		this.options.quoteTextNightColor = color;
+
+		return this;
+	}
+
+	/**
 	 * Gets the CSS for comment highlights
 	 * @public
 	 * @returns {string} css
@@ -249,7 +452,7 @@ class ExtensionOptions {
 			return this.getCustomCSS();
 		}
 
-		return `
+		let CSS = `
 			.comment.${this.getDefaultCSSClassName()}--transition  > .entry .md {
 				transition-property: padding, border, background-color, color;
                 transition-duration: 0.2s;
@@ -262,7 +465,29 @@ class ExtensionOptions {
 			    background-color: ${this.getBackgroundColor()};
 			    color: ${this.getTextColor()};
 			}
+			
+			.comment.${this.getDefaultCSSClassName()} > .entry .md a {
+				color: ${this.getLinkColor()}
+			}
 		`;
+
+		if (this.isResUser()) {
+			CSS += `
+				.res-nightmode .comment.${this.getDefaultCSSClassName()} > .entry .md {
+					padding: 2px;
+					border: ${this.getBorder()};
+					border-radius: 2px;
+					background-color: ${this.getBackgroundNightColor()};
+					color: ${this.getTextNightColor()}
+				}
+				
+				.res-nightmode .comment.${this.getDefaultCSSClassName()} > .entry .md a {
+					color: ${this.getLinkNightColor()}
+				}
+			`;
+		}
+
+		return CSS;
 	}
 
 	/**

@@ -1,11 +1,11 @@
 import '../css/page/options/module.scss';
-import ColorPicker from 'simple-color-picker';
 
 /**
  * Collection of commonly used DOM Elements
- * @type {object<string, Element|Element[]|ColorPicker>}
+ * @type {object<string, Element|Element[]>}
  */
 const element = {
+	content: document.querySelector('.main-content'),
 	CSSTextArea: document.getElementById('CSS-text'),
 	CSSClassNameInput: document.getElementById('class-name'),
 	CSSClassName: document.querySelector('.class-name'),
@@ -20,23 +20,32 @@ const element = {
 	customCSSRadioButton: document.getElementById('custom-css'),
 	statusMessage: document.getElementById('status-message'),
 	styleModes: document.querySelectorAll('input[name="style-mode"]'),
+	RESDialog: document.getElementById('RES'),
+	RESSettings: document.querySelectorAll('.RES'),
+	advancedDialog: document.getElementById('advanced'),
+	advancedSettings: document.querySelectorAll('.advanced'),
+	advancedButton: document.getElementById('show-advanced'),
 	saveButton: document.getElementById('save-options'),
-	resetButton: document.getElementById('clear-options'),
+	tabs: document.querySelectorAll('.main-content__tab'),
+	resetButton: document.getElementById('clear-all'),
 	year: document.getElementById('footer__year'),
+	backgroundColorPicker: document.getElementById('back-color'),
+	backgroundNightColorPicker: document.getElementById('back-color-night'),
+	textColorPicker: document.getElementById('front-color'),
+	textNightColorPicker: document.getElementById('front-color-night'),
+	linkColorPicker: document.getElementById('link-color'),
+	linkNightColorPicker: document.getElementById('link-color-night'),
+	quoteTextColorPicker: document.getElementById('quote-text-color'),
+	quoteTextNightColorPicker: document.getElementById('quote-text-color-night')
+};
 
-	// Not actually DOM Elements...
-	backgroundColorPicker: new ColorPicker({
-		el: document.getElementById('back-color'),
-		background: '#ccc',
-		width: 300,
-		height: 150
-	}),
-	textColorPicker: new ColorPicker({
-		el: document.getElementById('front-color'),
-		background: '#ccc',
-		width: 300,
-		height: 150
-	})
+/**
+ * Collection of page state variables
+ * @type {object<string, boolean>}
+ */
+const state = {
+	showAdvancedSettings: false,
+	showResSettings: null
 };
 
 /**
@@ -53,8 +62,20 @@ function initialize() {
 function initializeListeners() {
 	element.saveButton.addEventListener('click', save);
 	element.resetButton.addEventListener('click', reset);
+	element.advancedButton.addEventListener('click', () => {
+		state.showAdvancedSettings = true;
+		update();
+	});
 	element.clearCommentInput.addEventListener('click', update);
 	element.frequencyInput.addEventListener('input', update);
+	element.RESDialog.querySelector('#use-res-yes').addEventListener('click', () => {
+		state.showResSettings = true;
+		update();
+	});
+	element.RESDialog.querySelector('#use-res-no').addEventListener('click', () => {
+		state.showResSettings = false;
+		update();
+	});
 	element.CSSClassNameInput.addEventListener('input', () => {
 		const selection = {
 			start: element.CSSClassNameInput.selectionStart,
@@ -117,14 +138,21 @@ function save() {
 		const ExtensionOptions = background.ExtensionOptions;
 
 		ExtensionOptions
-			.setBackgroundColor(element.backgroundColorPicker.getHexString())
-			.setTextColor(element.textColorPicker.getHexString())
+			.setBackgroundColor(element.backgroundColorPicker.value)
+			.setBackgroundNightColor(element.backgroundNightColorPicker.value)
+			.setTextColor(element.textColorPicker.value)
+			.setTextNightColor(element.textNightColorPicker.value)
+			.setLinkColor(element.linkColorPicker.value)
+			.setLinkNightColor(element.linkNightColorPicker.value)
+			.setQuoteTextColor(element.quoteTextColorPicker.value)
+			.setQuoteTextNightColor(element.quoteTextNightColorPicker.value)
 			.setThreadRemovalSeconds(element.frequencyInput.value * 86400)
 			.setBorder(element.borderInput.checked)
 			.setClearComment(element.clearCommentInput.checked, element.clearChildrenInput.checked)
 			.setRedirect(element.redirectInput.checked)
 			.setCustomCSS(element.customCSSRadioButton.checked ? element.CSSTextArea.value : '')
-			.setCustomCSSClassName(element.CSSClassNameInput.value);
+			.setCustomCSSClassName(element.CSSClassNameInput.value)
+			.setIsResUser(state.showResSettings);
 
 		ExtensionOptions.save().then(() => {
 			Message.show('Settings saved!', false);
@@ -142,6 +170,8 @@ function reset() {
 	chrome.runtime.getBackgroundPage(background => {
 		const ExtensionOptions = background.ExtensionOptions;
 		const ChromeStorage = background.ChromeStorage;
+
+		state.showAdvancedSettings = false;
 
 		ExtensionOptions.onChange.once(load);
 
@@ -161,8 +191,14 @@ function load() {
 	chrome.runtime.getBackgroundPage(background => {
 		const ExtensionOptions = background.ExtensionOptions;
 
-		element.backgroundColorPicker.setColor(ExtensionOptions.getBackgroundColor());
-		element.textColorPicker.setColor(ExtensionOptions.getTextColor());
+		element.backgroundColorPicker.value = ExtensionOptions.getBackgroundColor();
+		element.backgroundNightColorPicker.value = ExtensionOptions.getBackgroundNightColor();
+		element.textColorPicker.value = ExtensionOptions.getTextColor();
+		element.textNightColorPicker.value = ExtensionOptions.getTextNightColor();
+		element.linkColorPicker.value = ExtensionOptions.getLinkColor();
+		element.linkNightColorPicker.value = ExtensionOptions.getLinkNightColor();
+		element.quoteTextColorPicker.value = ExtensionOptions.getQuoteTextColor();
+		element.quoteTextNightColorPicker.value = ExtensionOptions.getQuoteTextNightColor();
 		element.CSSTextArea.value = ExtensionOptions.getCustomCSS();
 		element.CSSClassNameInput.value = ExtensionOptions.getCSSClassName();
 		element.frequencyInput.value = ExtensionOptions.getThreadRemovalTimeSecs() / 86400;
@@ -170,6 +206,8 @@ function load() {
 		element.borderInput.checked = ExtensionOptions.hasBorder();
 		element.clearCommentInput.checked = ExtensionOptions.getClearComment().atAll;
 		element.clearChildrenInput.checked = ExtensionOptions.getClearComment().includeChildren;
+
+		state.showResSettings = ExtensionOptions.isResUser();
 
 		if (ExtensionOptions.usesCustomCSS()) {
 			element.customCSSRadioButton.click();
@@ -180,6 +218,7 @@ function load() {
 		update();
 	});
 
+	// Update copyright year
 	element.year.textContent = String(new Date().getFullYear());
 }
 
@@ -201,7 +240,7 @@ function update() {
 		// Update visible page/tab
 		const selection = document.querySelector('input[name="style-mode"]:checked');
 
-		for (const tab of document.querySelectorAll('.main-content__tab')) {
+		for (const tab of element.tabs) {
 			tab.classList.toggle('main-content__tab--is-visible', tab.classList.contains(selection.id));
 		}
 
@@ -225,6 +264,19 @@ function update() {
 				element.frequencyNumber.textContent = frequencyValue;
 				element.frequencyUnit.textContent = 'days';
 		}
+
+		element.RESDialog.classList.toggle('options-section--hidden', state.showResSettings !== null);
+		for (const setting of element.RESSettings) {
+			setting.classList.toggle('options-section--hidden', !state.showResSettings);
+		}
+
+		element.advancedDialog.classList.toggle('options-section--hidden', state.showAdvancedSettings);
+		for (const setting of element.advancedSettings) {
+			setting.classList.toggle('options-section--hidden', !state.showAdvancedSettings);
+		}
+
+		// Show contents
+		element.content.classList.remove('main-content--hidden');
 	});
 }
 

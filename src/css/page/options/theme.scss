@@ -8,18 +8,18 @@ body {
 }
 
 a {
-	color: #999;
+	color: #1794ce;
 	text-decoration: none;
 
 	&:visited,
 	&:active {
-		color: #999;
+		color: #9d52ce;
 		text-decoration: none;
 	}
 
 	&:hover,
 	&:focus {
-		color: #666;
+		color: #1794ce;
 		text-decoration: underline;
 	}
 }
@@ -43,6 +43,11 @@ a {
 		font-size: 12px;
 		text-transform: uppercase;
 		color: #999;
+	}
+
+	&--highlighted {
+		border: 1px solid #1794ce;
+		background-color: rgba(255, 255, 255, 0.8);
 	}
 }
 
@@ -99,18 +104,49 @@ a {
 .options-section__input-group {
 	& > input[type="checkbox"],
 	& > input[type="radio"] {
-		// hide real input elements in favor of customized ones
+		// Hide real input elements in favor of customized ones
 		display: none;
+	}
+
+	& > input:not(:disabled) + .options-section__input + .options-section__input-label {
+		// Show pointer on checkbox/radio labels
+		cursor: pointer;
 	}
 }
 
 .options-section__input {
+	&.color-picker {
+		outline: none;
+		border: none;
+		height: 25px;
+		width: 25px;
+		border-radius: 3px;
+		padding: 0;
+		margin-right: 5px;
+
+		&::-webkit-color-swatch-wrapper {
+			cursor: pointer;
+			border: 1px solid #ccc;
+			border-bottom-width: 3px;
+			border-radius: 3px;
+			padding: 0;
+
+			&:hover {
+				border-color: #1794ce;
+			}
+		}
+
+		&::-webkit-color-swatch {
+			border: none;
+		}
+	}
+
 	&.text-input,
 	&.textarea {
 		color: #666;
 		border: 1px solid #ccc;
 		border-bottom-width: 3px;
-		outline: 0;
+		outline: none;
 
 		&:focus {
 			border-color: #1794ce;
@@ -161,6 +197,7 @@ a {
 		cursor: pointer;
 		width: 18px;
 		height: 18px;
+		margin-bottom: 10px;
 		background: url('../../../img/radio.png') left top no-repeat;
 
 		input:hover + & {
@@ -184,7 +221,7 @@ a {
 		cursor: pointer;
 		width: 18px;
 		height: 18px;
-		margin-bottom: 6px;
+		margin-bottom: 10px;
 		background: url('../../../img/checkbox.png') left top no-repeat;
 
 		&:hover {

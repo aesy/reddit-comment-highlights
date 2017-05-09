@@ -2,7 +2,8 @@
 body {
 	margin: 0 auto;
 	padding: 0 10px;
-	max-width: 600px;
+	width: 90%;
+	max-width: 800px;
 }
 
 .header {
@@ -15,6 +16,15 @@ body {
 		margin-right: 20px;
 		width: 64px;
 	}
+}
+
+.main-content {
+	opacity: 1;
+	transition: opacity, 200ms;
+}
+
+.main-content--hidden {
+	opacity: 0;
 }
 
 .main-content__tab {
@@ -43,13 +53,19 @@ body {
 	}
 
 	&__input {
-		flex-shrink: 0;
 		margin: 5px;
 	}
 
 	&__input-label {
-		flex-grow: 1;
 		margin: 0 0 0 5px;
+	}
+
+	&--highlighted {
+		padding: 15px;
+	}
+
+	&--hidden {
+		display: none;
 	}
 }
 

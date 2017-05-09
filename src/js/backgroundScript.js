@@ -1,6 +1,7 @@
 import ExtensionOptions from './storage/ExtensionOptions';
 import ThreadStorage from './storage/ThreadStorage';
 import ChromeStorage from './storage/ChromeStorage';
+import * as Utils from './utils';
 
 /* This file should really be called 'eventScript' as it's only loaded when needed */
 
@@ -39,7 +40,13 @@ chrome.runtime.onInstalled.addListener(details => {
 
 				ExtensionOptions
 					.setBackgroundColor(opts.color || opts.backColor)
+					.setBackgroundNightColor(opts.backNightColor)
 					.setTextColor(opts.front_color || opts.frontColor)
+					.setTextNightColor(opts.frontNightColor)
+					.setLinkColor(opts.linkColor)
+					.setLinkNightColor(opts.linkNightColor)
+					.setQuoteTextColor(opts.quoteTextColor)
+					.setQuoteTextNightColor(opts.quoteTextNightColor)
 					.setThreadRemovalSeconds(opts.thread_removal_time_seconds || opts.threadRemovalTimeSeconds)
 					.setBorder(opts.has_border || opts.border)
 					.setClearComment(opts.clearCommentOnClick, opts.clearCommentincludeChildren)
@@ -57,5 +64,6 @@ chrome.runtime.onInstalled.addListener(details => {
 export {
 	ExtensionOptions,
 	ThreadStorage,
-	ChromeStorage
+	ChromeStorage,
+	Utils
 };
