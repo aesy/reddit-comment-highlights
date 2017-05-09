@@ -5,6 +5,7 @@ node_js:
 install:
     - npm i
 script:
-    - npm run travis
+    - npm run build:prod
+    - npm run lint
 notifications:
     email: false

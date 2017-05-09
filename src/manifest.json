@@ -1,7 +1,7 @@
 {
   "name": "Reddit (Au) Comment Highlights",
-  "version": "1.0.1",
-  "options_page": "options.html",
+  "version": "1.1.0",
+  "options_page": "/options.html",
   "manifest_version": 2,
   "minimum_chrome_version": "32",
   "icons": {
@@ -13,12 +13,12 @@
   "description": "Highlight unread comments since your last visit to a Reddit comment section.",
   "short_name": "Highlight new Reddit comments",
   "background": {
-  	"scripts": ["js/backgroundScript.js"],
+  	"scripts": ["/js/backgroundScript.js"],
       "persistent": false
   },
   "content_scripts": [{
   	"matches": ["http://*.reddit.com/*","https://*.reddit.com/*"],
-  	"js": ["js/contentScript.js"]
+  	"js": ["/js/contentScript.js"]
   }],
   "permissions": [
   	"storage",
