@@ -9,18 +9,22 @@ class ChromeStorage {
 	 * @public
 	 * @instance
 	 * @readonly
+	 * @type {MiniSignal}
 	 */
 	onChange = new MiniSignal();
 
 	/**
 	 * @private
 	 * @instance
+	 * @type {Type}
 	 */
 	type;
 
 	/**
 	 * @private
 	 * @instance
+	 * @type {StorageArea}
+	 * @see {@link https://developer.chrome.com/extensions/storage#type-StorageArea} for definition and usage
 	 */
 	storage;
 
