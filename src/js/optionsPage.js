@@ -33,8 +33,10 @@ const element = {
 	backgroundNightColorPicker: document.getElementById('back-color-night'),
 	textColorPicker: document.getElementById('front-color'),
 	textNightColorPicker: document.getElementById('front-color-night'),
+	customLinkColor: document.getElementById('custom-link-color'),
 	linkColorPicker: document.getElementById('link-color'),
 	linkNightColorPicker: document.getElementById('link-color-night'),
+	customQuoteColor: document.getElementById('custom-quote-color'),
 	quoteTextColorPicker: document.getElementById('quote-text-color'),
 	quoteTextNightColorPicker: document.getElementById('quote-text-color-night')
 };
@@ -67,6 +69,8 @@ function initializeListeners() {
 		update();
 	});
 	element.clearCommentInput.addEventListener('click', update);
+	element.customLinkColor.addEventListener('click', update);
+	element.customQuoteColor.addEventListener('click', update);
 	element.frequencyInput.addEventListener('input', update);
 	element.RESDialog.querySelector('#use-res-yes').addEventListener('click', () => {
 		state.showResSettings = true;
@@ -142,10 +146,10 @@ function save() {
 			.setBackgroundNightColor(element.backgroundNightColorPicker.value)
 			.setTextColor(element.textColorPicker.value)
 			.setTextNightColor(element.textNightColorPicker.value)
-			.setLinkColor(element.linkColorPicker.value)
-			.setLinkNightColor(element.linkNightColorPicker.value)
-			.setQuoteTextColor(element.quoteTextColorPicker.value)
-			.setQuoteTextNightColor(element.quoteTextNightColorPicker.value)
+			.setLinkColor(element.customLinkColor.checked ? element.linkColorPicker.value : null)
+			.setLinkNightColor(element.customLinkColor.checked ? element.linkNightColorPicker.value : null)
+			.setQuoteTextColor(element.customQuoteColor.checked ? element.quoteTextColorPicker.value : null)
+			.setQuoteTextNightColor(element.customQuoteColor.checked ? element.quoteTextNightColorPicker.value : null)
 			.setThreadRemovalSeconds(element.frequencyInput.value * 86400)
 			.setBorder(element.borderInput.checked)
 			.setClearComment(element.clearCommentInput.checked, element.clearChildrenInput.checked)
@@ -195,10 +199,10 @@ function load() {
 		element.backgroundNightColorPicker.value = ExtensionOptions.getBackgroundNightColor();
 		element.textColorPicker.value = ExtensionOptions.getTextColor();
 		element.textNightColorPicker.value = ExtensionOptions.getTextNightColor();
-		element.linkColorPicker.value = ExtensionOptions.getLinkColor();
-		element.linkNightColorPicker.value = ExtensionOptions.getLinkNightColor();
-		element.quoteTextColorPicker.value = ExtensionOptions.getQuoteTextColor();
-		element.quoteTextNightColorPicker.value = ExtensionOptions.getQuoteTextNightColor();
+		element.linkColorPicker.value = ExtensionOptions.getLinkColor() || ExtensionOptions.getDefaultLinkColor();
+		element.linkNightColorPicker.value = ExtensionOptions.getLinkNightColor() || ExtensionOptions.getDefaultLinkNightColor();
+		element.quoteTextColorPicker.value = ExtensionOptions.getQuoteTextColor() || ExtensionOptions.getDefaultQuoteTextColor();
+		element.quoteTextNightColorPicker.value = ExtensionOptions.getQuoteTextNightColor() || ExtensionOptions.getDefaultQuoteTextNightColor();
 		element.CSSTextArea.value = ExtensionOptions.getCustomCSS();
 		element.CSSClassNameInput.value = ExtensionOptions.getCSSClassName();
 		element.frequencyInput.value = ExtensionOptions.getThreadRemovalTimeSecs() / 86400;
@@ -206,6 +210,8 @@ function load() {
 		element.borderInput.checked = ExtensionOptions.hasBorder();
 		element.clearCommentInput.checked = ExtensionOptions.getClearComment().atAll;
 		element.clearChildrenInput.checked = ExtensionOptions.getClearComment().includeChildren;
+		element.customLinkColor.checked = ExtensionOptions.getLinkColor() !== null;
+		element.customQuoteColor.checked = ExtensionOptions.getQuoteTextColor() !== null;
 
 		state.showResSettings = ExtensionOptions.isResUser();
 
@@ -236,6 +242,10 @@ function update() {
 		element.CSSClassNameInput.textContent = className;
 		element.CSSClassName.textContent = className;
 		element.clearChildrenInput.disabled = !element.clearCommentInput.checked;
+		element.linkColorPicker.disabled = !element.customLinkColor.checked;
+		element.linkNightColorPicker.disabled = !element.customLinkColor.checked;
+		element.quoteTextColorPicker.disabled = !element.customQuoteColor.checked;
+		element.quoteTextNightColorPicker.disabled = !element.customQuoteColor.checked;
 
 		// Update visible page/tab
 		const selection = document.querySelector('input[name="style-mode"]:checked');

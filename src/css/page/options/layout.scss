@@ -54,6 +54,10 @@ body {
 
 	&__input {
 		margin: 5px;
+
+		&--hidden {
+			display: none;
+		}
 	}
 
 	&__input-label {

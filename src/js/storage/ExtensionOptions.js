@@ -325,10 +325,10 @@ class ExtensionOptions {
 	/**
 	 * Gets the link color as a hex color
 	 * @public
-	 * @returns {string} text hex color
+	 * @returns {string|null} text hex color. May be null if set to browser default.
 	 */
 	getLinkColor() {
-		return this.options.linkColor || this.getDefaultLinkColor();
+		return this.options.linkColor || null;
 	}
 
 	/**
@@ -343,7 +343,7 @@ class ExtensionOptions {
 	/**
 	 * Sets the link color
 	 * @public
-	 * @param {string} color as a hex color
+	 * @param {string|null} color as a hex color. Null will set it to browser default.
 	 * @returns {ExtensionOptions} this instance for chaining purposes
 	 */
 	setLinkColor(color) {
@@ -355,10 +355,10 @@ class ExtensionOptions {
 	/**
 	 * Gets the link color in night mode as a hex color
 	 * @public
-	 * @returns {string} text hex color
+	 * @returns {string|null} text hex color. May be null if set to browser default.
 	 */
 	getLinkNightColor() {
-		return this.options.linkNightColor || this.getDefaultLinkNightColor();
+		return this.options.linkNightColor || null;
 	}
 
 	/**
@@ -373,7 +373,7 @@ class ExtensionOptions {
 	/**
 	 * Sets the link color in night mode
 	 * @public
-	 * @param {string} color as a hex color
+	 * @param {string|null} color as a hex color. Null will set it to browser default.
 	 * @returns {ExtensionOptions} this instance for chaining purposes
 	 */
 	setLinkNightColor(color) {
@@ -385,10 +385,10 @@ class ExtensionOptions {
 	/**
 	 * Gets the quote text color as a hex color
 	 * @public
-	 * @returns {string} text hex color
+	 * @returns {string|null} text hex color. May be null if set to browser default.
 	 */
 	getQuoteTextColor() {
-		return this.options.quoteTextColor || this.getDefaultQuoteTextColor();
+		return this.options.quoteTextColor || null;
 	}
 
 	/**
@@ -403,7 +403,7 @@ class ExtensionOptions {
 	/**
 	 * Sets the quote text color
 	 * @public
-	 * @param {string} color as a hex color
+	 * @param {string|null} color as a hex color. Null will set it to browser default.
 	 * @returns {ExtensionOptions} this instance for chaining purposes
 	 */
 	setQuoteTextColor(color) {
@@ -415,10 +415,10 @@ class ExtensionOptions {
 	/**
 	 * Gets the quote text color in night mode as a hex color
 	 * @public
-	 * @returns {string} text hex color
+	 * @returns {string|null} text hex color. May be null if set to browser default.
 	 */
 	getQuoteTextNightColor() {
-		return this.options.quoteTextNightColor || this.getDefaultQuoteTextNightColor();
+		return this.options.quoteTextNightColor || null;
 	}
 
 	/**
@@ -433,7 +433,7 @@ class ExtensionOptions {
 	/**
 	 * Sets the quote text color in night mode
 	 * @public
-	 * @param {string} color as a hex color
+	 * @param {string|null} color as a hex color. Null will set it to browser default.
 	 * @returns {ExtensionOptions} this instance for chaining purposes
 	 */
 	setQuoteTextNightColor(color) {
@@ -457,7 +457,7 @@ class ExtensionOptions {
 				transition-property: padding, border, background-color, color;
                 transition-duration: 0.2s;
 			}
-			
+
 			.comment.${this.getDefaultCSSClassName()} > .entry .md {
 			    padding: 2px;
 			    border: ${this.getBorder()};
@@ -465,11 +465,23 @@ class ExtensionOptions {
 			    background-color: ${this.getBackgroundColor()};
 			    color: ${this.getTextColor()};
 			}
-			
-			.comment.${this.getDefaultCSSClassName()} > .entry .md a {
-				color: ${this.getLinkColor()}
-			}
 		`;
+
+		if (this.getLinkColor() !== null) {
+			CSS += `
+				.comment.${this.getDefaultCSSClassName()} > .entry .md a {
+					color: ${this.getLinkColor()}
+				}
+			`;
+		}
+
+		if (this.getQuoteTextColor() !== null) {
+			CSS += `
+				.comment.${this.getDefaultCSSClassName()} > .entry .md blockquote {
+					color: ${this.getQuoteTextColor()}
+				}
+			`;
+		}
 
 		if (this.isResUser()) {
 			CSS += `
@@ -480,11 +492,23 @@ class ExtensionOptions {
 					background-color: ${this.getBackgroundNightColor()};
 					color: ${this.getTextNightColor()}
 				}
-				
-				.res-nightmode .comment.${this.getDefaultCSSClassName()} > .entry .md a {
-					color: ${this.getLinkNightColor()}
-				}
 			`;
+
+			if (this.getLinkNightColor() !== null) {
+				CSS += `
+					.res-nightmode .comment.${this.getDefaultCSSClassName()} > .entry .md a {
+						color: ${this.getLinkNightColor()}
+					}
+				`;
+			}
+
+			if (this.getQuoteTextNightColor() !== null) {
+				CSS += `
+					.res-nightmode .comment.${this.getDefaultCSSClassName()} > .entry .md blockquote {
+						color: ${this.getQuoteTextNightColor()}
+					}
+				`;
+			}
 		}
 
 		return CSS;
@@ -615,6 +639,7 @@ class ExtensionOptions {
 	 */
 	clear() {
 		this.options = {};
+
 		return this.save();
 	}
 }

@@ -26,14 +26,6 @@
 	            </div>
             </div>
 
-	        <div class="options-section">
-		        <div class="options-section__input-group">
-			        <div id="status-message" class="status-message status-message--success"></div>
-			        <input class="options-section__input button button--normal" type="button"
-			               id="save-options" value="Save Options">
-		        </div>
-	        </div>
-
             <div class="options-section">
                 <div class="options-section__title">
                     Set styling with:
@@ -101,12 +93,16 @@
 	            <div class="options-section advanced">
 		            <div class="options-section__header">
 			            <h2 class="options-section__title">
-				            Link color
+				            Link font color
 			            </h2>
-			            <p class="options-section__description">
-				            Specify the link color of highlighted comments.
-			            </p>
 		            </div>
+		            <label class="options-section__input-group" for="custom-link-color">
+			            <input type="checkbox" id="custom-link-color">
+			            <span class="options-section__input checkbox"></span>
+			            <span class="options-section__input-label">
+							Use a custom link font color
+						</span>
+		            </label>
 		            <div class="options-section__input-group">
 			            <input class="options-section__input color-picker" id="link-color"
 			                  type="color" title="link color picker"/>
@@ -123,10 +119,14 @@
 			            <h2 class="options-section__title">
 				            Quote font color
 			            </h2>
-			            <p class="options-section__description">
-				            Specify the quote font color of highlighted comments.
-			            </p>
 		            </div>
+		            <label class="options-section__input-group" for="custom-quote-color">
+			            <input type="checkbox" id="custom-quote-color">
+			            <span class="options-section__input checkbox"></span>
+			            <span class="options-section__input-label">
+							Use a custom quote font color
+						</span>
+		            </label>
 		            <div class="options-section__input-group">
 			            <input class="options-section__input color-picker" id="quote-text-color"
 			                   type="color" title="quote text color picker"/>
@@ -259,6 +259,14 @@
 		        <div class="options-section__input-group">
 			        <input class="options-section__input button button--normal" type="button"
 			               id="show-advanced" value="Show">
+		        </div>
+	        </div>
+
+	        <div class="options-section">
+		        <div class="options-section__input-group">
+			        <input class="options-section__input button button--normal" type="button"
+			               id="save-options" value="Save Options">
+			        <div id="status-message" class="status-message status-message--success"></div>
 		        </div>
 	        </div>
 

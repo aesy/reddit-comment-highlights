@@ -145,7 +145,7 @@ class RedditPage {
 				continue;
 			}
 
-			const commentAuthor = comment.querySelector('.author').innerText;
+			const commentAuthor = comment.querySelector('.author').textContent;
 			if (currentUser.name && currentUser.name === commentAuthor) {
 				// Skip if comment is by current user
 				continue;
@@ -170,7 +170,7 @@ class RedditPage {
 			return null;
 		}
 
-		const username = usernameElement.innerText;
+		const username = usernameElement.textContent;
 
 		if (!username) {
 			return null;
