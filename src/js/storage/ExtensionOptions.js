@@ -317,7 +317,7 @@ class ExtensionOptions {
 	 * @returns {ExtensionOptions} this instance for chaining purposes
 	 */
 	setTextNightColor(color) {
-		this.options.frontColor = color;
+		this.options.frontNightColor = color;
 
 		return this;
 	}

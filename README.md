@@ -1,6 +1,6 @@
 ![](img/Logo.png)
 
-A Chrome extension that highlights unread comments on [Reddit](https://www.reddit.com) since your last visit.
+A Chrome extension that highlights unread comments on [Reddit](https://www.reddit.com) since your last visit. A feature normally reserved to Reddit gold users!
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/jeodebnjeecpbmbgimbpinccfkihhjid.svg)](https://chrome.google.com/webstore/detail/reddit-au-comment-highlig/jeodebnjeecpbmbgimbpinccfkihhjid)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/d/jeodebnjeecpbmbgimbpinccfkihhjid.svg)](https://chrome.google.com/webstore/detail/reddit-au-comment-highlig/jeodebnjeecpbmbgimbpinccfkihhjid)
