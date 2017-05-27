@@ -1,57 +1,86 @@
-import { injectCSS } from '../utils/DOMUtils';
-
 /**
- * Represents a reddit page (supposed to, anyway) with relevant methods for the chrome extension
+ * Represents a reddit page
  * @class
  */
 class RedditPage {
 	/**
-	 * @private
-	 * @instance
-	 * @readonly
-	 * @type {string|null}
+	 * @callback OnChangeCallback
+	 * @param {Element[]} comments
 	 */
-	threadId = this.getId();
 
 	/**
 	 * @private
 	 * @instance
-	 * @type {number}
+	 * @type {OnChangeCallback[]}
 	 */
-	lastVisited;
+	listeners = [];
 
 	/**
-	 * Highlights new comments on the current page
-	 * @public
+	 * @private
+	 * @instance
+	 * @type {MutationObserver}
 	 */
-	highlightNewComments() {
-		chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
-			if (options.redirect && this.isMobileSite()) {
-				this.redirectToDesktop();
-				return;
-			}
+	newCommentObserver = new MutationObserver(event => {
+		const comments = event.filter(rec => {
+			// Filter out anything that's not a sitetable sibling
+			return rec.target.classList.contains('sitetable');
+		}).reduce((acc, rec) => {
+			// Convert NodeList to array
+			const nodes = Array.prototype.slice.call(rec.addedNodes);
 
-			if (!this.threadId) {
-				// Not a comment section
-				return;
-			}
-
-			chrome.runtime.sendMessage({ method: 'ThreadStorage.getById', threadId: this.threadId }, thread => {
-				chrome.runtime.sendMessage({ method: 'ThreadStorage.add', threadId: this.threadId });
-				if (!thread) {
-					// First time in comment section
-					return;
-				}
-
-				this.lastVisited = thread.timestamp;
-
-				injectCSS(options.css, document.getElementsByTagName('head')[0]);
-
-				for (const comment of this.getNewComments()) {
-					this.highlightComment(comment, options.className);
-				}
-			});
+			return acc.concat(nodes);
+		}, []).filter(elem => {
+			// Filter out anything that's not a comment
+			return elem.classList.contains('comment');
 		});
+
+		if (comments.length > 0) {
+			// Notify listeners of changes
+			for (const listener of this.listeners) {
+				listener(comments);
+			}
+		}
+	});
+
+	/**
+	 * @constructor
+	 */
+	constructor() {
+		const root = document.querySelector('.sitetable.nestedlisting');
+
+		if (this.isAThread()) {
+			if (root) {
+				// Listen for new comments
+				this.newCommentObserver.observe(root, {
+					attributes: false,
+					characterData: false,
+					childList: true,
+					subtree: true
+				});
+			} else {
+				console.error('Could not get root comment listing although page was interpreted as a comment thread');
+			}
+		}
+	}
+
+	/**
+	 * Adds a listener which is invoked when one or more comments are added to the page
+	 * @param {OnChangeCallback} listener
+	 */
+	onCommentAdded(listener) {
+		this.listeners.push(listener);
+	}
+
+	/**
+	 * Highlights an array of comment elements
+	 * @public
+	 * @param {Element[]} comments elements
+	 * @param {string} className CSS class name to add to elements
+	 */
+	highlightComments(comments, className) {
+		for (const comment of comments) {
+			this.highlightComment(comment, className);
+		}
 	}
 
 	/**
@@ -61,44 +90,45 @@ class RedditPage {
 	 * @param {string} className CSS class name to add to element
 	 */
 	highlightComment(comment, className) {
-		// Add highlight styling
 		comment.classList.add(`${className}--transition`);
 		comment.classList.add(className);
+	}
 
-		chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
-			// Comments to clear on click
-			const clear = [];
+	/**
+	 * Attaches a click listener to a single comment element, which removes its' highlights
+	 * @public
+	 * @param {Element} comment element
+	 * @param {string} className CSS class name to remove from element
+	 * @param {boolean} includeChildren
+	 */
+	clearHighlightOnClick(comment, className, includeChildren) {
+		// Comments to clear on click
+		const clear = [comment];
 
-			if (options.clearComment.atAll) {
-				clear.push(comment);
-			} else {
-				return;
+		if (includeChildren) {
+			const childComments = comment.getElementsByClassName('comment');
+			clear.push.apply(clear, childComments);
+		}
+
+		comment.addEventListener('click', () => {
+			for (const comment of clear) {
+				comment.classList.remove(className);
+				// Can't be removed before transition has finished
+				// comment.classList.remove(`${className}--transition`);
 			}
-
-			if (options.clearComment.includeChildren) {
-				const childComments = comment.getElementsByClassName('comment');
-				clear.push.apply(clear, childComments);
-			}
-
-			// Remove CSS of this and all child comments when clicked
-			comment.addEventListener('click', () => {
-				for (const comment of clear) {
-					comment.classList.remove(className);
-				}
-			}, {
-				capture: false,
-				once: true,
-				passive: true
-			});
+		}, {
+			capture: false,
+			once: true,
+			passive: true
 		});
 	}
 
 	/**
-	 * Checks whether the currently open page is a reddit comment section
+	 * Checks whether the currently open page is a reddit thread
 	 * @public
 	 * @returns {boolean}
 	 */
-	isCommentSection() {
+	isAThread() {
 		const pathPieces = document.location.pathname.split('/');
 
 		// Check if url is in the form of '/r/<subreddit>/comments/...
@@ -111,7 +141,7 @@ class RedditPage {
 	 * @returns {string|null} id, null if current page is not a reddit comment section
 	 */
 	getId() {
-		if (!this.isCommentSection()) {
+		if (!this.isAThread()) {
 			return null;
 		}
 
@@ -123,14 +153,18 @@ class RedditPage {
 	}
 
 	/**
-	 * Gets all new comments
+	 * Gets comments newer than a specified timestamp
 	 * @public
-	 * @returns {Element[]} elements of new comments
+	 * @param {number} timestamp
+	 * @param {Node|Element[]} comments  parent node or array of comments to sift through
+	 * @returns {Element[]} elements of comments
 	 */
-	getNewComments() {
+	getCommentsNewerThan(timestamp, comments) {
 		const results = [];
-		const comments = document.getElementsByClassName('comment');
-		const currentUser = this.getCurrentUser();
+
+		if (comments instanceof Node) {
+			comments = comments.getElementsByClassName('comment');
+		}
 
 		for (const comment of comments) {
 			// Reddit comment date format: 2014-02-20T00:41:27+00:00
@@ -140,14 +174,8 @@ class RedditPage {
 			}
 
 			const commentTimestamp = Math.floor(Date.parse(commentDate) / 1000);
-			if (commentTimestamp < this.lastVisited) {
+			if (commentTimestamp < timestamp) {
 				// Skip if comment is'nt new
-				continue;
-			}
-
-			const commentAuthor = comment.querySelector('.author').textContent;
-			if (currentUser.name && currentUser.name === commentAuthor) {
-				// Skip if comment is by current user
 				continue;
 			}
 
