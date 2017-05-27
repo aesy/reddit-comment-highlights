@@ -9,7 +9,7 @@ chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
 		return;
 	}
 
-	if (!RedditPage.isAThread()) {
+	if (!RedditPage.isACommentThread()) {
 		return;
 	}
 
@@ -21,10 +21,13 @@ chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
 	}
 
 	chrome.runtime.sendMessage({ method: 'ThreadStorage.getById', threadId }, thread => {
-		chrome.runtime.sendMessage({ method: 'ThreadStorage.add', threadId });
+		if (RedditPage.isARootLevelCommentThread()) {
+			// Only consider comment section viewed if at root level
+			chrome.runtime.sendMessage({ method: 'ThreadStorage.add', threadId });
+		}
 
 		if (!thread) {
-			// First time in comment section
+			// First time in comment section, no highlights
 			return;
 		}
 

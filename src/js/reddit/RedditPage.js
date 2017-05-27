@@ -46,9 +46,9 @@ class RedditPage {
 	 * @constructor
 	 */
 	constructor() {
-		const root = document.querySelector('.sitetable.nestedlisting');
+		if (this.isACommentThread()) {
+			const root = document.querySelector('.sitetable.nestedlisting');
 
-		if (this.isAThread()) {
 			if (root) {
 				// Listen for new comments
 				this.newCommentObserver.observe(root, {
@@ -124,15 +124,26 @@ class RedditPage {
 	}
 
 	/**
-	 * Checks whether the currently open page is a reddit thread
+	 * Checks whether the currently open page is a reddit comment thread
 	 * @public
 	 * @returns {boolean}
 	 */
-	isAThread() {
+	isACommentThread() {
 		const pathPieces = document.location.pathname.split('/');
 
 		// Check if url is in the form of '/r/<subreddit>/comments/...
 		return pathPieces[1] === 'r' && pathPieces[3] === 'comments';
+	}
+
+	/**
+	 * Checks whether the currently open page is a reddit comment thread at root level (not perma-link)
+	 * @public
+	 * @returns {boolean}
+	 */
+	isARootLevelCommentThread() {
+		const pathPieces = document.location.pathname.split('/');
+
+		return this.isACommentThread() && pathPieces.length < 8;
 	}
 
 	/**
@@ -141,10 +152,6 @@ class RedditPage {
 	 * @returns {string|null} id, null if current page is not a reddit comment section
 	 */
 	getId() {
-		if (!this.isAThread()) {
-			return null;
-		}
-
 		// Get the path of the thread (works on mobile, too)
 		const pathPieces = document.location.pathname.split('/');
 
