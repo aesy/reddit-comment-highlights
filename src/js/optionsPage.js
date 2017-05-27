@@ -75,10 +75,12 @@ function initializeListeners() {
 	element.RESDialog.querySelector('#use-res-yes').addEventListener('click', () => {
 		state.showResSettings = true;
 		update();
+		saveShowResOptions();
 	});
 	element.RESDialog.querySelector('#use-res-no').addEventListener('click', () => {
 		state.showResSettings = false;
 		update();
+		saveShowResOptions();
 	});
 	element.CSSClassNameInput.addEventListener('input', () => {
 		const selection = {
@@ -132,6 +134,22 @@ class Message {
 			element.statusMessage.classList.remove('status-message--is-visible');
 		}, 3000);
 	}
+}
+
+function saveShowResOptions() {
+	chrome.runtime.getBackgroundPage(background => {
+		const ExtensionOptions = background.ExtensionOptions;
+
+		ExtensionOptions
+			.setIsResUser(state.showResSettings);
+
+		ExtensionOptions.save().then(() => {
+			Message.show('Affirmative!', false);
+		}).catch(error => {
+			Message.show('Oops, Something happened! (see console for detailed error message)', true);
+			console.warn(error);
+		});
+	});
 }
 
 /**
