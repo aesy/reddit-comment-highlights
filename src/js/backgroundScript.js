@@ -53,6 +53,7 @@ chrome.runtime.onInstalled.addListener(details => {
 					.setCustomCSS(opts.customCSS)
 					.setCustomCSSClassName(opts.customCSSClassName)
 					.setRedirect(opts.redirect)
+					.setIsResUser(opts.usesRES)
 					.save();
 			});
 		});
