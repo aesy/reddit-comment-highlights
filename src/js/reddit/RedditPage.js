@@ -174,13 +174,22 @@ class RedditPage {
 		}
 
 		for (const comment of comments) {
+			const timeTag = comment.getElementsByTagName('time')[0];
+
+			if (!timeTag) {
+				// Deleted comments does not have a time tag and should be skipped
+				continue;
+			}
+
 			// Reddit comment date format: 2014-02-20T00:41:27+00:00
-			const commentDate = comment.getElementsByTagName('time')[0].getAttribute('datetime');
+			const commentDate = timeTag.getAttribute('datetime');
+
 			if (!commentDate) {
 				continue;
 			}
 
 			const commentTimestamp = Math.floor(Date.parse(commentDate) / 1000);
+
 			if (commentTimestamp < timestamp) {
 				// Skip if comment is'nt new
 				continue;
