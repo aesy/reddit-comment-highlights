@@ -1,0 +1,15 @@
+engines:
+  eslint:
+    enabled: true
+    config: # nested prop is intentional
+      config: config/.eslintrc.json
+  stylelint:
+    enabled: true
+    config: config/.stylelintrc.json
+ratings:
+  paths:
+    - "src/**/*"
+exclude_paths:
+  - "config/"
+  - "dist/"
+  - "img/"
