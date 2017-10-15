@@ -6,6 +6,33 @@ engines:
   stylelint:
     enabled: true
     config: config/.stylelintrc.json
+checks:
+  argument-count:
+    config:
+        threshold: 5
+  complex-logic:
+    enabled: false
+  file-lines:
+    config:
+      threshold: 500
+  method-complexity:
+    enabled: false
+  method-count:
+    config:
+      threshold: 20
+  method-lines:
+    config:
+      threshold: 100
+  nested-control-flow:
+    config:
+      threshold: 5
+  return-statements:
+    config:
+      threshold: 4
+  similar-code:
+    enabled: false
+  identical-code:
+    enabled: false
 ratings:
   paths:
     - "src/**/*"

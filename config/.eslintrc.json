@@ -1,15 +1,19 @@
 {
 	"extends": "xo/esnext",
 	"parser": "babel-eslint",
-	"ecmaFeatures": {
-		"impliedStrict": true,
-		"classes": true
+	"parserOptions": {
+		"ecmaVersion": 6,
+		"ecmaFeatures": {
+			"impliedStrict": true,
+			"modules": true
+		}
 	},
 	"rules": {
-		"capitalized-comments": 0,
 		"no-unused-vars": 1,
 		"space-before-function-paren": 0,
-		"object-curly-spacing": [2, "always", { "objectsInObjects": false }]
+		"object-curly-spacing": [2, "always", {
+			"objectsInObjects": false
+		}]
 	},
 	"env": {
 		"browser": true,
