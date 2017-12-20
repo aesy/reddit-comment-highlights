@@ -31,6 +31,11 @@ module.exports = merge.smart({
 		new ArchivePlugin({
 			output: 'dist/app',
 			format: 'zip',
+			ext: 'xsi'
+		}),
+		new ArchivePlugin({
+			output: 'dist/app',
+			format: 'zip',
 			ext: 'crx'
 		})
 	]
