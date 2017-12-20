@@ -1,11 +1,12 @@
+import Extension from './browser/Extension';
+import Storage from './browser/Storage';
 import ExtensionOptions from './storage/ExtensionOptions';
 import ThreadStorage from './storage/ThreadStorage';
-import ChromeStorage from './storage/ChromeStorage';
 import * as Utils from './utils';
 
 /* This file should really be called 'eventScript' as it's only loaded when needed */
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+Extension.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	switch (request.method) {
 		case 'ThreadStorage.getById':
 			sendResponse(ThreadStorage.getById(request.threadId));
@@ -27,14 +28,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 });
 
-chrome.runtime.onInstalled.addListener(details => {
+Extension.runtime.onInstalled.addListener(details => {
 	if (details.reason === 'update') {
-		if (details.version === chrome.app.getDetails().version) {
+		if (details.version === Extension.runtime.getManifest().version) {
 			return;
 		}
 
 		// Update stored options if outdated
-		ChromeStorage.get('reddit_au_options').then(opts => {
+		Storage.get('reddit_au_options').then(opts => {
 			ExtensionOptions.clear().then(() => {
 				opts = opts || {};
 
@@ -61,10 +62,10 @@ chrome.runtime.onInstalled.addListener(details => {
 });
 
 // This is necessary to expose the classes for when the content script gets the 'window' object of the background page
-// via 'chrome.extension.getBackgroundPage()'
+// via 'extension.getBackgroundPage()'
 export {
 	ExtensionOptions,
 	ThreadStorage,
-	ChromeStorage,
+	Storage,
 	Utils
 };

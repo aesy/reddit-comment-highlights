@@ -1,9 +1,10 @@
+import Extension from './browser/Extension';
 import RedditPage from './reddit/RedditPage';
 import { injectCSS } from './utils/DOMUtils';
 
 /* This script is injected into every reddit page */
 
-chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
+Extension.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
 	if (options.redirect && RedditPage.isMobileSite()) {
 		RedditPage.redirectToDesktop();
 		return;
@@ -20,10 +21,10 @@ chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
 		return;
 	}
 
-	chrome.runtime.sendMessage({ method: 'ThreadStorage.getById', threadId }, thread => {
+	Extension.runtime.sendMessage({ method: 'ThreadStorage.getById', threadId }, thread => {
 		if (RedditPage.isARootLevelCommentThread()) {
 			// Only consider comment section viewed if at root level
-			chrome.runtime.sendMessage({ method: 'ThreadStorage.add', threadId });
+			Extension.runtime.sendMessage({ method: 'ThreadStorage.add', threadId });
 		}
 
 		if (!thread) {
@@ -51,8 +52,8 @@ chrome.runtime.sendMessage({ method: 'ExtensionOptions.getAll' }, options => {
 						return true;
 					}
 
-					// Filter out logged in users' comments
-					return user && user.name !== author.textContent;
+					// Filter out logged in users' comments, if logged in
+					return !(user && user.name === author.textContent);
 				});
 		}
 

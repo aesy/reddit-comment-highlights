@@ -28,7 +28,7 @@ a {
 	border-bottom: #ddd 1px solid;
 
 	&__title {
-		font-size: 28px;
+		font-size: 24px;
 		font-weight: normal;
 	}
 }
@@ -137,10 +137,6 @@ a {
 			border: none;
 		}
 
-		&:not(:disabled)::-webkit-color-swatch-wrapper:hover {
-			border-color: #1794ce;
-		}
-
 		&:disabled {
 			cursor: not-allowed;
 
@@ -151,6 +147,10 @@ a {
 				position: absolute;
 				background-color: rgba(204, 204, 204, 0.7);
 			}
+		}
+
+		&:not(:disabled)::-webkit-color-swatch-wrapper:hover {
+			border-color: #1794ce;
 		}
 	}
 
@@ -196,14 +196,32 @@ a {
 	}
 
 	&.range {
-		padding: 8px 12px;
-		background: #1794ce;
+		//padding: 8px 12px;
+		//background: #1794ce;
 		outline: none;
-		border: 1px solid #137aaa;
-		border-bottom-width: 3px;
+		//border: 1px solid #137aaa;
+		//border-bottom-width: 3px;
 		border-radius: 3px;
 		color: #fff;
 		cursor: pointer;
+		-webkit-appearance: none !important;
+		background: #fff;
+		padding: 0;
+		border: 1px solid #ccc;
+		border-bottom-width: 3px;
+		height: 10px;
+
+		&::-webkit-slider-thumb {
+			-webkit-appearance: none !important;
+			background: #1794ce;
+			height: 12px;
+			width: 3px;
+		}
+
+		&:hover,
+		&:focus {
+			border-color: #1794ce;
+		}
 	}
 
 	&.radio-button {
@@ -211,7 +229,7 @@ a {
 		width: 18px;
 		height: 18px;
 		margin-bottom: 10px;
-		background: url('../../../img/radio.png') left top no-repeat;
+		background: url('/img/radio.png') left top no-repeat;
 
 		input:hover + & {
 			background-position: -18px;
@@ -235,7 +253,7 @@ a {
 		width: 18px;
 		height: 18px;
 		margin-bottom: 10px;
-		background: url('../../../img/checkbox.png') left top no-repeat;
+		background: url('/img/checkbox.png') left top no-repeat;
 
 		&:hover {
 			background-position: -18px;
@@ -252,26 +270,6 @@ a {
 
 		input:disabled:checked + & {
 			background-position: -72px;
-		}
-	}
-
-	&.range {
-		-webkit-appearance: none !important;
-		background: #fff;
-		border-color: #ccc;
-		padding: 0;
-		height: 10px;
-
-		&:hover,
-		&:focus {
-			border-color: #1794ce;
-		}
-
-		&::-webkit-slider-thumb {
-			-webkit-appearance: none !important;
-			background: #1794ce;
-			height: 12px;
-			width: 3px;
 		}
 	}
 }

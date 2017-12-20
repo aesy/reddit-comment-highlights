@@ -13,7 +13,7 @@ module.exports = {
 	},
 	output: {
 		path: path.resolve(__dirname, '../dist/'),
-		publicPath: '/',
+		publicPath: './',
 		filename: 'js/[name].js',
 		libraryTarget: 'window'
 	},
@@ -27,8 +27,10 @@ module.exports = {
 			use: [{
 				loader: 'babel-loader',
 				options: {
-					presets: ['es2015', 'stage-0'],
-					plugins: []
+					presets: ['es2015'],
+					plugins: [
+						'transform-class-properties'
+					]
 				}
 			}]
 		}, {
@@ -38,12 +40,19 @@ module.exports = {
 				fallback: 'style-loader',
 				use: [{
 					loader: 'css-loader',
-					query: { // May change to 'options' in the future
+					options: {
 						minimize: true,
 						sourceMap: false
 					}
 				}, {
 					loader: 'sass-loader'
+				}, {
+					loader: 'postcss-loader',
+					options: {
+						plugins: (loader) => [
+							require('autoprefixer')
+						]
+					}
 				}]
 			})
 		}, {
@@ -79,7 +88,7 @@ module.exports = {
 			from: '**/*.json'
 		}, {
 			context: 'src',
-			from: 'img/icon*.*'
+			from: 'img/*.*'
 		}])
 	],
 	performance: {

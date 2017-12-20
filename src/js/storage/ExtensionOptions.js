@@ -1,8 +1,8 @@
-import ChromeStorage from './ChromeStorage';
+import Storage from '../browser/Storage';
 import MiniSignal from 'mini-signals';
 
 /**
- * Wrapper for chrome storage for getting and setting extension options
+ * Wrapper for browser storage for getting and setting extension options
  * @class
  */
 class ExtensionOptions {
@@ -35,7 +35,7 @@ class ExtensionOptions {
 	 */
 	constructor() {
 		// Listen for changes in storage and update internal storage
-		ChromeStorage.onChange.add(changes => {
+		Storage.onChange.add(changes => {
 			changes = changes[ExtensionOptions.STORAGE_KEY];
 
 			if (changes === undefined) {
@@ -48,8 +48,8 @@ class ExtensionOptions {
 			this.onChange.dispatch();
 		});
 
-		// Sync internal storage with chrome storage
-		ChromeStorage.get(ExtensionOptions.STORAGE_KEY).then(data => {
+		// Sync internal storage with browser storage
+		Storage.get(ExtensionOptions.STORAGE_KEY).then(data => {
 			this.options = data || {};
 		}).catch(this.onError.bind(this));
 	}
@@ -128,11 +128,11 @@ class ExtensionOptions {
 	getClearComment() {
 		return {
 			atAll: this.options.clearCommentOnClick === undefined ?
-								this.getDefaultClearComment().atAll :
-								this.options.clearCommentOnClick,
+				this.getDefaultClearComment().atAll :
+				this.options.clearCommentOnClick,
 			includeChildren: this.options.clearCommentincludeChildren === undefined ?
-								this.getDefaultClearComment().includeChildren :
-								this.options.clearCommentincludeChildren
+				this.getDefaultClearComment().includeChildren :
+				this.options.clearCommentincludeChildren
 		};
 	}
 
@@ -628,7 +628,7 @@ class ExtensionOptions {
 	 * @returns {Promise} resolves on completion
 	 */
 	save() {
-		return ChromeStorage.set(ExtensionOptions.STORAGE_KEY, this.options).catch(this.onError.bind(this));
+		return Storage.set(ExtensionOptions.STORAGE_KEY, this.options).catch(this.onError.bind(this));
 	}
 
 	/**

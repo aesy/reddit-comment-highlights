@@ -1,5 +1,7 @@
 import '../css/page/options/module.scss';
 
+import Extension from './browser/Extension';
+
 /**
  * Collection of commonly used DOM Elements
  * @type {object<string, Element|Element[]>}
@@ -137,7 +139,7 @@ class Message {
 }
 
 function saveShowResOptions() {
-	chrome.runtime.getBackgroundPage(background => {
+	Extension.runtime.getBackgroundPage(background => {
 		const ExtensionOptions = background.ExtensionOptions;
 
 		ExtensionOptions
@@ -153,10 +155,10 @@ function saveShowResOptions() {
 }
 
 /**
- * Saves the current options to chrome storage
+ * Saves the current options to extension storage
  */
 function save() {
-	chrome.runtime.getBackgroundPage(background => {
+	Extension.runtime.getBackgroundPage(background => {
 		const ExtensionOptions = background.ExtensionOptions;
 
 		ExtensionOptions
@@ -189,15 +191,15 @@ function save() {
  * Resets the options in storage and view
  */
 function reset() {
-	chrome.runtime.getBackgroundPage(background => {
+	Extension.runtime.getBackgroundPage(background => {
 		const ExtensionOptions = background.ExtensionOptions;
-		const ChromeStorage = background.ChromeStorage;
+		const Storage = background.Storage;
 
 		state.showAdvancedSettings = false;
 
 		ExtensionOptions.onChange.once(load);
 
-		ChromeStorage.clear().then(() => {
+		Storage.clear().then(() => {
 			Message.show('Settings reset!', false);
 		}).catch(error => {
 			Message.show('Reset unsuccessful (see console for detailed error message)', true);
@@ -210,7 +212,7 @@ function reset() {
  * Loads the options from storage and updates view
  */
 function load() {
-	chrome.runtime.getBackgroundPage(background => {
+	Extension.runtime.getBackgroundPage(background => {
 		const ExtensionOptions = background.ExtensionOptions;
 
 		element.backgroundColorPicker.value = ExtensionOptions.getBackgroundColor();
@@ -250,7 +252,7 @@ function load() {
  * Updates the view
  */
 function update() {
-	chrome.runtime.getBackgroundPage(background => {
+	Extension.runtime.getBackgroundPage(background => {
 		const ExtensionOptions = background.ExtensionOptions;
 
 		const className = element.CSSClassNameInput.value.trim();

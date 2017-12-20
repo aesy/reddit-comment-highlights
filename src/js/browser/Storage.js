@@ -1,10 +1,11 @@
+import Extension from './Extension';
 import MiniSignal from 'mini-signals';
 
 /**
- * Wrapper for chrome browser storage
+ * Wrapper for browser storage
  * @class
  */
-class ChromeStorage {
+class Storage {
 	/**
 	 * @public
 	 * @instance
@@ -42,14 +43,14 @@ class ChromeStorage {
 
 	/**
 	 * @constructor
-	 * @param {ChromeStorage.Type} type
+	 * @param {Storage.Type} type
 	 */
 	constructor(type) {
 		this.type = type;
-		this.storage = chrome.storage[type];
+		this.storage = Extension.storage[type];
 
 		// Setup onChange listener
-		chrome.storage.onChanged.addListener((changes, namespace) => {
+		Extension.storage.onChanged.addListener((changes, namespace) => {
 			if (namespace !== this.type) {
 				// Changes in wrong storage type
 				return;
@@ -87,7 +88,7 @@ class ChromeStorage {
 	get(key) {
 		return new Promise((resolve, reject) => {
 			this.storage.get(key, data => {
-				const error = chrome.runtime.lastError;
+				const error = Extension.runtime.lastError;
 
 				if (error) {
 					return reject(error);
@@ -109,7 +110,7 @@ class ChromeStorage {
 	set(key, value) {
 		return new Promise((resolve, reject) => {
 			this.storage.set({ [key]: value }, () => {
-				const error = chrome.runtime.lastError;
+				const error = Extension.runtime.lastError;
 
 				if (error) {
 					return reject(error);
@@ -130,7 +131,7 @@ class ChromeStorage {
 	clear(keys) {
 		return new Promise((resolve, reject) => {
 			const callback = () => {
-				const error = chrome.runtime.lastError;
+				const error = Extension.runtime.lastError;
 
 				if (error) {
 					reject(error);
@@ -150,4 +151,4 @@ class ChromeStorage {
 }
 
 // Only one instance of this class needed
-export default new ChromeStorage(ChromeStorage.Type.SYNC);
+export default new Storage(Storage.Type.SYNC);
