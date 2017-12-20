@@ -28,7 +28,7 @@ a {
 	border-bottom: #ddd 1px solid;
 
 	&__title {
-		font-size: 28px;
+		font-size: 24px;
 		font-weight: normal;
 	}
 }
@@ -211,7 +211,7 @@ a {
 		width: 18px;
 		height: 18px;
 		margin-bottom: 10px;
-		background: url('../../../img/radio.png') left top no-repeat;
+		background: url('/img/radio.png') left top no-repeat;
 
 		input:hover + & {
 			background-position: -18px;
@@ -235,7 +235,7 @@ a {
 		width: 18px;
 		height: 18px;
 		margin-bottom: 10px;
-		background: url('../../../img/checkbox.png') left top no-repeat;
+		background: url('/img/checkbox.png') left top no-repeat;
 
 		&:hover {
 			background-position: -18px;

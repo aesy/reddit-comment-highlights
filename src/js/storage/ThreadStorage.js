@@ -1,10 +1,10 @@
+import Storage from '../browser/Storage';
 import ExtensionOptions from './ExtensionOptions';
-import ChromeStorage from './ChromeStorage';
 import { currentTimestampSeconds } from '../utils/TimeUtils';
 import MiniSignal from 'mini-signals';
 
 /**
- * Wrapper for chrome storage for getting and saving reddit thread history
+ * Wrapper for browser storage for getting and saving reddit thread history
  * @class
  */
 class ThreadStorage {
@@ -37,7 +37,7 @@ class ThreadStorage {
 	 */
 	constructor() {
 		// Listen for changes in storage and update internal storage
-		ChromeStorage.onChange.add(changes => {
+		Storage.onChange.add(changes => {
 			changes = changes[ThreadStorage.STORAGE_KEY];
 
 			if (changes === undefined) {
@@ -50,8 +50,8 @@ class ThreadStorage {
 			this.onChange.dispatch();
 		});
 
-		// Sync internal storage with chrome storage
-		ChromeStorage.get(ThreadStorage.STORAGE_KEY).then(data => {
+		// Sync internal storage with browser storage
+		Storage.get(ThreadStorage.STORAGE_KEY).then(data => {
 			this.collection = data || [];
 		}).catch(this.onError.bind(this));
 	}
@@ -162,12 +162,12 @@ class ThreadStorage {
 	}
 
 	/**
-	 * Checks whether storage is over chromes max item limit
+	 * Checks whether storage is over browsers max item limit
 	 * @public
 	 * @returns {boolean} is over max items limit
 	 */
 	isOverMaxItemsLimit() {
-		return this.collection.length >= ChromeStorage.MAX_ITEMS;
+		return this.collection.length >= Storage.MAX_ITEMS;
 	}
 
 	/**
@@ -180,13 +180,13 @@ class ThreadStorage {
 	}
 
 	/**
-	 * Checks whether storage is over chromes max byte limit
+	 * Checks whether storage is over browsers max byte limit
 	 * @public
 	 * @returns {boolean} is over max byte limit
 	 */
 	isOverMaxByteLimit() {
 		// Assume every character is two bytes
-		return JSON.stringify(this.collection).length * 2 >= ChromeStorage.MAX_BYTES;
+		return JSON.stringify(this.collection).length * 2 >= Storage.MAX_BYTES;
 	}
 
 	/**
@@ -196,7 +196,7 @@ class ThreadStorage {
 	 * @returns {Promise} resolves on completion
 	 */
 	save() {
-		return ChromeStorage.set(ThreadStorage.STORAGE_KEY, this.collection).catch(this.onError.bind(this));
+		return Storage.set(ThreadStorage.STORAGE_KEY, this.collection).catch(this.onError.bind(this));
 	}
 
 	/**
