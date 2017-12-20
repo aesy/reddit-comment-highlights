@@ -128,11 +128,11 @@ class ExtensionOptions {
 	getClearComment() {
 		return {
 			atAll: this.options.clearCommentOnClick === undefined ?
-								this.getDefaultClearComment().atAll :
-								this.options.clearCommentOnClick,
+				this.getDefaultClearComment().atAll :
+				this.options.clearCommentOnClick,
 			includeChildren: this.options.clearCommentincludeChildren === undefined ?
-								this.getDefaultClearComment().includeChildren :
-								this.options.clearCommentincludeChildren
+				this.getDefaultClearComment().includeChildren :
+				this.options.clearCommentincludeChildren
 		};
 	}
 
