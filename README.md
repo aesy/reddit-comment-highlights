@@ -3,8 +3,7 @@
 A browser extension that highlights unread comments on [Reddit](https://www.reddit.com) since your last visit. A feature normally reserved to Reddit gold users!
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/jeodebnjeecpbmbgimbpinccfkihhjid.svg?style=flat)](https://chrome.google.com/webstore/detail/jeodebnjeecpbmbgimbpinccfkihhjid)
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/d/jeodebnjeecpbmbgimbpinccfkihhjid.svg?style=flat)](https://chrome.google.com/webstore/detail/jeodebnjeecpbmbgimbpinccfkihhjid)
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/rating/jeodebnjeecpbmbgimbpinccfkihhjid.svg?style=flat)](https://chrome.google.com/webstore/detail/jeodebnjeecpbmbgimbpinccfkihhjid)
+[![Mozilla Add-on](https://img.shields.io/amo/v/reddit-comment-highlights.svg)](https://addons.mozilla.org/firefox/addon/reddit-comment-highlights/)
 [![Travis](https://img.shields.io/travis/aesy/reddit-comment-highlights.svg?style=flat)](https://travis-ci.org/aesy/reddit-comment-highlights)
 [![Code Climate](https://api.codeclimate.com/v1/badges/58c163ade1cb44a6c8c2/maintainability)](https://codeclimate.com/github/aesy/reddit-comment-highlights)
 [![xo code style](https://img.shields.io/badge/code%20style-%20XO-67d5c5.svg?style=flat)](https://github.com/sindresorhus/xo)
