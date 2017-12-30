@@ -7,5 +7,4 @@ node_modules
 *.zip
 *.crx
 img/webstore
-!src/img/icon.png
 Thumbs.db
