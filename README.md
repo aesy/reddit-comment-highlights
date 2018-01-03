@@ -29,7 +29,7 @@ Options page                      |
 ### Support
 | Chrome | Firefox |
 |:------:|:-------:|
-| 32+    | 52+     |
+| 32+    | 53+     |
 
 ### Contribute
 Use the [issue tracker](https://github.com/aesy/reddit-comment-highlights/issues) to report bugs or make feature requests.
