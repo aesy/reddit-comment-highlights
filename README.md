@@ -9,7 +9,7 @@ A browser extension that highlights unread comments on [Reddit](https://www.redd
 [![xo code style](https://img.shields.io/badge/code%20style-%20XO-67d5c5.svg?style=flat)](https://github.com/sindresorhus/xo)
 [![MIT license](https://img.shields.io/github/license/aesy/reddit-comment-highlights.svg?style=flat)](https://github.com/aesy/reddit-comment-highlights/blob/master/LICENSE)
 
-#### Notice: The extension is currently broken due to Reddits UI redesign. Any help would be appreciated as the main maintainer [aesy](https://github.com/aesy/) won't find time to fix it until later this summer, *especially* if you have experience with the react internals. Please see the issues page if you want to help us out!
+#### Notice: The extension is broken in Reddits redesign - the traditional layout is required in order for the extension to function. You can change this by unchecking "Use the redesign as my default experience" in the site preferences, or use "old.reddit.com". Any help making the extension work with the redesign would be much appreciated!
 
 ### Features
 * Lightweight
