@@ -1,8 +1,8 @@
-const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const Autoprefixer = require('autoprefixer');
 
 module.exports = {
 	context: path.resolve(__dirname, '..'),
@@ -11,65 +11,74 @@ module.exports = {
 		contentScript: ['./src/js/contentScript.js'],
 		options: ['./src/js/optionsPage.js']
 	},
+	target: 'web',
 	output: {
 		path: path.resolve(__dirname, '../dist/'),
-		publicPath: './',
+		publicPath: '/',
 		filename: 'js/[name].js',
 		libraryTarget: 'window'
 	},
-	resolve: {
-		extensions: ['.js', '.css', '.scss', '.sass']
-	},
 	module: {
 		rules: [{
-			test: /\.(js)$/,
+			test: /\.js|jsx$/,
 			exclude: /node_modules/,
 			use: [{
 				loader: 'babel-loader',
 				options: {
-					presets: ['es2015'],
+					presets: [
+						[
+							'@babel/preset-env',
+							{
+								useBuiltIns: 'usage',
+								corejs: '3.0.0'
+							}
+						]
+					],
 					plugins: [
 						'transform-class-properties'
 					]
 				}
 			}]
 		}, {
-			test: /\.(css|sass|scss)/,
+			test: /\.css|sass|scss/,
 			exclude: /node_modules/,
-			use: ExtractTextPlugin.extract({
-				fallback: 'style-loader',
-				use: [{
+			use: [
+				MiniCssExtractPlugin.loader,
+				{
 					loader: 'css-loader',
 					options: {
-						minimize: true,
-						sourceMap: false
+						sourceMap: true
 					}
-				}, {
-					loader: 'sass-loader'
 				}, {
 					loader: 'postcss-loader',
 					options: {
+						sourceMap: true,
 						plugins: (loader) => [
-							require('autoprefixer')
+							Autoprefixer
 						]
 					}
-				}]
-			})
+				}, {
+					loader: 'resolve-url-loader'
+				}, {
+					loader: 'sass-loader',
+					options: {
+						sourceMap: true
+					}
+				}
+			]
 		}, {
-			test: /\.(ico|gif|png|jpg)$/,
+			test: /\.ico|gif|png|jpe?g|svg$/,
 			exclude: /node_modules/,
 			use: [{
 				loader: 'file-loader',
 				options: {
-					limit: 100000,
+					limit: 10000,
 					name: 'img/[name].[ext]'
 				}
 			}]
 		}]
 	},
 	plugins: [
-		new webpack.NoEmitOnErrorsPlugin(),
-		new webpack.NamedModulesPlugin(),
 		new HtmlWebpackPlugin({
 			hash: false,
 			template: 'src/options.html',
@@ -80,7 +89,7 @@ module.exports = {
 				removeComments: true
 			}
 		}),
-		new ExtractTextPlugin({
+		new MiniCssExtractPlugin({
 			filename: 'css/[name].css'
 		}),
 		new CopyWebpackPlugin([{
@@ -91,7 +100,13 @@ module.exports = {
 			from: 'img/*.*'
 		}])
 	],
+	optimization: {
+		noEmitOnErrors: true
+	},
 	performance: {
 		hints: false
+	},
+	stats: {
+		errorDetails: true
 	}
 };

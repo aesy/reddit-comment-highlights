@@ -1,29 +1,33 @@
-const webpack = require('webpack');
 const config = require('./webpack.config.base.js');
 const merge = require('webpack-merge');
 const ArchivePlugin = require('webpack-archive-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
-module.exports = merge.smart({
-	output: {
-		filename: 'app.js'
+module.exports = merge.smart(config, {
+	mode: 'production',
+	optimization: {
+		minimizer: [
+			new UglifyJsPlugin({
+				sourceMap: false,
+				uglifyOptions: {
+					compress: {
+						drop_console: true
+					}
+				}
+			}),
+			new OptimizeCSSAssetsPlugin({
+				cssProcessorPluginOptions: {
+					preset: ['default', {
+						discardComments: {
+							removeAll: true
+						}
+					}],
+				},
+			})
+		]
 	},
 	plugins: [
-		new webpack.optimize.UglifyJsPlugin({
-			compress: {
-				warnings: false,
-				/* eslint camelcase:0 */
-				drop_console: true
-			},
-			comments: false,
-			sourceMap: false,
-			mangle: {
-				except: [
-					'Array', 'BigInteger', 'Boolean', 'Buffer',
-					'webpackJsonp', 'exports', 'require'
-				]
-			},
-			minimize: true
-		}),
 		new ArchivePlugin({
 			output: 'dist/app',
 			format: 'zip'
@@ -39,4 +43,4 @@ module.exports = merge.smart({
 			ext: 'crx'
 		})
 	]
-}, config);
+});
