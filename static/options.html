@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Reddit (Au) Comment Highlights Options</title>
+    </head>
+    <body>
+        <header class="header">
+            <img class="header__logo" src="img/icon96.png" alt="Logo">
+            <h1 class="header__title">
+                Reddit (Au) Comment Highlights Options
+            </h1>
+        </header>
+
+        <main class="main-content main-content--hidden">
+            <div id="RES" class="options-section options-section--highlighted">
+                <div class="options-section__title">
+                    Do you happen to use night mode in
+                    <a href="https://redditenhancementsuite.com/">RES (Reddit Enhancement Suite)</a>?
+                </div>
+
+                <div class="options-section__input-group">
+                    <input class="options-section__input button button--normal" type="button"
+                           id="use-res-yes" value="Yes">
+                    <input class="options-section__input button button--normal" type="button"
+                           id="use-res-no" value="No">
+                </div>
+            </div>
+
+            <div class="options-section">
+                <div class="options-section__input-group">
+                    <input class="options-section__input button button--normal" type="button"
+                           id="save-options" value="Save Options">
+                    <div id="status-message" class="status-message status-message--success"></div>
+                </div>
+            </div>
+
+            <div class="options-section">
+                <div class="options-section__title">
+                    Set styling with:
+                </div>
+                <nav class="main-content__navigation">
+                    <label class="options-section__input-group" for="color-pickers">
+                        <input type="radio" id="color-pickers" name="style-mode">
+                        <span class="options-section__input radio-button"></span>
+                        <span class="options-section__input-label">
+                            Color pickers
+                        </span>
+                    </label>
+
+                    <label class="options-section__input-group" for="custom-css">
+                        <input type="radio" id="custom-css" name="style-mode">
+                        <span class="options-section__input radio-button"></span>
+                        <span class="options-section__input-label">
+                            Custom CSS
+                        </span>
+                    </label>
+                </nav>
+            </div>
+
+            <div class="main-content__tab color-pickers">
+                <div class="options-section">
+                    <div class="options-section__header">
+                        <h2 class="options-section__title">
+                            Background color
+                        </h2>
+                        <p class="options-section__description">
+                            Specify the background color of highlighted comments.
+                        </p>
+                    </div>
+                    <div class="options-section__input-group">
+                        <input class="options-section__input color-picker" id="back-color"
+                               type="color" title="background color picker">
+                    </div>
+                    <div class="options-section__input-group RES">
+                        <input class="options-section__input color-picker" id="back-color-night"
+                               type="color" title="background color picker night mode"/>
+                        In night mode
+                    </div>
+                </div>
+
+                <div class="options-section">
+                    <div class="options-section__header">
+                        <h2 class="options-section__title">
+                            Font color
+                        </h2>
+                        <p class="options-section__description">
+                            Specify the font color of highlighted comments.
+                        </p>
+                    </div>
+                    <div class="options-section__input-group">
+                        <input class="options-section__input color-picker" id="front-color"
+                               type="color" title="font color picker"/>
+                    </div>
+                    <div class="options-section__input-group RES">
+                        <input class="options-section__input color-picker" id="front-color-night"
+                               type="color" title="font color picker night mode"/>
+                        In night mode
+                    </div>
+                </div>
+
+                <div class="options-section advanced">
+                    <div class="options-section__header">
+                        <h2 class="options-section__title">
+                            Link font color
+                        </h2>
+                    </div>
+                    <label class="options-section__input-group" for="custom-link-color">
+                        <input type="checkbox" id="custom-link-color">
+                        <span class="options-section__input checkbox"></span>
+                        <span class="options-section__input-label">
+                                    Use a custom link font color
+                                </span>
+                    </label>
+                    <div class="options-section__input-group">
+                        <input class="options-section__input color-picker" id="link-color"
+                               type="color" title="link color picker"/>
+                    </div>
+                    <div class="options-section__input-group RES">
+                        <input class="options-section__input color-picker" id="link-color-night"
+                               type="color" title="link color picker night mode"/>
+                        In night mode
+                    </div>
+                </div>
+
+                <div class="options-section advanced">
+                    <div class="options-section__header">
+                        <h2 class="options-section__title">
+                            Quote font color
+                        </h2>
+                    </div>
+                    <label class="options-section__input-group" for="custom-quote-color">
+                        <input type="checkbox" id="custom-quote-color">
+                        <span class="options-section__input checkbox"></span>
+                        <span class="options-section__input-label">
+                                    Use a custom quote font color
+                                </span>
+                    </label>
+                    <div class="options-section__input-group">
+                        <input class="options-section__input color-picker" id="quote-text-color"
+                               type="color" title="quote text color picker"/>
+                    </div>
+                    <div class="options-section__input-group RES">
+                        <input class="options-section__input color-picker" id="quote-text-color-night"
+                               type="color" title="quote text color picker night mode"/>
+                        In night mode
+                    </div>
+                </div>
+
+                <div class="options-section">
+                    <div class="options-section__header">
+                        <h2 class="options-section__title">
+                            Dotted border
+                        </h2>
+                    </div>
+                    <label class="options-section__input-group" for="border">
+                        <input type="checkbox" id="border">
+                        <span class="options-section__input checkbox"></span>
+                        <span class="options-section__input-label">
+                            Specify whether a dotted border is visible around highlighted comments.
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="main-content__tab custom-css">
+                <div class="options-section">
+                    <div class="options-section__header">
+                        <h2 class="options-section__title">
+                            Custom CSS
+                        </h2>
+                        <p class="options-section__description">
+                            Tips: You can style all highlighted comments with
+                            '.comment.<span class="class-name"></span> { /* style */ }'.
+                            <br>
+                            For <a href="https://redditenhancementsuite.com/">RES</a>-users: Select
+                            highlighted
+                            comments in night-mode with '.res-nightmode .comment.<span
+                            class="class-name"></span>'.
+                            <br>
+                            Your CSS is not validated, so you will have to make sure you get it right.
+                        </p>
+                    </div>
+                    <div class="options-section__input-group">
+                        <textarea class="options-section__input textarea" maxlength="1000"
+                                  id="CSS-text" title="CSS" spellcheck="false"></textarea>
+                    </div>
+                </div>
+
+                <div class="options-section advanced">
+                    <div class="options-section__header">
+                        <h2 class="options-section__title">
+                            Custom class name (OPTIONAL)
+                        </h2>
+                        <p class="options-section__description">
+                            Specify a custom class name to be applied to all highlighted comments.
+                            <br>
+                            Leave blank to use the default class name.
+                        </p>
+                    </div>
+                    <div class="options-section__input-group">
+                        .<input type="text" class="options-section__input text-input"
+                                id="class-name" title="Class Name"/> {
+                    </div>
+                </div>
+            </div>
+
+            <div class="options-section">
+                <div class="options-section__header">
+                    <h2 class="options-section__title">
+                        Clear highlight on click
+                    </h2>
+                </div>
+                <label class="options-section__input-group" for="clear-comment">
+                    <input type="checkbox" id="clear-comment">
+                    <span class="options-section__input checkbox"></span>
+                    <span class="options-section__input-label">
+                        Specify whether highlight should disappear when a comment is clicked.
+                    </span>
+                </label>
+                <label class="options-section__input-group" for="clear-child-comments">
+                    <input type="checkbox" id="clear-child-comments">
+                    <span class="options-section__input checkbox"></span>
+                    <span class="options-section__input-label">
+                        Specify whether child comments highlights should also disappear when a comment is clicked.
+                    </span>
+                </label>
+            </div>
+
+            <div class="options-section advanced">
+                <div class="options-section__header">
+                    <h2 class="options-section__title">
+                        Flush status of threads older than... *
+                    </h2>
+                    <p class="options-section__description">
+                        * thread status may still be flushed when storage is full.
+                    </p>
+                </div>
+                <div class="options-section__input-group">
+                    <input type="range" class="options-section__input range" min="1" max="14" value="1"
+                           step="1" id="frequency" title="frequency">
+                    <div class="options-section__input-label">
+                        <span id="frequency-number"></span>
+                        <span id="frequency-unit"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="advanced" class="options-section">
+                <div class="options-section__header">
+                    <h2 class="options-section__title">
+                        Advanced options
+                    </h2>
+                </div>
+                <div class="options-section__input-group">
+                    <input class="options-section__input button button--normal" type="button"
+                           id="show-advanced" value="Show">
+                </div>
+            </div>
+
+            <div class="options-section advanced">
+                <div class="options-section__input-group">
+                    <input class="options-section__input button button--caution" type="button"
+                           id="clear-all" value="Reset">
+                    <div class="options-section__input-label">
+                        Restores all comment highlights options and clears cache.
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer__text">
+                &copy; <span id="footer__year"></span>
+                Isak Wertwein and Daniel Watson
+                <a class="footer__link" target="_blank"
+                   href="https://github.com/aesy/reddit-comment-highlights">
+                    View Source
+                </a>
+            </div>
+        </footer>
+    </body>
+</html>
