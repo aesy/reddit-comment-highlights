@@ -6,6 +6,5 @@ install:
     - npm i
 script:
     - npm run build:prod
-    - npm run lint
 notifications:
     email: false
