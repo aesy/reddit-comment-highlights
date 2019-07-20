@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "baseUrl": "../src",
+        "target": "es2018",
+        "module": "commonjs",
+        "strict": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    }
+}

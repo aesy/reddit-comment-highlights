@@ -1,0 +1,23 @@
+export const Constants = {
+    REDESIGN_EXTENSION_NAME: "reddit-au-comment-highlights",
+    OPTIONS_STORAGE_KEY: "reddit_au_options",
+    THREAD_STORAGE_KEY: "reddit_au_threads",
+    STORAGE_UPDATE_INTERVAL_SECONDS: 10,
+    OPTIONS_DEFAULTS: {
+        frontColor: "#000000",
+        frontNightColor: "#ffffff",
+        backColor: "#fffdcc",
+        backNightColor: "#424242",
+        linkColor: "#0079d3",
+        linkNightColor: "#8cb3d9",
+        quoteTextColor: "#4f4f4f",
+        quoteTextNightColor: "#a0a0a0",
+        border: "1px dotted #cccccc",
+        clearCommentOnClick: false,
+        clearCommentincludeChildren: true,
+        customCSS: null,
+        customCSSClassName: "highlight",
+        threadRemovalTimeSeconds: 604800, // A week
+        usesRES: null
+    }
+};
