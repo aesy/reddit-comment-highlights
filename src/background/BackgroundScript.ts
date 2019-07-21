@@ -39,11 +39,19 @@ class BackgroundScript {
         return extensionOptions.get().then(options => {
             const threadHistory = new ThreadHistory(threadStorage, options.threadRemovalTimeSeconds);
 
-            return new BackgroundScript(
+            const backgroundScript = new BackgroundScript(
                 optionsStorage,
                 threadStorage,
                 extensionOptions,
                 threadHistory);
+
+            // Restart after settings changed
+            extensionOptions.onChange.once(() => {
+                backgroundScript.stop();
+                entrypoint();
+            });
+
+            return backgroundScript;
         });
     }
 
@@ -91,9 +99,11 @@ class BackgroundScript {
 
 /* This file should really be called 'eventScript' as it's only loaded when needed */
 
-(function entrypoint(): void {
+function entrypoint(): void {
     BackgroundScript.start()
         .catch((error: any) => {
             console.error(error);
         });
-})();
+}
+
+entrypoint();
