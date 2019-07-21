@@ -12,7 +12,7 @@ export enum BrowserExtensionStorageType {
 }
 
 export class BrowserExtensionStorage<T> implements Storage<T> {
-    private readonly _onChange: Event<T> = new AsyncEvent();
+    private readonly _onChange: Event<T | null> = new AsyncEvent();
     private readonly global: any;
 
     public constructor(
@@ -32,11 +32,11 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         this.storage.onChanged.addListener(this.changeListener);
     }
 
-    public get onChange(): Subscribable<T> {
+    public get onChange(): Subscribable<T | null> {
         return this._onChange;
     }
 
-    public async save(data: T): Promise<void> {
+    public async save(data: T | null): Promise<void> {
         if (!this.canSave(data)) {
             throw `Failed to save data. Reason: max byte quota exceeded (${ this.MAX_BYTES }b)`;
         }
@@ -114,7 +114,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         }
     }
 
-    protected canSave(data: T): boolean {
+    protected canSave(data: T | null): boolean {
         /*
          * We can't completely rely on this comparison. It doesn't always match up with the
          * browser implementation. See the following stackoverflow question:
@@ -123,7 +123,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         return this.getByteSize(data) < this.MAX_BYTES;
     }
 
-    private getByteSize(data: T): number {
+    private getByteSize(data: T | null): number {
         // Avoid TextEncoder usage for compatibility reasons (not supported in chrome 32-37)
         return new Blob([
             JSON.stringify(data)
@@ -155,10 +155,8 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
         this.timeout = window.setInterval(this.flush, intervalSeconds * 1000);
     }
 
-    public save(data: T): Promise<void> {
+    public async save(data: T | null): Promise<void> {
         this.unflushed = data;
-
-        return Promise.resolve();
     }
 
     public async clear(): Promise<void> {

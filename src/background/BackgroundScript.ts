@@ -1,10 +1,11 @@
 import bind from "bind-decorator";
-import { Storage } from "storage/Storage";
-import { ThreadHistory, ThreadHistoryEntry } from "storage/ThreadHistory";
 import {
     BrowserExtensionStorageType,
     PeriodicallyFlushedBrowserExtensionStorage
 } from "storage/BrowserExtensionStorage";
+import { Storage } from "storage/Storage";
+import { StorageMigrator } from "storage/StorageMigrator";
+import { ThreadHistory, ThreadHistoryEntry, TruncatingThreadHistory } from "storage/ThreadHistory";
 import { ExtensionOptions, Options } from "options/ExtensionOptions";
 import { Actions } from "common/Actions";
 import { Constants } from "common/Constants";
@@ -18,6 +19,7 @@ class BackgroundScript {
         private readonly extensionOptions: ExtensionOptions,
         private readonly threadHistory: ThreadHistory
     ) {
+        optionsStorage.onChange.subscribe(this.onOptionsChanged);
         extensionFunctionRegistry.register(Actions.GET_THREAD_BY_ID, this.getThreadById);
         extensionFunctionRegistry.register(Actions.SAVE_OPTIONS, this.saveOptions);
         extensionFunctionRegistry.register(Actions.GET_OPTIONS, this.getOptions);
@@ -36,7 +38,7 @@ class BackgroundScript {
             Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
         const extensionOptions = new ExtensionOptions(optionsStorage, Constants.OPTIONS_DEFAULTS);
         const options = await extensionOptions.get();
-        const threadHistory = new ThreadHistory(threadStorage, options.threadRemovalTimeSeconds);
+        const threadHistory = new TruncatingThreadHistory(threadStorage, options.threadRemovalTimeSeconds);
         const backgroundScript = new BackgroundScript(
             optionsStorage,
             threadStorage,
@@ -58,6 +60,7 @@ class BackgroundScript {
         this.threadStorage.dispose();
         this.extensionOptions.dispose();
         this.threadHistory.dispose();
+        this.optionsStorage.onChange.unsubscribe(this.onOptionsChanged);
 
         extensionFunctionRegistry.unregister(Actions.GET_THREAD_BY_ID);
         extensionFunctionRegistry.unregister(Actions.SAVE_OPTIONS);
@@ -67,7 +70,7 @@ class BackgroundScript {
     }
 
     @bind
-    private getThreadById(threadId: string): ThreadHistoryEntry | null {
+    private getThreadById(threadId: string): Promise<ThreadHistoryEntry | null> {
         return this.threadHistory.get(threadId);
     }
 
@@ -90,8 +93,19 @@ class BackgroundScript {
     }
 
     @bind
-    private onThreadVisisted(threadId: string): void {
-        this.threadHistory.add(threadId);
+    private onThreadVisisted(threadId: string): Promise<void> {
+        return this.threadHistory.add(threadId);
+    }
+
+    @bind
+    private async onOptionsChanged(): Promise<void> {
+        this.stop();
+
+        const script = await BackgroundScript.start();
+
+        // TODO only migrate data if necessary
+        await new StorageMigrator()
+            .migrate(this.threadStorage, script.threadStorage);
     }
 }
 
