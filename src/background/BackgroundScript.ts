@@ -8,7 +8,7 @@ import {
 import { ExtensionOptions, Options } from "options/ExtensionOptions";
 import { Actions } from "common/Actions";
 import { Constants } from "common/Constants";
-import { onThreadVisitedEvent } from "common/Events";
+import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 
 class BackgroundScript {
@@ -47,6 +47,7 @@ class BackgroundScript {
         extensionOptions.onChange.once(async () => {
             backgroundScript.stop();
             await BackgroundScript.start();
+            onSettingsChanged.dispatch();
         });
 
         return backgroundScript;

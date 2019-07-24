@@ -6,7 +6,7 @@ import { RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
 import { OldRedditCommentHighlighter } from "reddit/OldRedditCommentHighlighter";
 import { ThreadHistoryEntry } from "storage/ThreadHistory";
 import { Actions } from "common/Actions";
-import { onThreadVisitedEvent } from "common/Events";
+import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 
 class ContentScript {
@@ -31,11 +31,20 @@ class ContentScript {
             throw "Failed to initialize content script. Reason: no suitable reddit page implementation found.";
         }
 
-        return new ContentScript(reddit, highlighter);
+        const contentScript = new ContentScript(reddit, highlighter);
+
+        // Restart after settings changed
+        onSettingsChanged.once(async () => {
+            contentScript.stop();
+            await ContentScript.start();
+        });
+
+        return contentScript;
     }
 
     public stop(): void {
         this.reddit.dispose();
+        this.highlighter.dispose();
 
         if (this.currentThread) {
             this.currentThread.dispose();

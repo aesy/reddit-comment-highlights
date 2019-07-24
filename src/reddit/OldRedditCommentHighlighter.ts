@@ -5,16 +5,17 @@ import { RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
 
 export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
     private static readonly TRANSITION_DURATION_SECONDS: number = 0.4;
+    private readonly cssElement: Element;
 
     public constructor(
         private readonly options: Options
     ) {
-        injectCSS(this.getCSS(), document.head);
+        this.cssElement = injectCSS(this.getCSS(), document.head);
     }
 
     public highlightComment(comment: RedditComment): void {
-        comment.element.classList.add(`${ this.options.customCSSClassName }--transition`);
         comment.element.classList.add(this.options.customCSSClassName);
+        comment.element.classList.add(`${ this.options.customCSSClassName }--transition`);
 
         if (!this.options.clearCommentOnClick) {
             return;
@@ -42,15 +43,23 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
         comment.onClick.once((): void => {
             for (const comment of clear) {
                 comment.element.classList.remove(this.options.customCSSClassName);
-                // TODO fix click listener on child comments are not removed
 
-                // Can't be removed before transition has finished
                 window.setTimeout((): void => {
+                    // Transition class can't be removed before transition has finished
                     const className = `${ this.options.customCSSClassName }--transition`;
                     comment.element.classList.remove(className);
                 }, OldRedditCommentHighlighter.TRANSITION_DURATION_SECONDS * 1000 + 500);
             }
         });
+    }
+
+    public dispose() {
+        document.head.removeChild(this.cssElement);
+
+        for (const element of document.querySelectorAll(".comment")) {
+            element.classList.remove(this.options.customCSSClassName);
+            element.classList.remove(`${ this.options.customCSSClassName }--transition`);
+        }
     }
 
     private getCSS(): string {

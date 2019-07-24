@@ -1,13 +1,16 @@
 /**
  * Creates a CSS style tag and appends it to an element
  * @param css The CSS to inject
- * @param element The element to inject into
+ * @param target The element to inject into
+ * @return The injected element
  */
-export function injectCSS(css: string, element: Element): void {
+export function injectCSS(css: string, target: Element): Element {
     const style = document.createElement("style");
     style.setAttribute("type", "text/css");
     style.appendChild(document.createTextNode(css));
-    element.appendChild(style);
+    target.appendChild(style);
+
+    return style;
 }
 
 /**
