@@ -44,40 +44,42 @@ const state = {
     showResSettings: null as boolean | null
 };
 
-function initialize(): Promise<void> {
-    return Promise.all([
+async function initialize(): Promise<void> {
+    await Promise.all([
         initializeListeners(),
         load()
-    ]).then(() => {});
+    ]);
 }
 
-function initializeListeners(): Promise<void> {
+async function initializeListeners(): Promise<void> {
     element.saveButton!.addEventListener("click", save);
     element.resetButton!.addEventListener("click", reset);
-    element.advancedButton!.addEventListener("click", () => {
+    element.advancedButton!.addEventListener("click", async () => {
         state.showAdvancedSettings = true;
-        update();
+        await update();
     });
     element.clearCommentInput.addEventListener("click", update);
     element.customLinkColor.addEventListener("click", update);
     element.customQuoteColor.addEventListener("click", update);
     element.frequencyInput.addEventListener("input", update);
-    element.RESDialog!.querySelector("#use-res-yes")!.addEventListener("click", () => {
+    element.RESDialog!.querySelector("#use-res-yes")!.addEventListener("click", async () => {
         state.showResSettings = true;
-        update().then(saveShowResOptions);
+        await update();
+        await saveShowResOptions();
     });
-    element.RESDialog!.querySelector("#use-res-no")!.addEventListener("click", () => {
+    element.RESDialog!.querySelector("#use-res-no")!.addEventListener("click", async () => {
         state.showResSettings = false;
-        update().then(saveShowResOptions);
+        await update();
+        await saveShowResOptions();
     });
-    element.CSSClassNameInput.addEventListener("input", () => {
+    element.CSSClassNameInput.addEventListener("input", async () => {
         const selection = {
             start: element.CSSClassNameInput.selectionStart,
             end: element.CSSClassNameInput.selectionEnd
         };
 
         // This loses the selection of the input for some reason
-        update();
+        await update();
 
         // Restore selection (has to be async)
         setTimeout(() => {
@@ -88,11 +90,10 @@ function initializeListeners(): Promise<void> {
     for (const styleMode of element.styleModes) {
         styleMode.addEventListener("click", update);
     }
-
-    return Promise.resolve();
 }
 
 class Message {
+    // noinspection JSUnusedLocalSymbols
     private constructor() {}
 
     static timeOutId: number;
@@ -114,21 +115,19 @@ class Message {
     }
 }
 
-function saveShowResOptions(): Promise<void> {
-    return extensionFunctionRegistry.invoke(Actions.SAVE_OPTIONS, { usesRES: Boolean(state.showResSettings) })
-        .then(() => {
-            Message.show("Affirmative!", false);
-        })
-        .catch((error: any) => {
-            Message.show(
-                "Oops, Something happened! (see console for detailed error message)",
-                true
-            );
-            console.warn(error);
-        });
+async function saveShowResOptions(): Promise<void> {
+    try {
+        await extensionFunctionRegistry.invoke(Actions.SAVE_OPTIONS, { usesRES: Boolean(state.showResSettings) });
+    } catch (error) {
+        Message.show("Oops, Something happened! (see console for detailed error message)", true);
+        return console.warn(error);
+    }
+
+    Message.show("Affirmative!", false);
 }
 
-function save(): Promise<void> {
+async function save(): Promise<void> {
+    // noinspection ConditionalExpressionJS
     const options: Partial<Options> = {
         backColor: element.backgroundColorPicker.value,
         backNightColor: element.backgroundNightColorPicker.value,
@@ -147,17 +146,17 @@ function save(): Promise<void> {
         usesRES: state.showResSettings
     };
 
-    return extensionFunctionRegistry.invoke(Actions.SAVE_OPTIONS, options)
-        .then(() => {
-            Message.show("Settings saved!", false);
-        })
-        .catch((error: any) => {
-            Message.show("Save unsuccessful (see console for detailed error message)", true);
-            console.warn(error);
-        });
+    try {
+        await extensionFunctionRegistry.invoke(Actions.SAVE_OPTIONS, options);
+    } catch (error) {
+        Message.show("Save unsuccessful (see console for detailed error message)", true);
+        return console.warn(error);
+    }
+
+    Message.show("Settings saved!", false);
 }
 
-function reset(): Promise<void> {
+async function reset(): Promise<void> {
     state.showAdvancedSettings = false;
 
     window.scrollTo({
@@ -166,72 +165,72 @@ function reset(): Promise<void> {
         behavior: "smooth"
     });
 
-    return extensionFunctionRegistry.invoke(Actions.CLEAR_STORAGE, undefined)
-        .then(() => {
-            Message.show("Settings reset!", false);
+    try {
+        await extensionFunctionRegistry.invoke(Actions.CLEAR_STORAGE, undefined);
+    } catch (error) {
+        Message.show("Reset unsuccessful (see console for detailed error message)", true);
+        return console.warn(error);
+    }
 
-            return load();
-        })
-        .catch((error: any) => {
-            Message.show("Reset unsuccessful (see console for detailed error message)", true);
-            console.warn(error);
-        });
+    Message.show("Settings reset!", false);
+    await load();
 }
 
-function load(): Promise<void> {
-    return extensionFunctionRegistry.invoke<void, Options>(Actions.GET_OPTIONS)
-        .then((options: Options) => {
-            element.backgroundColorPicker.value = options.backColor;
-            element.backgroundNightColorPicker.value = options.backNightColor;
-            element.textColorPicker.value = options.frontColor;
-            element.textNightColorPicker.value = options.frontNightColor;
-            element.frequencyInput.value = String(options.threadRemovalTimeSeconds / 86400);
-            element.borderInput.checked = Boolean(options.border);
-            element.clearCommentInput.checked = options.clearCommentOnClick;
-            element.clearChildrenInput.checked = options.clearCommentincludeChildren;
-            state.showResSettings = options.usesRES;
-            element.customLinkColor.checked = Boolean(options.linkColor);
-            element.customQuoteColor.checked = Boolean(options.quoteTextColor);
+async function load(): Promise<void> {
+    let options: Options;
 
-            if (options.linkColor) {
-                element.linkColorPicker.value = options.linkColor;
-            }
+    try {
+        options = await extensionFunctionRegistry.invoke<void, Options>(Actions.GET_OPTIONS);
+    } catch (error) {
+        Message.show("Load unsuccessful (see console for detailed error message)", true);
+        return console.warn(error);
+    }
 
-            if (options.linkNightColor) {
-                element.linkNightColorPicker.value = options.linkNightColor;
-            }
+    element.backgroundColorPicker.value = options.backColor;
+    element.backgroundNightColorPicker.value = options.backNightColor;
+    element.textColorPicker.value = options.frontColor;
+    element.textNightColorPicker.value = options.frontNightColor;
+    element.frequencyInput.value = String(options.threadRemovalTimeSeconds / 86400);
+    element.borderInput.checked = Boolean(options.border);
+    element.clearCommentInput.checked = options.clearCommentOnClick;
+    element.clearChildrenInput.checked = options.clearCommentincludeChildren;
+    state.showResSettings = options.usesRES;
+    element.customLinkColor.checked = Boolean(options.linkColor);
+    element.customQuoteColor.checked = Boolean(options.quoteTextColor);
 
-            if (options.quoteTextColor) {
-                element.quoteTextColorPicker.value = options.quoteTextColor;
-            }
+    if (options.linkColor) {
+        element.linkColorPicker.value = options.linkColor;
+    }
 
-            if (options.quoteTextNightColor) {
-                element.quoteTextNightColorPicker.value = options.quoteTextNightColor;
-            }
+    if (options.linkNightColor) {
+        element.linkNightColorPicker.value = options.linkNightColor;
+    }
 
-            if (options.customCSS) {
-                element.customCSSRadioButton.click();
-                element.CSSTextArea.value = options.customCSS;
-            } else {
-                element.colorPickerRadioButton!.click();
-            }
+    if (options.quoteTextColor) {
+        element.quoteTextColorPicker.value = options.quoteTextColor;
+    }
 
-            if (options.customCSSClassName) {
-                element.CSSClassNameInput.value = options.customCSSClassName;
-            }
-        })
-        .catch((error: any) => {
-            Message.show("Load unsuccessful (see console for detailed error message)", true);
-            console.warn(error);
-        })
-        .then(() => {
-            element.year!.textContent = String(new Date().getFullYear());
+    if (options.quoteTextNightColor) {
+        element.quoteTextNightColorPicker.value = options.quoteTextNightColor;
+    }
 
-            return update();
-        });
+    if (options.customCSS) {
+        element.customCSSRadioButton.click();
+        element.CSSTextArea.value = options.customCSS;
+    } else {
+        element.colorPickerRadioButton!.click();
+    }
+
+    if (options.customCSSClassName) {
+        element.CSSClassNameInput.value = options.customCSSClassName;
+    }
+
+    element.year!.textContent = String(new Date().getFullYear());
+
+    await update();
 }
 
-function update(): Promise<void> {
+async function update(): Promise<void> {
     const className = element.CSSClassNameInput.value.trim();
     const valid = isValidCSSClassName(className);
 
@@ -277,6 +276,7 @@ function update(): Promise<void> {
         "options-section--hidden",
         state.showResSettings !== null
     );
+
     for (const setting of element.RESSettings) {
         setting.classList.toggle("options-section--hidden", !state.showResSettings);
     }
@@ -285,23 +285,23 @@ function update(): Promise<void> {
         "options-section--hidden",
         state.showAdvancedSettings
     );
+
     for (const setting of element.advancedSettings) {
         setting.classList.toggle("options-section--hidden", !state.showAdvancedSettings);
     }
 
     element.content!.classList.remove("main-content--hidden");
-
-    return Promise.resolve();
 }
 
 function isValidCSSClassName(className: string): boolean {
-    return /^([a-z_]|-[a-z_-])[a-z\d_-]*$/i.test(className);
+    return /^[a-z_]|-[a-z_-][a-z\d_-]*$/i.test(className);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    initialize()
-        .catch((error: any) => {
-            Message.show("An error occured (see console for detailed error message)", true);
-            console.warn(error);
-        })
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        await initialize()
+    } catch (error) {
+        Message.show("An error occured (see console for detailed error message)", true);
+        console.warn(error);
+    }
 });

@@ -40,13 +40,15 @@ export class ExtensionOptions {
         return this._onChange;
     }
 
-    public get(): Promise<Options> {
+    public async get(): Promise<Options> {
         const result = Object.assign({}, this.defaults, this.cache);
 
-        return this.init.then(() => result);
+        await this.init;
+
+        return result;
     }
 
-    public set(options: Partial<Options>): Promise<void> {
+    public async set(options: Partial<Options>): Promise<void> {
         this.cache = Object.assign({}, this.cache, options);
 
         const obj = this.cache as { [ key: string ]: any };
@@ -57,13 +59,13 @@ export class ExtensionOptions {
             }
         }
 
-        return this.storage.save(this.cache);
+        await this.storage.save(this.cache);
     }
 
-    public clear(): Promise<void> {
+    public async clear(): Promise<void> {
         this.cache = {};
 
-        return this.storage.clear();
+        await this.storage.clear();
     }
 
     public dispose(): void {

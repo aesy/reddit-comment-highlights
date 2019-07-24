@@ -64,10 +64,10 @@ export class ThreadHistory {
         return this;
     }
 
-    public clear(): Promise<void> {
+    public async clear(): Promise<void> {
         this.cache = [];
 
-        return this.storage.clear();
+        await this.storage.clear();
     }
 
     public dispose(): void {

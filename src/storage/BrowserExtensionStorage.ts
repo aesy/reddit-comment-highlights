@@ -36,10 +36,9 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         return this._onChange;
     }
 
-    public save(data: T): Promise<void> {
+    public async save(data: T): Promise<void> {
         if (!this.canSave(data)) {
-            return Promise.reject(
-                `Failed to save data. Reason: max byte quota exceeded (${ this.MAX_BYTES }b)`);
+            throw `Failed to save data. Reason: max byte quota exceeded (${ this.MAX_BYTES }b)`;
         }
 
         return new Promise<void>((resolve, reject) => {
@@ -162,10 +161,10 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
         return Promise.resolve();
     }
 
-    public clear(): Promise<void> {
+    public async clear(): Promise<void> {
         this.unflushed = null;
 
-        return super.clear();
+        await super.clear();
     }
 
     public dispose(): void {
@@ -177,11 +176,11 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
     }
 
     @bind
-    public flush(): Promise<void> {
+    public async flush(): Promise<void> {
         if (this.unflushed === null) {
-            return Promise.resolve();
+            return;
         }
 
-        return super.save(this.unflushed);
+        await super.save(this.unflushed);
     }
 }

@@ -25,7 +25,7 @@ class BackgroundScript {
         onThreadVisitedEvent.subscribe(this.onThreadVisisted);
     }
 
-    public static start(): Promise<BackgroundScript> {
+    public static async start(): Promise<BackgroundScript> {
         const optionsStorage = new PeriodicallyFlushedBrowserExtensionStorage<Partial<Options>>(
             BrowserExtensionStorageType.SYNC,
             Constants.OPTIONS_STORAGE_KEY,
@@ -35,24 +35,21 @@ class BackgroundScript {
             Constants.THREAD_STORAGE_KEY,
             Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
         const extensionOptions = new ExtensionOptions(optionsStorage, Constants.OPTIONS_DEFAULTS);
+        const options = await extensionOptions.get();
+        const threadHistory = new ThreadHistory(threadStorage, options.threadRemovalTimeSeconds);
+        const backgroundScript = new BackgroundScript(
+            optionsStorage,
+            threadStorage,
+            extensionOptions,
+            threadHistory);
 
-        return extensionOptions.get().then(options => {
-            const threadHistory = new ThreadHistory(threadStorage, options.threadRemovalTimeSeconds);
-
-            const backgroundScript = new BackgroundScript(
-                optionsStorage,
-                threadStorage,
-                extensionOptions,
-                threadHistory);
-
-            // Restart after settings changed
-            extensionOptions.onChange.once(() => {
-                backgroundScript.stop();
-                entrypoint();
-            });
-
-            return backgroundScript;
+        // Restart after settings changed
+        extensionOptions.onChange.once(async () => {
+            backgroundScript.stop();
+            await BackgroundScript.start();
         });
+
+        return backgroundScript;
     }
 
     public stop(): void {
@@ -74,21 +71,21 @@ class BackgroundScript {
     }
 
     @bind
-    private saveOptions(options: Partial<Options>): Promise<void> {
-        return this.extensionOptions.set(options);
+    private async saveOptions(options: Partial<Options>): Promise<void> {
+        await this.extensionOptions.set(options);
     }
 
     @bind
-    private getOptions(): Promise<Options> {
-        return this.extensionOptions.get();
+    private async getOptions(): Promise<Options> {
+        return await this.extensionOptions.get();
     }
 
     @bind
-    private clearStorages(): Promise<void> {
-        return Promise.all([
+    private async clearStorages(): Promise<void> {
+        await Promise.all([
             this.extensionOptions.clear(),
             this.threadHistory.clear()
-        ]).then(() => {});
+        ]);
     }
 
     @bind
@@ -99,11 +96,10 @@ class BackgroundScript {
 
 /* This file should really be called 'eventScript' as it's only loaded when needed */
 
-function entrypoint(): void {
-    BackgroundScript.start()
-        .catch((error: any) => {
-            console.error(error);
-        });
-}
-
-entrypoint();
+(async function entrypoint(): Promise<void> {
+    try {
+        await BackgroundScript.start()
+    } catch (error) {
+        console.log(error);
+    }
+})();

@@ -52,19 +52,12 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         this.functions.delete(method);
     }
 
-    public invoke<T, R>(key: string, arg?: T): Promise<R> {
+    public async invoke<T, R>(key: string, arg?: T): Promise<R> {
         const func = this.functions.get(key as string);
 
         if (func) {
             // Function is not remote
-
-            try {
-                const result = func(arg);
-
-                return Promise.resolve(result);
-            } catch (error) {
-                return Promise.reject(error);
-            }
+            return func(arg);
         }
 
         const method = `${ RemoteFunctionBrowserExtensionRegistry.METHOD_PREFIX }${ key }`;

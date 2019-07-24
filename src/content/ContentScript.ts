@@ -19,21 +19,19 @@ class ContentScript {
         reddit.onThreadOpened.subscribe(this.onThreadVisited);
     }
 
-    public static start(): Promise<ContentScript> {
-        return extensionFunctionRegistry.invoke<void, Options>(Actions.GET_OPTIONS)
-            .then((options: Options) => {
-                let reddit: RedditPage;
-                let highlighter: RedditCommentHighlighter;
+    public static async start(): Promise<ContentScript> {
+        const options = await extensionFunctionRegistry.invoke<void, Options>(Actions.GET_OPTIONS);
+        let reddit: RedditPage;
+        let highlighter: RedditCommentHighlighter;
 
-                if (OldRedditPage.isSupported()) {
-                    reddit = new OldRedditPage();
-                    highlighter = new OldRedditCommentHighlighter(options);
-                } else {
-                    throw "Failed to initialize content script. Reason: no suitable reddit page implementation found.";
-                }
+        if (OldRedditPage.isSupported()) {
+            reddit = new OldRedditPage();
+            highlighter = new OldRedditCommentHighlighter(options);
+        } else {
+            throw "Failed to initialize content script. Reason: no suitable reddit page implementation found.";
+        }
 
-                return new ContentScript(reddit, highlighter);
-            });
+        return new ContentScript(reddit, highlighter);
     }
 
     public stop(): void {
@@ -45,7 +43,7 @@ class ContentScript {
     }
 
     @bind
-    private onThreadVisited(thread: RedditCommentThread): void {
+    private async onThreadVisited(thread: RedditCommentThread): Promise<void> {
         if (this.currentThread) {
             this.currentThread.dispose();
         }
@@ -58,55 +56,54 @@ class ContentScript {
         }
 
         thread.onCommentAdded.subscribe(this.highlightComments);
-        this.highlightComments(...thread.getAllComments());
+
+        await this.highlightComments(...thread.getAllComments());
     }
 
     @bind
-    private highlightComments(...comments: RedditComment[]): void {
+    private async highlightComments(...comments: RedditComment[]): Promise<void> {
         if (!this.currentThread) {
             return;
         }
 
-        extensionFunctionRegistry.invoke<string, ThreadHistoryEntry | null>(Actions.GET_THREAD_BY_ID, this.currentThread.id)
-            .then((entry: ThreadHistoryEntry | null) => {
-                if (!entry) {
-                    // First time in comment section, no highlights
-                    return;
-                }
+        const entry = await extensionFunctionRegistry.invoke<string, ThreadHistoryEntry | null>(
+            Actions.GET_THREAD_BY_ID, this.currentThread.id);
 
-                const timestamp = entry.timestamp * 1000;
-                const user = this.reddit.getLoggedInUser();
+        if (!entry) {
+            // First time in comment section, no highlights
+            return;
+        }
 
-                for (const comment of comments) {
-                    if (user && user === comment.author) {
-                        // Users own comment, skip
-                        continue;
-                    }
+        const timestamp = entry.timestamp * 1000;
+        const user = this.reddit.getLoggedInUser();
 
-                    if (!comment.time) {
-                        // Deleted comment, skip
-                        continue;
-                    }
+        for (const comment of comments) {
+            if (user && user === comment.author) {
+                // Users own comment, skip
+                continue;
+            }
 
-                    if (comment.time.valueOf() < timestamp) {
-                        // Comment already seen
-                        continue;
-                    }
+            if (!comment.time) {
+                // Deleted comment, skip
+                continue;
+            }
 
-                    this.highlighter.highlightComment(comment);
-                }
-            })
-            .catch((error: any) => {
-                console.error(error)
-            });
+            if (comment.time.valueOf() < timestamp) {
+                // Comment already seen
+                continue;
+            }
+
+            this.highlighter.highlightComment(comment);
+        }
     }
 }
 
 /* This script is injected into every reddit page */
 
-(function entrypoint(): void {
-    ContentScript.start()
-        .catch((error: any) => {
-            console.error(error);
-        });
+(async function entrypoint(): Promise<void> {
+    try {
+        await ContentScript.start()
+    } catch (error) {
+        console.log(error);
+    }
 })();

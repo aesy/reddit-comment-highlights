@@ -47,7 +47,8 @@ module.exports = {
                             plugins: [
                                 [ "@babel/plugin-proposal-decorators", { "legacy": true } ],
                                 [ "@babel/proposal-class-properties", { "loose": true } ],
-                                [ "@babel/proposal-object-rest-spread" ]
+                                [ "@babel/proposal-object-rest-spread" ],
+                                [ "babel-plugin-transform-async-to-promises" ]
                             ]
                         }
                     }
