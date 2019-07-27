@@ -6,7 +6,7 @@
         "build:watch": "npm run build:dev -- --watch",
         "build:clean": "rimraf ./dist",
         "start:options": "npm run build:dev && webpack-dev-server --config config/webpack.config.development.js",
-        "test:unit": "mochapack --webpack-config config/webpack.config.test.js test"
+        "test:unit": "mochapack --webpack-config config/webpack.config.test.js 'test/**/*'"
     },
     "dependencies": {
         "bind-decorator": "^1.0.11",

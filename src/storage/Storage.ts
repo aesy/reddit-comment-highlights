@@ -19,6 +19,8 @@ export class InMemoryStorage<T> implements Storage<T> {
 
     public async save(data: T): Promise<void> {
         this.data = data;
+
+        this._onChange.dispatch(data);
     }
 
     public async load(): Promise<T | null> {

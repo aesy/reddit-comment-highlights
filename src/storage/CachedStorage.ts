@@ -1,9 +1,9 @@
 import bind from "bind-decorator";
-import { Subscribable, Event, AsyncEvent } from "event/Event";
+import { Subscribable, Event } from "event/Event";
 import { Storage } from "storage/Storage";
 
 export class CachedStorage<T> implements Storage<T> {
-    private readonly _onChange: Event<T | null> = new AsyncEvent();
+    private readonly _onChange: Event<T | null> = new Event();
     private readonly init: Promise<void>;
     private cache: T | null = null;
 
@@ -21,7 +21,11 @@ export class CachedStorage<T> implements Storage<T> {
         return this._onChange;
     }
 
-    public save(data: T | null): Promise<void> {
+    public async save(data: T | null): Promise<void> {
+        await this.init;
+
+        this.cache = data;
+
         return this.delegate.save(data);
     }
 
