@@ -4,7 +4,7 @@ import { InMemoryStorage } from "storage/Storage";
 import { CompressedStorage } from "storage/CompressedStorage";
 
 function sizeOf(data: any): number {
-    return new TextEncoder().encode(JSON.stringify(data)).length;
+    return Buffer.byteLength(JSON.stringify(data), "utf8");
 }
 
 describe("CompressedStorage", () => {
