@@ -3,6 +3,7 @@ export const Constants = {
     OPTIONS_STORAGE_KEY: "reddit_au_options",
     THREAD_STORAGE_KEY: "reddit_au_threads",
     STORAGE_UPDATE_INTERVAL_SECONDS: 10,
+    CSS_TRANSITION_DURATION_SECONDS: 0.4,
     OPTIONS_DEFAULTS: {
         frontColor: "#000000",
         frontNightColor: "#ffffff",
@@ -18,7 +19,6 @@ export const Constants = {
         customCSS: null,
         customCSSClassName: "highlight",
         threadRemovalTimeSeconds: 604800, // A week
-        usesRES: null,
         useCompression: false
     }
 };

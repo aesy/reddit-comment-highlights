@@ -1,30 +1,28 @@
 import { injectCSS } from "util/DOM";
-import { Options } from "options/ExtensionOptions";
 import { RedditComment } from "reddit/RedditPage";
-import { RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
+import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
 
 export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
-    private static readonly TRANSITION_DURATION_SECONDS: number = 0.4;
     private readonly cssElement: Element;
 
     public constructor(
-        private readonly options: Options
+        private readonly options: HighlighterOptions
     ) {
         this.cssElement = injectCSS(this.getCSS(), document.head);
     }
 
     public highlightComment(comment: RedditComment): void {
-        comment.element.classList.add(this.options.customCSSClassName);
-        comment.element.classList.add(`${ this.options.customCSSClassName }--transition`);
+        comment.element.classList.add(this.options.className);
+        comment.element.classList.add(`${ this.options.className }--transition`);
 
-        if (!this.options.clearCommentOnClick) {
+        if (!this.options.clearOnClick) {
             return;
         }
 
         // Comments to clear on click
         const clear: RedditComment[] = [];
 
-        if (this.options.clearCommentincludeChildren) {
+        if (this.options.includeChildren) {
             const addComment = (comment: RedditComment) => {
                 const comments = comment.getChildComments();
 
@@ -42,13 +40,13 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
 
         comment.onClick.once((): void => {
             for (const comment of clear) {
-                comment.element.classList.remove(this.options.customCSSClassName);
+                comment.element.classList.remove(this.options.className);
 
                 window.setTimeout((): void => {
                     // Transition class can't be removed before transition has finished
-                    const className = `${ this.options.customCSSClassName }--transition`;
+                    const className = `${ this.options.className }--transition`;
                     comment.element.classList.remove(className);
-                }, OldRedditCommentHighlighter.TRANSITION_DURATION_SECONDS * 1000 + 500);
+                }, this.options.transitionDurationSeconds * 1000 + 500);
             }
         });
     }
@@ -57,8 +55,8 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
         document.head.removeChild(this.cssElement);
 
         for (const element of document.querySelectorAll(".comment")) {
-            element.classList.remove(this.options.customCSSClassName);
-            element.classList.remove(`${ this.options.customCSSClassName }--transition`);
+            element.classList.remove(this.options.className);
+            element.classList.remove(`${ this.options.className }--transition`);
         }
     }
 
@@ -68,62 +66,60 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
         }
 
         let css = `
-            .comment.${ this.options.customCSSClassName }--transition  > .entry .md {
+            .comment.${ this.options.className }--transition  > .entry .md {
                 transition-property: padding, border, background-color, color;
-                transition-duration: ${ OldRedditCommentHighlighter.TRANSITION_DURATION_SECONDS }s;
+                transition-duration: ${ this.options.transitionDurationSeconds }s;
             }
 
-            .comment.${ this.options.customCSSClassName } > .entry .md {
+            .comment.${ this.options.className } > .entry .md {
                 padding: 2px;
                 border: ${ this.options.border || "0" };
                 border-radius: 2px;
-                background-color: ${ this.options.backColor };
-                color: ${ this.options.frontColor };
+                background-color: ${ this.options.backgroundColor };
+                color: ${ this.options.normalTextColor };
             }
         `;
 
-        if (this.options.linkColor) {
+        if (this.options.linkTextColor) {
             css += `
-                .comment.${ this.options.customCSSClassName } > .entry .md a {
-                    color: ${ this.options.linkColor }
+                .comment.${ this.options.className } > .entry .md a {
+                    color: ${ this.options.linkTextColor }
                 }
             `;
         }
 
         if (this.options.quoteTextColor !== null) {
             css += `
-                .comment.${ this.options.customCSSClassName } > .entry .md blockquote {
+                .comment.${ this.options.className } > .entry .md blockquote {
                     color: ${ this.options.quoteTextColor }
                 }
             `;
         }
 
-        if (this.options.usesRES) {
+        css += `
+            .res-nightmode .comment.${ this.options.className } > .entry .md {
+                padding: 2px;
+                border: ${ this.options.border || "0" };
+                border-radius: 2px;
+                background-color: ${ this.options.backgroundColorDark };
+                color: ${ this.options.normalTextColorDark }
+            }
+        `;
+
+        if (this.options.linkTextColorDark) {
             css += `
-                .res-nightmode .comment.${ this.options.customCSSClassName } > .entry .md {
-                    padding: 2px;
-                    border: ${ this.options.border || "0" };
-                    border-radius: 2px;
-                    background-color: ${ this.options.backNightColor };
-                    color: ${ this.options.frontNightColor }
+                .res-nightmode .comment.${ this.options.className } > .entry .md a {
+                    color: ${ this.options.linkTextColorDark }
                 }
             `;
+        }
 
-            if (this.options.linkNightColor) {
-                css += `
-                    .res-nightmode .comment.${ this.options.customCSSClassName } > .entry .md a {
-                        color: ${ this.options.linkNightColor }
-                    }
-                `;
-            }
-
-            if (this.options.quoteTextNightColor) {
-                css += `
-                    .res-nightmode .comment.${ this.options.customCSSClassName } > .entry .md blockquote {
-                        color: ${ this.options.quoteTextNightColor }
-                    }
-                `;
-            }
+        if (this.options.quoteTextColorDark) {
+            css += `
+                .res-nightmode .comment.${ this.options.className } > .entry .md blockquote {
+                    color: ${ this.options.quoteTextColorDark }
+                }
+            `;
         }
 
         return css;

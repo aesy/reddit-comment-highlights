@@ -2,10 +2,11 @@ import bind from "bind-decorator";
 import { Options } from "options/ExtensionOptions";
 import { RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
 import { OldRedditPage } from "reddit/OldRedditPage";
-import { RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
+import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
 import { OldRedditCommentHighlighter } from "reddit/OldRedditCommentHighlighter";
 import { ThreadHistoryEntry } from "storage/ThreadHistory";
 import { Actions } from "common/Actions";
+import { Constants } from "common/Constants";
 import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 
@@ -23,10 +24,26 @@ class ContentScript {
         const options = await extensionFunctionRegistry.invoke<void, Options>(Actions.GET_OPTIONS);
         let reddit: RedditPage;
         let highlighter: RedditCommentHighlighter;
+        const highlightOptions: HighlighterOptions = {
+            backgroundColor: options.backColor,
+            backgroundColorDark: options.backNightColor,
+            border: options.border,
+            linkTextColor: options.linkColor,
+            linkTextColorDark: options.linkNightColor,
+            normalTextColor: options.frontColor,
+            normalTextColorDark: options.frontNightColor,
+            quoteTextColor: options.quoteTextColor,
+            quoteTextColorDark: options.quoteTextNightColor,
+            className: options.customCSSClassName,
+            clearOnClick: options.clearCommentOnClick,
+            customCSS: options.customCSS,
+            includeChildren: options.clearCommentincludeChildren,
+            transitionDurationSeconds: Constants.CSS_TRANSITION_DURATION_SECONDS
+        };
 
         if (OldRedditPage.isSupported()) {
             reddit = new OldRedditPage();
-            highlighter = new OldRedditCommentHighlighter(options);
+            highlighter = new OldRedditCommentHighlighter(highlightOptions);
         } else {
             throw "Failed to initialize content script. Reason: no suitable reddit page implementation found.";
         }
