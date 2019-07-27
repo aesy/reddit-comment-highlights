@@ -4,7 +4,6 @@ import { Storage } from "storage/Storage";
 
 // These properties must keep their names for backwards compatibility
 export interface Options {
-    usesRES: boolean | null
     clearCommentOnClick: boolean
     clearCommentincludeChildren: boolean
     border: string | null

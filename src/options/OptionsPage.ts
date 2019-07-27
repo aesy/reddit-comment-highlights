@@ -18,8 +18,6 @@ const element = {
     customCSSRadioButton: document.getElementById("custom-css") as HTMLInputElement,
     statusMessage: document.getElementById("status-message")!,
     styleModes: document.querySelectorAll("input[name=\"style-mode\"]")!,
-    RESDialog: document.getElementById("RES")!,
-    RESSettings: document.querySelectorAll(".RES")!,
     advancedDialog: document.getElementById("advanced")!,
     advancedSettings: document.querySelectorAll(".advanced")!,
     advancedButton: document.getElementById("show-advanced")!,
@@ -41,8 +39,7 @@ const element = {
 };
 
 const state = {
-    showAdvancedSettings: false,
-    showResSettings: null as boolean | null
+    showAdvancedSettings: false
 };
 
 async function initialize(): Promise<void> {
@@ -63,16 +60,6 @@ async function initializeListeners(): Promise<void> {
     element.customLinkColor.addEventListener("click", update);
     element.customQuoteColor.addEventListener("click", update);
     element.frequencyInput.addEventListener("input", update);
-    element.RESDialog!.querySelector("#use-res-yes")!.addEventListener("click", async () => {
-        state.showResSettings = true;
-        await update();
-        await saveShowResOptions();
-    });
-    element.RESDialog!.querySelector("#use-res-no")!.addEventListener("click", async () => {
-        state.showResSettings = false;
-        await update();
-        await saveShowResOptions();
-    });
     element.CSSClassNameInput.addEventListener("input", async () => {
         const selection = {
             start: element.CSSClassNameInput.selectionStart!,
@@ -116,17 +103,6 @@ class Message {
     }
 }
 
-async function saveShowResOptions(): Promise<void> {
-    try {
-        await extensionFunctionRegistry.invoke(Actions.SAVE_OPTIONS, { usesRES: Boolean(state.showResSettings) });
-    } catch (error) {
-        Message.show("Oops, Something happened! (see console for detailed error message)", true);
-        return console.warn(error);
-    }
-
-    Message.show("Affirmative!", false);
-}
-
 async function save(): Promise<void> {
     // noinspection ConditionalExpressionJS
     const options: Partial<Options> = {
@@ -144,7 +120,6 @@ async function save(): Promise<void> {
         clearCommentincludeChildren: element.clearChildrenInput.checked,
         customCSS: element.customCSSRadioButton.checked ? element.CSSTextArea.value : null,
         customCSSClassName: element.customCSSRadioButton.checked ? element.CSSClassNameInput.value : undefined,
-        usesRES: state.showResSettings,
         useCompression: element.compressedStorage.checked
     };
 
@@ -196,7 +171,6 @@ async function load(): Promise<void> {
     element.borderInput.checked = Boolean(options.border);
     element.clearCommentInput.checked = options.clearCommentOnClick;
     element.clearChildrenInput.checked = options.clearCommentincludeChildren;
-    state.showResSettings = options.usesRES;
     element.customLinkColor.checked = Boolean(options.linkColor);
     element.customQuoteColor.checked = Boolean(options.quoteTextColor);
     element.compressedStorage.checked = options.useCompression;
@@ -273,15 +247,6 @@ async function update(): Promise<void> {
         default:
             element.frequencyNumber.textContent = frequencyValue;
             element.frequencyUnit.textContent = "days";
-    }
-
-    element.RESDialog!.classList.toggle(
-        "options-section--hidden",
-        state.showResSettings !== null
-    );
-
-    for (const setting of element.RESSettings) {
-        setting.classList.toggle("options-section--hidden", !state.showResSettings);
     }
 
     element.advancedDialog.classList.toggle(
