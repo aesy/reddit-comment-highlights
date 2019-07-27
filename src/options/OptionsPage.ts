@@ -27,6 +27,7 @@ const element = {
     tabs: document.querySelectorAll(".main-content__tab"),
     resetButton: document.getElementById("clear-all"),
     year: document.getElementById("footer__year"),
+    compressedStorage: document.getElementById("compressed-storage") as HTMLInputElement,
     backgroundColorPicker: document.getElementById("back-color") as HTMLInputElement,
     backgroundNightColorPicker: document.getElementById("back-color-night") as HTMLInputElement,
     textColorPicker: document.getElementById("front-color") as HTMLInputElement,
@@ -143,7 +144,8 @@ async function save(): Promise<void> {
         clearCommentincludeChildren: element.clearChildrenInput.checked,
         customCSS: element.customCSSRadioButton.checked ? element.CSSTextArea.value : null,
         customCSSClassName: element.customCSSRadioButton.checked ? element.CSSClassNameInput.value : undefined,
-        usesRES: state.showResSettings
+        usesRES: state.showResSettings,
+        useCompression: element.compressedStorage.checked
     };
 
     try {
@@ -197,6 +199,7 @@ async function load(): Promise<void> {
     state.showResSettings = options.usesRES;
     element.customLinkColor.checked = Boolean(options.linkColor);
     element.customQuoteColor.checked = Boolean(options.quoteTextColor);
+    element.compressedStorage.checked = options.useCompression;
 
     if (options.linkColor) {
         element.linkColorPicker.value = options.linkColor;

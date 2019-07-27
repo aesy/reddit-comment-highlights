@@ -1,5 +1,5 @@
 import bind from "bind-decorator";
-import { Subscribable, Event } from "event/Event";
+import { Event, Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
 
 export interface Options {
@@ -18,6 +18,7 @@ export interface Options {
     customCSS: string | null
     customCSSClassName: string
     threadRemovalTimeSeconds: number
+    useCompression: boolean
 }
 
 export class ExtensionOptions {
@@ -41,14 +42,14 @@ export class ExtensionOptions {
     }
 
     public async get(): Promise<Options> {
-        const result = Object.assign({}, this.defaults, this.cache);
-
         await this.init;
 
-        return result;
+        return Object.assign({}, this.defaults, this.cache);
     }
 
     public async set(options: Partial<Options>): Promise<void> {
+        await this.init;
+
         this.cache = Object.assign({}, this.cache, options);
 
         const obj = this.cache as { [ key: string ]: any };

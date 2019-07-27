@@ -8,65 +8,89 @@ export interface ThreadHistoryEntry {
     timestamp: number
 }
 
-export class ThreadHistory {
+export interface ThreadHistory {
+    readonly onChange: Subscribable<void>
+
+    get(id: string): Promise<ThreadHistoryEntry | null>
+    add(id: string): Promise<void>
+    remove(id: string): Promise<void>
+    clear(): Promise<void>
+    dispose(): void
+}
+
+export class TruncatingThreadHistory implements ThreadHistory {
     private static readonly SAVE_RETRY_TIMEOUT_SECONDS = 5;
     private readonly _onChange: Event<void> = new Event();
-    private cache: ThreadHistoryEntry[] = [];
     private saveTimeout: number | null = null;
 
     public constructor(
         private readonly storage: Storage<ThreadHistoryEntry[]>,
         private readonly threadRemovalSeconds: number
     ) {
-        // Listen for changes in storage and update internal cache
         storage.onChange.subscribe(this.onStorageChange);
-
-        // Sync internal cache with storage
-        storage.load().then(this.onStorageChange);
     }
 
     public get onChange(): Subscribable<void> {
         return this._onChange;
     }
 
-    public get(id: string): ThreadHistoryEntry | null {
-        const i = this.getIndex(id);
+    public async get(id: string): Promise<ThreadHistoryEntry | null> {
+        const threads = await this.storage.load();
 
-        if (i > -1) {
-            return this.cache[ i ];
+        if (!threads) {
+            return null;
         }
 
-        return null;
+        const index = TruncatingThreadHistory.getIndex(threads, id);
+
+        if (index === -1) {
+            return null;
+        }
+
+        return threads[ index ];
     }
 
-    public add(id: string): this {
-        this.remove(id);
+    public async add(id: string): Promise<void> {
+        const threads = await this.storage.load();
+        const data: ThreadHistoryEntry[] = [];
 
-        this.cache.push({
+        if (threads) {
+            data.push(...threads);
+        }
+
+        const index = TruncatingThreadHistory.getIndex(threads, id);
+
+        if (index > -1) {
+            data.splice(index, 1);
+        }
+
+        data.push({
             id,
             timestamp: currentTimestampSeconds()
         });
 
-        this.save();
-
-        return this;
+        await this.save(data);
     }
 
-    public remove(id: string): this {
-        const i = this.getIndex(id);
+    public async remove(id: string): Promise<void> {
+        const threads = await this.storage.load();
 
-        if (i > -1) {
-            this.cache.splice(i, 1);
+        const data: ThreadHistoryEntry[] = [];
+
+        if (threads) {
+            data.push(...threads);
         }
 
-        this.save();
+        const i = TruncatingThreadHistory.getIndex(data, id);
 
-        return this;
+        if (i > -1) {
+            data.splice(i, 1);
+        }
+
+        await this.save(data);
     }
 
     public async clear(): Promise<void> {
-        this.cache = [];
-
         await this.storage.clear();
     }
 
@@ -75,9 +99,13 @@ export class ThreadHistory {
         this._onChange.dispose();
     }
 
-    private getIndex(id: string): number {
-        for (let i = 0; i < this.cache.length; i++) {
-            const thread = this.cache[ i ];
+    private static getIndex(threads: ThreadHistoryEntry[] | null, id: string): number {
+        if (!threads) {
+            return -1;
+        }
+
+        for (let i = 0; i < threads.length; i++) {
+            const thread = threads[ i ];
 
             if (thread.id === id) {
                 return i;
@@ -87,65 +115,84 @@ export class ThreadHistory {
         return -1;
     }
 
-    private cleanup(): void {
-        while (true) {
-            const thread = this.getOldest();
-
-            if (!thread) {
-                return;
-            }
-
-            if (thread.timestamp < (currentTimestampSeconds() - this.threadRemovalSeconds)) {
-                this.remove(thread.id);
-            } else {
-                return;
-            }
-        }
-    }
-
-    private getOldest(): ThreadHistoryEntry | null {
-        if (this.cache.length === 0) {
+    private static getOldest(threads: ThreadHistoryEntry[]): ThreadHistoryEntry | null {
+        if (!threads) {
             return null;
         }
 
         // Array is sorted
-        return this.cache[ 0 ];
+        return threads[ 0 ];
     }
 
-    private save(): void {
+    private static removeThread(
+        threads: ThreadHistoryEntry[],
+        thread: ThreadHistoryEntry
+    ): ThreadHistoryEntry[] {
+        const index = TruncatingThreadHistory.getIndex(threads, thread.id);
+
+        if (index > -1) {
+            threads.splice(index, 1);
+        }
+
+        return threads;
+    }
+
+    private async save(data: ThreadHistoryEntry[] | null): Promise<void> {
         if (this.saveTimeout) {
             window.clearTimeout(this.saveTimeout);
             this.saveTimeout = null;
         }
 
-        this.cleanup();
+        data = this.cleanup(data);
 
-        this.storage.save(this.cache)
-            .catch((error: any) => {
-                // An error occurred, probably due to some limit exceeded
-                // Remove oldest thread and try again
-                const thread = this.getOldest();
+        try {
+            await this.storage.save(data);
+        } catch (error) {
+            if (!data) {
+                // History is empty, error not related to any limits
+                console.log("Failed to save thread history", error);
 
-                if (!thread) {
-                    // History is empty, error not related to any limits
-                    console.log("Failed to save thread history", error);
+                throw error;
+            }
 
-                    return;
-                }
+            // An error occurred, probably due to some limit exceeded
+            // Remove oldest thread and try again
+            const thread = TruncatingThreadHistory.getOldest(data);
+            data = TruncatingThreadHistory.removeThread(data, thread!);
 
-                this.remove(thread.id);
-
+            await new Promise(resolve => {
                 this.saveTimeout = window.setTimeout(() => {
                     this.saveTimeout = null;
-                    this.save();
-                }, ThreadHistory.SAVE_RETRY_TIMEOUT_SECONDS * 1000);
+                    resolve();
+                }, TruncatingThreadHistory.SAVE_RETRY_TIMEOUT_SECONDS * 1000);
             });
+
+            await this.save(data);
+        }
+    }
+
+    private cleanup(data: ThreadHistoryEntry[] | null): ThreadHistoryEntry[] | null {
+        if (!data) {
+            return null;
+        }
+
+        while (true) {
+            const thread = TruncatingThreadHistory.getOldest(data);
+
+            if (!thread) {
+                return data;
+            }
+
+            if (thread.timestamp < (currentTimestampSeconds() - this.threadRemovalSeconds)) {
+                data = TruncatingThreadHistory.removeThread(data, thread);
+            } else {
+                return data;
+            }
+        }
     }
 
     @bind
-    private onStorageChange(data: ThreadHistoryEntry[] | null): void {
-        this.cache = data || [];
-
+    private onStorageChange(): void {
         this._onChange.dispatch();
     }
 }
