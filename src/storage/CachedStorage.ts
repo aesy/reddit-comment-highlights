@@ -5,7 +5,7 @@ import { Storage } from "storage/Storage";
 export class CachedStorage<T> implements Storage<T> {
     private readonly _onChange: Event<T | null> = new Event();
     private readonly init: Promise<void>;
-    private cache: T | null = null;
+    private cache: Readonly<T | null> = null;
 
     public constructor(
         private readonly delegate: Storage<T>

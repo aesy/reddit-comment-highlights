@@ -2,6 +2,7 @@ import bind from "bind-decorator";
 import { Event, Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
 
+// These properties must keep their names for backwards compatibility
 export interface Options {
     usesRES: boolean | null
     clearCommentOnClick: boolean
@@ -24,11 +25,11 @@ export interface Options {
 export class ExtensionOptions {
     private readonly _onChange: Event<void> = new Event();
     private readonly init: Promise<void>;
-    private cache: Partial<Options> = {};
+    private cache: Readonly<Partial<Options>> = {};
 
     public constructor(
         private readonly storage: Storage<Partial<Options>>,
-        private readonly defaults: Options
+        private readonly defaults: Readonly<Options>
     ) {
         // Listen for changes in storage and update internal cache
         storage.onChange.subscribe(this.onStorageChange);

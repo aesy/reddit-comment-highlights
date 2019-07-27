@@ -1,7 +1,7 @@
 import bind from "bind-decorator";
-import { currentTimestampSeconds } from "util/Time";
 import { Subscribable, Event } from "event/Event";
 import { Storage } from "storage/Storage";
+import { currentTimestampSeconds } from "util/Time";
 
 export interface ThreadHistoryEntry {
     id: string,

@@ -98,7 +98,7 @@ class ContentScript {
             }
 
             if (comment.time.valueOf() < timestamp) {
-                // Comment already seen
+                // Comment already seen, skip
                 continue;
             }
 

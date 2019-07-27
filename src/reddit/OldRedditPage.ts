@@ -1,5 +1,5 @@
 import bind from "bind-decorator";
-import { Event as PubSubEvent, Subscribable } from "event/Event";
+import { Subscribable, Event as PubSubEvent } from "event/Event";
 import { RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
 import { findClosestParent } from "util/DOM";
 
@@ -42,7 +42,7 @@ class OldRedditComment implements RedditComment {
         const timeTag = this.element.getElementsByTagName("time")[ 0 ];
 
         if (!timeTag) {
-            // Deleted comments does not have a time tag and should be skipped
+            // Comment deleted
             return null;
         }
 
@@ -207,7 +207,6 @@ export class OldRedditPage implements RedditPage {
 
         const self = this;
 
-        // Initialize after first listener is attached
         return {
             listener(): MethodDecorator {
                 return self._onThreadOpened.listener();

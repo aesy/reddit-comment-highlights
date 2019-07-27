@@ -4,29 +4,29 @@ import { Actions } from "common/Actions";
 import { extensionFunctionRegistry } from "common/Registries";
 
 const element = {
-    content: document.querySelector(".main-content"),
+    content: document.querySelector(".main-content")!,
     CSSTextArea: document.getElementById("CSS-text") as HTMLInputElement,
     CSSClassNameInput: document.getElementById("class-name") as HTMLInputElement,
-    CSSClassName: document.querySelector(".class-name"),
+    CSSClassName: document.querySelector(".class-name")!,
     borderInput: document.getElementById("border") as HTMLInputElement,
     clearCommentInput: document.getElementById("clear-comment") as HTMLInputElement,
     clearChildrenInput: document.getElementById("clear-child-comments") as HTMLInputElement,
     frequencyInput: document.getElementById("frequency") as HTMLInputElement,
-    frequencyNumber: document.getElementById("frequency-number"),
-    frequencyUnit: document.getElementById("frequency-unit"),
-    colorPickerRadioButton: document.getElementById("color-pickers"),
+    frequencyNumber: document.getElementById("frequency-number")!,
+    frequencyUnit: document.getElementById("frequency-unit")!,
+    colorPickerRadioButton: document.getElementById("color-pickers")!,
     customCSSRadioButton: document.getElementById("custom-css") as HTMLInputElement,
-    statusMessage: document.getElementById("status-message"),
-    styleModes: document.querySelectorAll("input[name=\"style-mode\"]"),
-    RESDialog: document.getElementById("RES"),
-    RESSettings: document.querySelectorAll(".RES"),
-    advancedDialog: document.getElementById("advanced"),
-    advancedSettings: document.querySelectorAll(".advanced"),
-    advancedButton: document.getElementById("show-advanced"),
-    saveButton: document.getElementById("save-options"),
-    tabs: document.querySelectorAll(".main-content__tab"),
-    resetButton: document.getElementById("clear-all"),
-    year: document.getElementById("footer__year"),
+    statusMessage: document.getElementById("status-message")!,
+    styleModes: document.querySelectorAll("input[name=\"style-mode\"]")!,
+    RESDialog: document.getElementById("RES")!,
+    RESSettings: document.querySelectorAll(".RES")!,
+    advancedDialog: document.getElementById("advanced")!,
+    advancedSettings: document.querySelectorAll(".advanced")!,
+    advancedButton: document.getElementById("show-advanced")!,
+    saveButton: document.getElementById("save-options")!,
+    tabs: document.querySelectorAll(".main-content__tab")!,
+    resetButton: document.getElementById("clear-all")!,
+    year: document.getElementById("footer__year")!,
     compressedStorage: document.getElementById("compressed-storage") as HTMLInputElement,
     backgroundColorPicker: document.getElementById("back-color") as HTMLInputElement,
     backgroundNightColorPicker: document.getElementById("back-color-night") as HTMLInputElement,
@@ -53,9 +53,9 @@ async function initialize(): Promise<void> {
 }
 
 async function initializeListeners(): Promise<void> {
-    element.saveButton!.addEventListener("click", save);
-    element.resetButton!.addEventListener("click", reset);
-    element.advancedButton!.addEventListener("click", async () => {
+    element.saveButton.addEventListener("click", save);
+    element.resetButton.addEventListener("click", reset);
+    element.advancedButton.addEventListener("click", async () => {
         state.showAdvancedSettings = true;
         await update();
     });
@@ -75,8 +75,8 @@ async function initializeListeners(): Promise<void> {
     });
     element.CSSClassNameInput.addEventListener("input", async () => {
         const selection = {
-            start: element.CSSClassNameInput.selectionStart,
-            end: element.CSSClassNameInput.selectionEnd
+            start: element.CSSClassNameInput.selectionStart!,
+            end: element.CSSClassNameInput.selectionEnd!
         };
 
         // This loses the selection of the input for some reason
@@ -84,7 +84,7 @@ async function initializeListeners(): Promise<void> {
 
         // Restore selection (has to be async)
         setTimeout(() => {
-            element.CSSClassNameInput.setSelectionRange(selection.start!, selection.end!);
+            element.CSSClassNameInput.setSelectionRange(selection.start, selection.end);
         }, 0);
     });
 
@@ -100,18 +100,18 @@ class Message {
     static timeOutId: number;
 
     static show(text: string, isError = false): void {
-        element.statusMessage!.textContent = text;
-        element.statusMessage!.classList.add("status-message--is-visible");
+        element.statusMessage.textContent = text;
+        element.statusMessage.classList.add("status-message--is-visible");
 
         if (Message.timeOutId) {
             clearTimeout(Message.timeOutId);
         }
 
-        element.statusMessage!.classList.toggle("status-message--success", !isError);
-        element.statusMessage!.classList.toggle("status-message--error", isError);
+        element.statusMessage.classList.toggle("status-message--success", !isError);
+        element.statusMessage.classList.toggle("status-message--error", isError);
 
         Message.timeOutId = window.setTimeout(() => {
-            element.statusMessage!.classList.remove("status-message--is-visible");
+            element.statusMessage.classList.remove("status-message--is-visible");
         }, 3000);
     }
 }
@@ -221,14 +221,14 @@ async function load(): Promise<void> {
         element.customCSSRadioButton.click();
         element.CSSTextArea.value = options.customCSS;
     } else {
-        element.colorPickerRadioButton!.click();
+        element.colorPickerRadioButton.click();
     }
 
     if (options.customCSSClassName) {
         element.CSSClassNameInput.value = options.customCSSClassName;
     }
 
-    element.year!.textContent = String(new Date().getFullYear());
+    element.year.textContent = String(new Date().getFullYear());
 
     await update();
 }
@@ -239,19 +239,19 @@ async function update(): Promise<void> {
 
     element.CSSClassNameInput.classList.toggle("text-input--invalid", !valid);
     element.CSSClassNameInput.textContent = className;
-    element.CSSClassName!.textContent = className;
+    element.CSSClassName.textContent = className;
     element.clearChildrenInput.disabled = !element.clearCommentInput.checked;
     element.linkColorPicker.disabled = !element.customLinkColor.checked;
     element.linkNightColorPicker.disabled = !element.customLinkColor.checked;
     element.quoteTextColorPicker.disabled = !element.customQuoteColor.checked;
     element.quoteTextNightColorPicker.disabled = !element.customQuoteColor.checked;
 
-    const selection = document.querySelector("input[name=\"style-mode\"]:checked");
+    const selection = document.querySelector("input[name=\"style-mode\"]:checked")!;
 
     for (const tab of element.tabs) {
         tab.classList.toggle(
             "main-content__tab--is-visible",
-            tab.classList.contains(selection!.id)
+            tab.classList.contains(selection.id)
         );
     }
 
@@ -259,20 +259,20 @@ async function update(): Promise<void> {
 
     switch (parseInt(frequencyValue, 10)) {
         case 1:
-            element.frequencyNumber!.textContent = String(1);
-            element.frequencyUnit!.textContent = "day";
+            element.frequencyNumber.textContent = String(1);
+            element.frequencyUnit.textContent = "day";
             break;
         case 7:
-            element.frequencyNumber!.textContent = String(1);
-            element.frequencyUnit!.textContent = "week";
+            element.frequencyNumber.textContent = String(1);
+            element.frequencyUnit.textContent = "week";
             break;
         case 14:
-            element.frequencyNumber!.textContent = String(2);
-            element.frequencyUnit!.textContent = "weeks";
+            element.frequencyNumber.textContent = String(2);
+            element.frequencyUnit.textContent = "weeks";
             break;
         default:
-            element.frequencyNumber!.textContent = frequencyValue;
-            element.frequencyUnit!.textContent = "days";
+            element.frequencyNumber.textContent = frequencyValue;
+            element.frequencyUnit.textContent = "days";
     }
 
     element.RESDialog!.classList.toggle(
@@ -284,7 +284,7 @@ async function update(): Promise<void> {
         setting.classList.toggle("options-section--hidden", !state.showResSettings);
     }
 
-    element.advancedDialog!.classList.toggle(
+    element.advancedDialog.classList.toggle(
         "options-section--hidden",
         state.showAdvancedSettings
     );
@@ -293,7 +293,7 @@ async function update(): Promise<void> {
         setting.classList.toggle("options-section--hidden", !state.showAdvancedSettings);
     }
 
-    element.content!.classList.remove("main-content--hidden");
+    element.content.classList.remove("main-content--hidden");
 }
 
 function isValidCSSClassName(className: string): boolean {
