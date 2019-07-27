@@ -18,6 +18,7 @@ export interface Options {
     customCSS: string | null
     customCSSClassName: string
     threadRemovalTimeSeconds: number
+    useCompression: boolean
 }
 
 export class ExtensionOptions {

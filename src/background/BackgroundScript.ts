@@ -4,6 +4,8 @@ import {
     PeriodicallyFlushedBrowserExtensionStorage
 } from "storage/BrowserExtensionStorage";
 import { Storage } from "storage/Storage";
+import { CachedStorage } from "storage/CachedStorage";
+import { CompressedStorage } from "storage/CompressedStorage";
 import { StorageMigrator } from "storage/StorageMigrator";
 import { ThreadHistory, ThreadHistoryEntry, TruncatingThreadHistory } from "storage/ThreadHistory";
 import { ExtensionOptions, Options } from "options/ExtensionOptions";
@@ -28,17 +30,31 @@ class BackgroundScript {
     }
 
     public static async start(): Promise<BackgroundScript> {
-        const optionsStorage = new PeriodicallyFlushedBrowserExtensionStorage<Partial<Options>>(
+        const optionsStorage = new CachedStorage(new PeriodicallyFlushedBrowserExtensionStorage(
             BrowserExtensionStorageType.SYNC,
             Constants.OPTIONS_STORAGE_KEY,
-            Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
-        const threadStorage = new PeriodicallyFlushedBrowserExtensionStorage<ThreadHistoryEntry[]>(
-            BrowserExtensionStorageType.SYNC,
-            Constants.THREAD_STORAGE_KEY,
-            Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
+            Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
         const extensionOptions = new ExtensionOptions(optionsStorage, Constants.OPTIONS_DEFAULTS);
         const options = await extensionOptions.get();
-        const threadHistory = new TruncatingThreadHistory(threadStorage, options.threadRemovalTimeSeconds);
+
+        let threadStorage: Storage<ThreadHistoryEntry[]>;
+
+        if (options.useCompression) {
+            threadStorage = new CompressedStorage(new PeriodicallyFlushedBrowserExtensionStorage(
+                BrowserExtensionStorageType.SYNC,
+                Constants.THREAD_STORAGE_KEY,
+                Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
+        } else {
+            threadStorage = new PeriodicallyFlushedBrowserExtensionStorage(
+                BrowserExtensionStorageType.SYNC,
+                Constants.THREAD_STORAGE_KEY,
+                Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
+        }
+
+        threadStorage = new CachedStorage(threadStorage);
+
+        const threadHistory = new TruncatingThreadHistory(
+            threadStorage, options.threadRemovalTimeSeconds);
         const backgroundScript = new BackgroundScript(
             optionsStorage,
             threadStorage,
