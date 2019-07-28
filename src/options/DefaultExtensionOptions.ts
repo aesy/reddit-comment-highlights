@@ -6,18 +6,12 @@ import { ExtensionOptions, Options } from "options/ExtensionOptions";
 
 export class DefaultExtensionOptions implements ExtensionOptions {
     private readonly _onChange = new SyncEvent<void>();
-    private readonly init: Promise<void>;
-    private cache: Readonly<Partial<Options>> = {};
 
     public constructor(
         private readonly storage: Storage<Partial<Options>>,
         private readonly defaults: Readonly<Options>
     ) {
-        // Listen for changes in storage and update internal cache
         storage.onChange.subscribe(this.onStorageChange);
-
-        // Sync internal cache with storage
-        this.init = storage.load().then(this.onStorageChange);
     }
 
     public get onChange(): Subscribable<void> {
@@ -25,17 +19,15 @@ export class DefaultExtensionOptions implements ExtensionOptions {
     }
 
     public async get(): Promise<Options> {
-        await this.init;
+        const data = await this.storage.load();
 
-        return Object.assign({}, this.defaults, this.cache);
+        return Object.assign({}, this.defaults, data);
     }
 
     public async set(options: Partial<Options>): Promise<void> {
-        await this.init;
-
-        this.cache = Object.assign({}, this.cache, options);
-
-        const obj = this.cache as { [ key: string ]: any };
+        const oldData = await this.storage.load();
+        const newData = Object.assign({}, oldData, options);
+        const obj = newData as { [ key: string ]: any };
 
         for (const key in obj) {
             if (obj[ key ] === undefined) {
@@ -43,12 +35,10 @@ export class DefaultExtensionOptions implements ExtensionOptions {
             }
         }
 
-        await this.storage.save(this.cache);
+        await this.storage.save(newData);
     }
 
     public async clear(): Promise<void> {
-        this.cache = {};
-
         await this.storage.clear();
     }
 
@@ -59,8 +49,6 @@ export class DefaultExtensionOptions implements ExtensionOptions {
 
     @bind
     private onStorageChange(data: Partial<Options> | null): void {
-        this.cache = data || {};
-
         this._onChange.dispatch();
     }
 }
