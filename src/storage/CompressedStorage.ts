@@ -1,8 +1,11 @@
 import bind from "bind-decorator";
-import { compressToUTF16, decompressFromUTF16 } from "lz-string";
+import { decompressFromUTF16, compressToUTF16 } from "lz-string";
 import { Subscribable } from "event/Event";
 import { SyncEvent } from "event/SyncEvent";
 import { Storage } from "storage/Storage";
+import { Logging } from "logger/Logging";
+
+const logger = Logging.getLogger("CompressedStorage");
 
 export class CompressedStorage<T> implements Storage<T> {
     private readonly _onChange = new SyncEvent<T | null>();
@@ -18,28 +21,75 @@ export class CompressedStorage<T> implements Storage<T> {
     }
 
     public async save(data: T | null): Promise<void> {
-        await this.delegate.save(this.compress(data));
+        logger.debug("Compressing data");
+
+        let compressed: string;
+
+        try {
+            compressed = this.compress(data);
+        } catch (error) {
+            logger.error("Failed to compress data", { error: JSON.stringify(error) });
+
+            throw error;
+        }
+
+        logger.debug("Successfully compressed data");
+
+        await this.delegate.save(compressed);
         this._onChange.dispatch(data);
     }
 
     public async load(): Promise<T | null> {
         const data = await this.delegate.load();
 
-        return this.decompress(data);
+        logger.debug("Decompressing data");
+
+        let decompressed: T | null;
+
+        try {
+            decompressed = this.decompress(data);
+        } catch (error) {
+            logger.error("Failed to decompress data", { error: JSON.stringify(error) });
+
+            throw error;
+        }
+
+        logger.debug("Successfully decompressed data");
+
+        return decompressed;
     }
 
     public async clear(): Promise<void> {
+        logger.debug("Clearing storage");
+
         await this.delegate.clear();
     }
 
     public dispose(): void {
+        logger.debug("Disposing storage");
+
         this._onChange.dispose();
         this.delegate.dispose();
     }
 
     @bind
     private onStorageChange(data: string | null): void {
-        this._onChange.dispatch(this.decompress(data));
+        logger.debug("Underlying storage changed");
+        logger.debug("Decompressing data");
+
+        let decompressed: T | null;
+
+        try {
+            decompressed = this.decompress(data);
+        } catch (error) {
+            logger.error("Failed to decompress data", { error: JSON.stringify(error) });
+
+            throw error;
+        }
+
+        logger.debug("Successfully decompressed data");
+
+        this._onChange.dispatch(decompressed);
     }
 
     private compress(data: T | null): string {

@@ -17,13 +17,14 @@ export interface Options {
     customCSSClassName: string
     threadRemovalTimeSeconds: number
     useCompression: boolean
+    debug: boolean
 }
 
 export interface ExtensionOptions {
-    readonly onChange: Subscribable<void>;
+    readonly onChange: Subscribable<void>
 
-    get(): Promise<Options>;
-    set(options: Partial<Options>): Promise<void>;
-    clear(): Promise<void>;
-    dispose(): void;
+    get(): Promise<Options>
+    set(options: Partial<Options>): Promise<void>
+    clear(): Promise<void>
+    dispose(): void
 }

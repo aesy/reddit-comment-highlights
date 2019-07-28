@@ -2,6 +2,8 @@ import bind from "bind-decorator";
 import { AsyncEvent } from "event/AsyncEvent";
 import { Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
+import { Logger } from "logger/Logger";
+import { Logging } from "logger/Logging";
 
 declare const chrome: any | undefined;
 declare const browser: any | undefined;
@@ -13,6 +15,7 @@ export enum BrowserExtensionStorageType {
 }
 
 export class BrowserExtensionStorage<T> implements Storage<T> {
+    protected readonly logger: Logger;
     private readonly _onChange = new AsyncEvent<T | null>();
     private readonly global: any;
 
@@ -20,14 +23,25 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         private readonly type: BrowserExtensionStorageType,
         private readonly key: string
     ) {
+        this.logger = Logging.getLogger("BrowserExtensionStorage")
+            .withContext({ type, key });
+
         if (typeof chrome !== typeof undefined) {
+            this.logger.debug("Detected chrome");
+
             this.global = chrome;
         } else if (typeof browser !== typeof undefined) {
+            this.logger.debug("Detected browser");
+
             this.global = browser;
         } else if (typeof window !== typeof undefined) {
+            this.logger.debug("Detected window");
+
             this.global = window;
         } else {
-            this.global = {};
+            this.logger.error("No global object detected");
+
+            throw "No global object detected";
         }
 
         this.storage.onChanged.addListener(this.changeListener);
@@ -38,54 +52,75 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     }
 
     public async save(data: T | null): Promise<void> {
+        this.logger.debug("Saving data");
+
         if (!this.canSave(data)) {
             throw `Failed to save data. Reason: max byte quota exceeded (${ this.MAX_BYTES }b)`;
         }
 
-        return new Promise<void>((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             this.storage.set({ [ this.key ]: data }, () => {
                 const error = this.global.runtime.lastError;
 
                 if (error) {
+                    this.logger.error("Failed to save data", { error: JSON.stringify(error) });
+
                     return reject(error);
                 }
 
                 return resolve();
             });
         });
+
+        this.logger.debug("Successfully saved data");
     }
 
-    public load(): Promise<T | null> {
-        return new Promise<T>((resolve, reject) => {
+    public async load(): Promise<T | null> {
+        this.logger.debug("Loading data");
+
+        const result = await new Promise<T>((resolve, reject) => {
             this.storage.get(this.key, (data: { [ key: string ]: T }) => {
                 const error = this.global.runtime.lastError;
 
                 if (error) {
+                    this.logger.error("Failed to load data", { error: JSON.stringify(error) });
+
                     return reject(error);
                 }
 
                 return resolve(data[ this.key ]);
             });
         });
+
+        this.logger.debug("Successfully loaded data");
+
+        return result;
     }
 
-    public clear(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    public async clear(): Promise<void> {
+        this.logger.debug("Clearing data");
+
+        await new Promise<void>((resolve, reject) => {
             this.storage.set({ [ this.key ]: undefined }, () => {
                 const error = this.global.runtime.lastError;
 
                 if (error) {
+                    this.logger.error("Failed to clear data", { error: JSON.stringify(error) });
+
                     return reject(error);
                 }
 
                 return resolve();
             });
         });
+
+        this.logger.debug("Successfully cleared data");
     }
 
     public dispose() {
-        this.storage.onChanged.removeListener(this.changeListener);
         this._onChange.dispose();
+        this.storage.onChanged.removeListener(this.changeListener);
+        this.logger.dispose();
     }
 
     protected get storage(): any {
@@ -135,8 +170,13 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     private changeListener(changes: any): void {
         if (!(this.key in changes)) {
             // Changes in wrong key
+            this.logger.debug("Underlying storage changed, except in wrong key",
+                { changes: Object.keys(changes).join(", ") });
+
             return;
         }
+
+        this.logger.debug("Underlying storage changed");
 
         this._onChange.dispatch(changes[ this.key ].newValue);
     }
@@ -153,6 +193,8 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
     }
 
     public async save(data: T | null): Promise<void> {
+        this.logger.debug("Data saved, waiting to be flushed");
+
         this.unflushed = data;
     }
 
@@ -176,6 +218,10 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
             return;
         }
 
+        this.logger.debug("Flusing storage");
+
         await super.save(this.unflushed);
+
+        this.unflushed = null;
     }
 }
