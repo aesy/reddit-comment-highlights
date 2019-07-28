@@ -5,20 +5,14 @@ import { Storage } from "storage/Storage";
 
 export class CachedStorage<T> implements Storage<T> {
     private readonly _onChange = new SyncEvent<T | null>();
-    private readonly init: Promise<void>;
     private cache: Readonly<T | null> = null;
+    private initialized = false;
 
     public constructor(
         private readonly delegate: Storage<T>
     ) {
         // Listen for changes in storage and update internal cache
         delegate.onChange.subscribe(this.onStorageChange);
-
-        // Sync internal cache with storage
-        this.init = delegate.load()
-            .then((data: T | null) => {
-                this.cache = data;
-            });
     }
 
     public get onChange(): Subscribable<T | null> {
@@ -26,21 +20,22 @@ export class CachedStorage<T> implements Storage<T> {
     }
 
     public async save(data: T | null): Promise<void> {
-        await this.init;
-
         this.cache = data;
 
         return this.delegate.save(data);
     }
 
     public async load(): Promise<T | null> {
-        await this.init;
+        if (!this.initialized) {
+            this.initialized = true;
+            this.cache = await this.delegate.load();
+        }
 
         return this.cache;
     }
 
-    public clear(): Promise<void> {
-        return this.delegate.clear();
+    public async clear(): Promise<void> {
+        await this.delegate.clear();
     }
 
     public dispose(): void {
@@ -51,6 +46,7 @@ export class CachedStorage<T> implements Storage<T> {
     @bind
     private onStorageChange(data: T | null): void {
         this.cache = data;
+        this.initialized = true;
 
         this._onChange.dispatch(this.cache);
     }
