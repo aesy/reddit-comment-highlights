@@ -1,5 +1,6 @@
 import bind from "bind-decorator";
-import { AsyncEvent, Subscribable } from "event/Event";
+import { Subscribable } from "event/Event";
+import { AsyncEvent } from "event/AsyncEvent";
 
 declare const chrome: any | undefined;
 declare const browser: any | undefined;

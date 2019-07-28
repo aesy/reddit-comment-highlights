@@ -1,18 +1,20 @@
 import bind from "bind-decorator";
-import {
-    BrowserExtensionStorageType,
-    PeriodicallyFlushedBrowserExtensionStorage
-} from "storage/BrowserExtensionStorage";
-import { Storage } from "storage/Storage";
-import { CachedStorage } from "storage/CachedStorage";
-import { CompressedStorage } from "storage/CompressedStorage";
-import { StorageMigrator } from "storage/StorageMigrator";
-import { ThreadHistory, ThreadHistoryEntry, TruncatingThreadHistory } from "storage/ThreadHistory";
-import { ExtensionOptions, Options } from "options/ExtensionOptions";
 import { Actions } from "common/Actions";
 import { Constants } from "common/Constants";
 import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
+import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
+import { TruncatingThreadHistory } from "history/TruncatingThreadHistory";
+import { DefaultExtensionOptions } from "options/DefaultExtensionOptions";
+import { ExtensionOptions, Options } from "options/ExtensionOptions";
+import {
+    BrowserExtensionStorageType,
+    PeriodicallyFlushedBrowserExtensionStorage
+} from "storage/BrowserExtensionStorage";
+import { CachedStorage } from "storage/CachedStorage";
+import { CompressedStorage } from "storage/CompressedStorage";
+import { Storage } from "storage/Storage";
+import { StorageMigrator } from "storage/StorageMigrator";
 
 class BackgroundScript {
     private constructor(
@@ -34,7 +36,8 @@ class BackgroundScript {
             BrowserExtensionStorageType.SYNC,
             Constants.OPTIONS_STORAGE_KEY,
             Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
-        const extensionOptions = new ExtensionOptions(optionsStorage, Constants.OPTIONS_DEFAULTS);
+        const extensionOptions = new DefaultExtensionOptions(
+            optionsStorage, Constants.OPTIONS_DEFAULTS);
         const options = await extensionOptions.get();
 
         let threadStorage: Storage<ThreadHistoryEntry[]>;
@@ -129,7 +132,7 @@ class BackgroundScript {
 
 (async function entrypoint(): Promise<void> {
     try {
-        await BackgroundScript.start()
+        await BackgroundScript.start();
     } catch (error) {
         console.log(error);
     }

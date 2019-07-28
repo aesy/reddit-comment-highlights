@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { capture, spy } from "ts-mockito";
-import { InMemoryStorage } from "storage/Storage";
+import { InMemoryStorage } from "storage/InMemoryStorage";
 import { CompressedStorage } from "storage/CompressedStorage";
 
 function sizeOf(data: any): number {

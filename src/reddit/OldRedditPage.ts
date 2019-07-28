@@ -1,10 +1,11 @@
 import bind from "bind-decorator";
-import { Subscribable, Event as PubSubEvent } from "event/Event";
+import { Subscribable } from "event/Event";
+import { SyncEvent } from "event/SyncEvent";
 import { RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
 import { findClosestParent } from "util/DOM";
 
 class OldRedditComment implements RedditComment {
-    private readonly _onClick: PubSubEvent<void> = new PubSubEvent();
+    private readonly _onClick = new SyncEvent<void>();
 
     public constructor(
         public readonly element: Element
@@ -85,7 +86,7 @@ class OldRedditComment implements RedditComment {
 }
 
 class OldRedditCommentThread implements RedditCommentThread {
-    private readonly _onCommentAdded: PubSubEvent<RedditComment> = new PubSubEvent();
+    private readonly _onCommentAdded = new SyncEvent<RedditComment>();
     private readonly onChangeObserver: MutationObserver;
 
     public constructor() {
@@ -197,7 +198,7 @@ class OldRedditCommentThread implements RedditCommentThread {
 }
 
 export class OldRedditPage implements RedditPage {
-    private readonly _onThreadOpened: PubSubEvent<RedditCommentThread> = new PubSubEvent();
+    private readonly _onThreadOpened = new SyncEvent<RedditCommentThread>();
     private initialized: boolean = false;
 
     public get onThreadOpened(): Subscribable<RedditCommentThread> {

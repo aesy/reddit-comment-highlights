@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { spy, verify } from "ts-mockito";
-import { InMemoryStorage} from "storage/Storage";
+import { InMemoryStorage } from "storage/InMemoryStorage";
 import { CachedStorage } from "storage/CachedStorage";
 
 describe("CachedStorage", () => {

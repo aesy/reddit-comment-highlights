@@ -1,9 +1,10 @@
 import bind from "bind-decorator";
-import { Subscribable, Event } from "event/Event";
+import { Subscribable } from "event/Event";
+import { SyncEvent } from "event/SyncEvent";
 import { Storage } from "storage/Storage";
 
 export class CachedStorage<T> implements Storage<T> {
-    private readonly _onChange: Event<T | null> = new Event();
+    private readonly _onChange = new SyncEvent<T | null>();
     private readonly init: Promise<void>;
     private cache: Readonly<T | null> = null;
 

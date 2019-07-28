@@ -1,14 +1,14 @@
 import bind from "bind-decorator";
-import { Options } from "options/ExtensionOptions";
-import { RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
-import { OldRedditPage } from "reddit/OldRedditPage";
-import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
-import { OldRedditCommentHighlighter } from "reddit/OldRedditCommentHighlighter";
-import { ThreadHistoryEntry } from "storage/ThreadHistory";
 import { Actions } from "common/Actions";
 import { Constants } from "common/Constants";
 import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
+import { ThreadHistoryEntry } from "history/ThreadHistory";
+import { Options } from "options/ExtensionOptions";
+import { OldRedditCommentHighlighter } from "reddit/OldRedditCommentHighlighter";
+import { OldRedditPage } from "reddit/OldRedditPage";
+import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
+import { RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
 
 class ContentScript {
     private currentThread: RedditCommentThread | null = null;
@@ -128,7 +128,7 @@ class ContentScript {
 
 (async function entrypoint(): Promise<void> {
     try {
-        await ContentScript.start()
+        await ContentScript.start();
     } catch (error) {
         console.log(error);
     }

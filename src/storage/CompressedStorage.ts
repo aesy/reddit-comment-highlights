@@ -1,10 +1,11 @@
 import bind from "bind-decorator";
-import { decompressFromUTF16, compressToUTF16 } from "lz-string";
-import { Event, Subscribable } from "event/Event";
+import { compressToUTF16, decompressFromUTF16 } from "lz-string";
+import { Subscribable } from "event/Event";
+import { SyncEvent } from "event/SyncEvent";
 import { Storage } from "storage/Storage";
 
 export class CompressedStorage<T> implements Storage<T> {
-    private readonly _onChange: Event<T | null> = new Event();
+    private readonly _onChange = new SyncEvent<T | null>();
 
     public constructor(
         private readonly delegate: Storage<string>

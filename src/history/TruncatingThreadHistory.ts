@@ -1,26 +1,13 @@
 import bind from "bind-decorator";
-import { Subscribable, Event } from "event/Event";
+import { Subscribable } from "event/Event";
+import { SyncEvent } from "event/SyncEvent";
 import { Storage } from "storage/Storage";
+import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
 import { currentTimestampSeconds } from "util/Time";
-
-export interface ThreadHistoryEntry {
-    id: string,
-    timestamp: number
-}
-
-export interface ThreadHistory {
-    readonly onChange: Subscribable<void>
-
-    get(id: string): Promise<ThreadHistoryEntry | null>
-    add(id: string): Promise<void>
-    remove(id: string): Promise<void>
-    clear(): Promise<void>
-    dispose(): void
-}
 
 export class TruncatingThreadHistory implements ThreadHistory {
     private static readonly SAVE_RETRY_TIMEOUT_SECONDS = 5;
-    private readonly _onChange: Event<void> = new Event();
+    private readonly _onChange = new SyncEvent<void>();
     private saveTimeout: number | null = null;
 
     public constructor(

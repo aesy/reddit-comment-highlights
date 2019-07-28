@@ -1,6 +1,7 @@
 import { expect } from "chai";
-import { TruncatingThreadHistory, ThreadHistoryEntry } from "storage/ThreadHistory";
-import { InMemoryStorage } from "storage/Storage";
+import { ThreadHistoryEntry } from "history/ThreadHistory";
+import { TruncatingThreadHistory } from "history/TruncatingThreadHistory";
+import { InMemoryStorage } from "storage/InMemoryStorage";
 
 describe("TruncatingThreadHistory", () => {
     it("should save to underlying storage", async () => {

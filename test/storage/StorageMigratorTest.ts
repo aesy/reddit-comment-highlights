@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { InMemoryStorage } from "storage/Storage";
+import { InMemoryStorage } from "storage/InMemoryStorage";
 import { StorageMigrator } from "storage/StorageMigrator";
 
 describe("StorageMigrator", () => {

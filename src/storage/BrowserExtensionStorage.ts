@@ -1,5 +1,6 @@
 import bind from "bind-decorator";
-import { Subscribable, Event, AsyncEvent } from "event/Event";
+import { AsyncEvent } from "event/AsyncEvent";
+import { Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
 
 declare const chrome: any | undefined;
@@ -12,7 +13,7 @@ export enum BrowserExtensionStorageType {
 }
 
 export class BrowserExtensionStorage<T> implements Storage<T> {
-    private readonly _onChange: Event<T | null> = new AsyncEvent();
+    private readonly _onChange = new AsyncEvent<T | null>();
     private readonly global: any;
 
     public constructor(

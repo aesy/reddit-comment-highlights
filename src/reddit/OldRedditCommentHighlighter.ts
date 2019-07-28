@@ -1,6 +1,6 @@
-import { injectCSS } from "util/DOM";
-import { RedditComment } from "reddit/RedditPage";
 import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
+import { RedditComment } from "reddit/RedditPage";
+import { injectCSS } from "util/DOM";
 
 export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
     private readonly cssElement: Element;
