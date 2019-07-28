@@ -15,7 +15,10 @@ export class CachedStorage<T> implements Storage<T> {
         delegate.onChange.subscribe(this.onStorageChange);
 
         // Sync internal cache with storage
-        this.init = delegate.load().then(this.onStorageChange);
+        this.init = delegate.load()
+            .then((data: T | null) => {
+                this.cache = data;
+            });
     }
 
     public get onChange(): Subscribable<T | null> {
