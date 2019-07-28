@@ -131,12 +131,8 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         ]).size;
     }
 
-    private changeListener(changes: any, namespace: string): void {
-        if (namespace !== this.type) {
-            // Changes in wrong storage type
-            return;
-        }
-
+    @bind
+    private changeListener(changes: any): void {
         if (!(this.key in changes)) {
             // Changes in wrong key
             return;
