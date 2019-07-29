@@ -5,6 +5,10 @@ import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
 import { TruncatingThreadHistory } from "history/TruncatingThreadHistory";
+import { LogLevel } from "logger/Logger";
+import { Logging } from "logger/Logging";
+import { ConsoleSink } from "logger/Sink";
+import { KeyValueLogger } from "logger/KeyValueLogger";
 import { DefaultExtensionOptions } from "options/DefaultExtensionOptions";
 import { ExtensionOptions, Options } from "options/ExtensionOptions";
 import {
@@ -15,6 +19,10 @@ import { CachedStorage } from "storage/CachedStorage";
 import { CompressedStorage } from "storage/CompressedStorage";
 import { Storage } from "storage/Storage";
 import { StorageMigrator } from "storage/StorageMigrator";
+
+Logging.setLoggerFactory(KeyValueLogger.create);
+Logging.setLogLevel(LogLevel.WARN);
+Logging.setSink(new ConsoleSink());
 
 class BackgroundScript {
     private constructor(
@@ -39,6 +47,12 @@ class BackgroundScript {
         const extensionOptions = new DefaultExtensionOptions(
             optionsStorage, Constants.OPTIONS_DEFAULTS);
         const options = await extensionOptions.get();
+
+        if (options.debug) {
+            Logging.setLogLevel(LogLevel.DEBUG);
+        } else {
+            Logging.setLogLevel(LogLevel.WARN);
+        }
 
         let threadStorage: Storage<ThreadHistoryEntry[]>;
 

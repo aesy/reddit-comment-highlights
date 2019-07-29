@@ -4,11 +4,19 @@ import { Constants } from "common/Constants";
 import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 import { ThreadHistoryEntry } from "history/ThreadHistory";
+import { LogLevel } from "logger/Logger";
+import { Logging } from "logger/Logging";
+import { ConsoleSink } from "logger/Sink";
+import { KeyValueLogger } from "logger/KeyValueLogger";
 import { Options } from "options/ExtensionOptions";
 import { OldRedditCommentHighlighter } from "reddit/OldRedditCommentHighlighter";
 import { OldRedditPage } from "reddit/OldRedditPage";
 import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
 import { RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
+
+Logging.setLoggerFactory(KeyValueLogger.create);
+Logging.setLogLevel(LogLevel.WARN);
+Logging.setSink(new ConsoleSink());
 
 class ContentScript {
     private currentThread: RedditCommentThread | null = null;
@@ -22,6 +30,13 @@ class ContentScript {
 
     public static async start(): Promise<ContentScript> {
         const options = await extensionFunctionRegistry.invoke<void, Options>(Actions.GET_OPTIONS);
+
+        if (options.debug) {
+            Logging.setLogLevel(LogLevel.DEBUG);
+        } else {
+            Logging.setLogLevel(LogLevel.WARN);
+        }
+
         let reddit: RedditPage;
         let highlighter: RedditCommentHighlighter;
         const highlightOptions: HighlighterOptions = {
