@@ -4,6 +4,9 @@ import { SyncEvent } from "event/SyncEvent";
 import { Storage } from "storage/Storage";
 import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
 import { currentTimestampSeconds } from "util/Time";
+import { Logging } from "logger/Logging";
+
+const logger = Logging.getLogger("TruncatingThreadHistory");
 
 export class TruncatingThreadHistory implements ThreadHistory {
     private static readonly SAVE_RETRY_TIMEOUT_SECONDS = 5;
@@ -22,22 +25,32 @@ export class TruncatingThreadHistory implements ThreadHistory {
     }
 
     public async get(id: string): Promise<ThreadHistoryEntry | null> {
+        logger.debug("Fetching thread", { threadId: id });
+
         const threads = await this.storage.load();
 
         if (!threads) {
+            logger.debug("No thread found", { threadId: id, reason: "Storage is empty" });
+
             return null;
         }
 
         const index = TruncatingThreadHistory.getIndex(threads, id);
 
         if (index === -1) {
+            logger.debug("No thread found", { threadId: id });
+
             return null;
         }
+
+        logger.debug("Thread found", { threadId: id });
 
         return threads[ index ];
     }
 
     public async add(id: string): Promise<void> {
+        logger.debug("Adding thread", { threadId: id });
+
         const threads = await this.storage.load();
         const data: ThreadHistoryEntry[] = [];
 
@@ -48,6 +61,8 @@ export class TruncatingThreadHistory implements ThreadHistory {
         const index = TruncatingThreadHistory.getIndex(threads, id);
 
         if (index > -1) {
+            logger.debug("Thread already present, replacing it", { threadId: id });
+
             data.splice(index, 1);
         }
 
@@ -57,9 +72,13 @@ export class TruncatingThreadHistory implements ThreadHistory {
         });
 
         await this.save(data);
+
+        logger.debug("Thread successfully added", { threadId: id });
     }
 
     public async remove(id: string): Promise<void> {
+        logger.debug("Removing thread", { threadId: id });
+
         const threads = await this.storage.load();
 
         const data: ThreadHistoryEntry[] = [];
@@ -72,18 +91,28 @@ export class TruncatingThreadHistory implements ThreadHistory {
 
         if (i > -1) {
             data.splice(i, 1);
+        } else {
+            logger.debug("Removing not possible", { threadId: id, reason: "Thread not present" });
+
+            return;
         }
 
         await this.save(data);
+
+        logger.debug("Thread successfully removed", { threadId: id });
     }
 
     public async clear(): Promise<void> {
+        logger.debug("Clearing ThreadHistory");
+
         await this.storage.clear();
     }
 
     public dispose(): void {
-        this.storage.onChange.unsubscribe(this.onStorageChange);
+        logger.debug("Disposing ThreadHistory");
+
         this._onChange.dispose();
+        this.storage.dispose();
     }
 
     private static getIndex(threads: ThreadHistoryEntry[] | null, id: string): number {
@@ -125,6 +154,8 @@ export class TruncatingThreadHistory implements ThreadHistory {
     }
 
     private async save(data: ThreadHistoryEntry[] | null): Promise<void> {
+        logger.debug("Saving ThreadHistory", { length: String((data || []).length) });
+
         if (this.saveTimeout) {
             window.clearTimeout(this.saveTimeout);
             this.saveTimeout = null;
@@ -137,13 +168,18 @@ export class TruncatingThreadHistory implements ThreadHistory {
         } catch (error) {
             if (!data) {
                 // History is empty, error not related to any limits
-                console.log("Failed to save thread history", error);
+                logger.error("Failed to save to storage", { error: JSON.stringify(error) });
 
                 throw error;
             }
 
+            const delay = TruncatingThreadHistory.SAVE_RETRY_TIMEOUT_SECONDS * 1000;
+
             // An error occurred, probably due to some limit exceeded
             // Remove oldest thread and try again
+            logger.warn("Failed to save to storage, truncating data and trying again",
+                { delay: String(delay), error: JSON.stringify(error) });
+
             const thread = TruncatingThreadHistory.getOldest(data);
             data = TruncatingThreadHistory.removeThread(data, thread!);
 
@@ -151,7 +187,7 @@ export class TruncatingThreadHistory implements ThreadHistory {
                 this.saveTimeout = window.setTimeout(() => {
                     this.saveTimeout = null;
                     resolve();
-                }, TruncatingThreadHistory.SAVE_RETRY_TIMEOUT_SECONDS * 1000);
+                }, delay);
             });
 
             await this.save(data);
@@ -163,23 +199,32 @@ export class TruncatingThreadHistory implements ThreadHistory {
             return null;
         }
 
+        let count = 0;
+
         while (true) {
             const thread = TruncatingThreadHistory.getOldest(data);
 
             if (!thread) {
-                return data;
+                break;
             }
 
             if (thread.timestamp < (currentTimestampSeconds() - this.threadRemovalSeconds)) {
+                count++;
                 data = TruncatingThreadHistory.removeThread(data, thread);
             } else {
-                return data;
+                break;
             }
         }
+
+        logger.debug("Cleaned up ThreadHistory", { removed: String(count) });
+
+        return data;
     }
 
     @bind
     private onStorageChange(): void {
+        logger.debug("ThreadHistory underlying storage changed");
+
         this._onChange.dispatch();
     }
 }

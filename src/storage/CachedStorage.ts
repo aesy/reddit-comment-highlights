@@ -2,6 +2,9 @@ import bind from "bind-decorator";
 import { Subscribable } from "event/Event";
 import { SyncEvent } from "event/SyncEvent";
 import { Storage } from "storage/Storage";
+import { Logging } from "logger/Logging";
+
+const logger = Logging.getLogger("CachedStorage");
 
 export class CachedStorage<T> implements Storage<T> {
     private readonly _onChange = new SyncEvent<T | null>();
@@ -20,13 +23,18 @@ export class CachedStorage<T> implements Storage<T> {
     }
 
     public async save(data: T | null): Promise<void> {
+        logger.debug("Caching data");
+
         this.cache = data;
 
         return this.delegate.save(data);
     }
 
     public async load(): Promise<T | null> {
+        logger.debug("Reading data from cache");
+
         if (!this.initialized) {
+            logger.debug("Initializing cache");
             this.initialized = true;
             this.cache = await this.delegate.load();
         }
@@ -35,16 +43,23 @@ export class CachedStorage<T> implements Storage<T> {
     }
 
     public async clear(): Promise<void> {
+        logger.debug("Clearing storage");
+
         await this.delegate.clear();
     }
 
     public dispose(): void {
+        logger.debug("Disposing storage");
+
         this._onChange.dispose();
         this.delegate.dispose();
     }
 
     @bind
     private onStorageChange(data: T | null): void {
+        logger.debug("Underlying storage changed");
+        logger.debug("Caching data");
+
         this.cache = data;
         this.initialized = true;
 

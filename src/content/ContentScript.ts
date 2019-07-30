@@ -4,10 +4,10 @@ import { Constants } from "common/Constants";
 import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 import { ThreadHistoryEntry } from "history/ThreadHistory";
+import { ConsoleSink } from "logger/ConsoleSink";
+import { KeyValueLogger } from "logger/KeyValueLogger";
 import { LogLevel } from "logger/Logger";
 import { Logging } from "logger/Logging";
-import { ConsoleSink } from "logger/Sink";
-import { KeyValueLogger } from "logger/KeyValueLogger";
 import { Options } from "options/ExtensionOptions";
 import { OldRedditCommentHighlighter } from "reddit/OldRedditCommentHighlighter";
 import { OldRedditPage } from "reddit/OldRedditPage";
@@ -15,8 +15,10 @@ import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditComme
 import { RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
 
 Logging.setLoggerFactory(KeyValueLogger.create);
-Logging.setLogLevel(LogLevel.WARN);
 Logging.setSink(new ConsoleSink());
+Logging.setLogLevel(LogLevel.DEBUG);
+
+const logger = Logging.getLogger("ContentScript");
 
 class ContentScript {
     private currentThread: RedditCommentThread | null = null;
@@ -29,9 +31,12 @@ class ContentScript {
     }
 
     public static async start(): Promise<ContentScript> {
+        logger.info("Starting ContentScript");
+
         const options = await extensionFunctionRegistry.invoke<void, Options>(Actions.GET_OPTIONS);
 
         if (options.debug) {
+            logger.info("Enabling debug mode");
             Logging.setLogLevel(LogLevel.DEBUG);
         } else {
             Logging.setLogLevel(LogLevel.WARN);
@@ -57,35 +62,58 @@ class ContentScript {
         };
 
         if (OldRedditPage.isSupported()) {
+            logger.info("Detected old reddit page");
             reddit = new OldRedditPage();
             highlighter = new OldRedditCommentHighlighter(highlightOptions);
         } else {
-            throw "Failed to initialize content script. Reason: no suitable reddit page implementation found.";
+            throw "Failed to start ContentScript. Reason: no suitable reddit page implementation found.";
         }
 
         const contentScript = new ContentScript(reddit, highlighter);
 
         // Restart after settings changed
         onSettingsChanged.once(async () => {
+            logger.info("Restarting ContentScript", {
+                reason: "ExtensionOptions changed"
+            });
+
             contentScript.stop();
-            await ContentScript.start();
+
+            try {
+                await ContentScript.start();
+            } catch (error) {
+                logger.error("Failed to start BackgroundScript", { error: JSON.stringify(error) });
+
+                throw error;
+            }
         });
+
+        logger.debug("Successfully started ContentScript");
 
         return contentScript;
     }
 
     public stop(): void {
+        logger.info("Stopping ContentScript");
+
         this.reddit.dispose();
         this.highlighter.dispose();
 
         if (this.currentThread) {
             this.currentThread.dispose();
+        } else {
+            logger.debug("No thread to dispose");
         }
+
+        logger.debug("Successfully stopped ContentScript");
     }
 
     @bind
     private async onThreadVisited(thread: RedditCommentThread): Promise<void> {
+        logger.info("Thread visited", { threadId: thread.id });
+
         if (this.currentThread) {
+            logger.debug("Disposing previous thread", { threadId: this.currentThread.id });
             this.currentThread.dispose();
         }
 
@@ -142,9 +170,11 @@ class ContentScript {
 /* This script is injected into every reddit page */
 
 (async function entrypoint(): Promise<void> {
+    logger.info("ContentScript loaded");
+
     try {
         await ContentScript.start();
     } catch (error) {
-        console.log(error);
+        logger.error("Failed to start ContentScript", { error: JSON.stringify(error) });
     }
 })();
