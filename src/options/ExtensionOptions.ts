@@ -17,6 +17,7 @@ export interface Options {
     customCSSClassName: string
     threadRemovalTimeSeconds: number
     useCompression: boolean
+    sync: boolean
     debug: boolean
 }
 

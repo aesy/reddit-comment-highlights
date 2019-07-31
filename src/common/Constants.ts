@@ -20,6 +20,7 @@ export const Constants = {
         customCSSClassName: "highlight",
         threadRemovalTimeSeconds: 604800, // A week
         useCompression: false,
+        sync: true,
         debug: false
     }
 };

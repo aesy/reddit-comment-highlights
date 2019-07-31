@@ -61,17 +61,26 @@ class BackgroundScript {
         }
 
         let threadStorage: Storage<ThreadHistoryEntry[]>;
+        let browserType: BrowserExtensionStorageType;
+
+        if (options.sync) {
+            logger.debug("Using sync thread storage");
+            browserType = BrowserExtensionStorageType.SYNC;
+        } else {
+            logger.debug("Using local thread storage");
+            browserType = BrowserExtensionStorageType.LOCAL;
+        }
 
         if (options.useCompression) {
             logger.info("Enabling storage compression");
 
             threadStorage = new CompressedStorage(new PeriodicallyFlushedBrowserExtensionStorage(
-                BrowserExtensionStorageType.SYNC,
+                browserType,
                 Constants.THREAD_STORAGE_KEY,
                 Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
         } else {
             threadStorage = new PeriodicallyFlushedBrowserExtensionStorage(
-                BrowserExtensionStorageType.SYNC,
+                browserType,
                 Constants.THREAD_STORAGE_KEY,
                 Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
         }

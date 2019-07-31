@@ -26,6 +26,7 @@ const element = {
     resetButton: document.getElementById("clear-all")!,
     year: document.getElementById("footer__year")!,
     compressedStorage: document.getElementById("compressed-storage") as HTMLInputElement,
+    syncedStorage: document.getElementById("sync-storage") as HTMLInputElement,
     debug: document.getElementById("debug-mode") as HTMLInputElement,
     backgroundColorPicker: document.getElementById("back-color") as HTMLInputElement,
     backgroundNightColorPicker: document.getElementById("back-color-night") as HTMLInputElement,
@@ -122,6 +123,7 @@ async function save(): Promise<void> {
         customCSS: element.customCSSRadioButton.checked ? element.CSSTextArea.value : null,
         customCSSClassName: element.customCSSRadioButton.checked ? element.CSSClassNameInput.value : undefined,
         useCompression: element.compressedStorage.checked,
+        sync: element.syncedStorage.checked,
         debug: element.debug.checked
     };
 
@@ -176,6 +178,7 @@ async function load(): Promise<void> {
     element.customLinkColor.checked = Boolean(options.linkColor);
     element.customQuoteColor.checked = Boolean(options.quoteTextColor);
     element.compressedStorage.checked = options.useCompression;
+    element.syncedStorage.checked = options.sync;
     element.debug.checked = options.debug;
 
     if (options.linkColor) {
