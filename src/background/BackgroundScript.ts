@@ -38,7 +38,8 @@ export class BackgroundScript {
     public static async start(): Promise<BackgroundScript> {
         logger.info("Starting BackgroundScript");
 
-        const optionsStorage = new CachedStorage(new PeriodicallyFlushedBrowserExtensionStorage(
+        const optionsStorage = new CachedStorage(Constants.OPTIONS_STORAGE_NAME, new PeriodicallyFlushedBrowserExtensionStorage(
+            Constants.OPTIONS_STORAGE_NAME,
             browser,
             "sync",
             Constants.OPTIONS_STORAGE_KEY,
@@ -66,30 +67,32 @@ export class BackgroundScript {
         let storageType: "sync" | "local";
 
         if (options.sync) {
-            logger.debug("Using sync thread storage");
+            logger.info("Using sync thread storage");
             storageType = "sync";
         } else {
-            logger.debug("Using local thread storage");
+            logger.info("Using local thread storage");
             storageType = "local";
         }
 
         if (options.useCompression) {
             logger.info("Enabling storage compression");
 
-            threadStorage = new CompressedStorage(new PeriodicallyFlushedBrowserExtensionStorage(
+            threadStorage = new CompressedStorage(Constants.THREAD_STORAGE_NAME, new PeriodicallyFlushedBrowserExtensionStorage(
+                Constants.THREAD_STORAGE_NAME,
                 browser,
                 storageType,
                 Constants.THREAD_STORAGE_KEY,
                 Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
         } else {
             threadStorage = new PeriodicallyFlushedBrowserExtensionStorage(
+                Constants.THREAD_STORAGE_NAME,
                 browser,
                 storageType,
                 Constants.THREAD_STORAGE_KEY,
                 Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
         }
 
-        threadStorage = new CachedStorage(threadStorage);
+        threadStorage = new CachedStorage(Constants.THREAD_STORAGE_NAME, threadStorage);
 
         const threadHistory = new TruncatingThreadHistory(
             threadStorage, options.threadRemovalTimeSeconds);

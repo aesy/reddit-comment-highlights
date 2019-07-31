@@ -13,6 +13,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     private readonly _onChange = new AsyncEvent<T | null>();
 
     public constructor(
+        protected readonly name: string,
         private readonly browser: Browser,
         private readonly type: "sync" | "local",
         private readonly key: string
@@ -25,54 +26,54 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     }
 
     public async save(data: T | null): Promise<void> {
-        logger.debug("Saving data");
+        logger.debug("Saving data", { name: this.name });
 
         await this.storageArea.set({ [ this.key ]: data });
 
         const error = this.browser.runtime.lastError;
 
         if (error) {
-            logger.error("Failed to save data", { error: JSON.stringify(error) });
+            logger.error("Failed to save data", { error: JSON.stringify(error), name: this.name });
 
             throw error;
         }
 
-        logger.debug("Successfully saved data");
+        logger.debug("Successfully saved data", { name: this.name });
     }
 
     public async load(): Promise<T | null> {
-        logger.debug("Loading data");
+        logger.debug("Loading data", { name: this.name });
 
         const data: Record<string, T> = await this.storageArea.get(this.key);
         const error = this.browser.runtime.lastError;
 
         if (error) {
-            logger.error("Failed to load data", { error: JSON.stringify(error) });
+            logger.error("Failed to load data", { error: JSON.stringify(error), name: this.name });
 
             throw error;
         }
 
         const result = data[ this.key ] ?? null;
 
-        logger.debug("Successfully loaded data");
+        logger.debug("Successfully loaded data", { name: this.name });
 
         return result;
     }
 
     public async clear(): Promise<void> {
-        logger.debug("Clearing data");
+        logger.debug("Clearing data", { name: this.name });
 
         await this.storageArea.set({ [ this.key ]: null });
 
         const error = this.browser.runtime.lastError;
 
         if (error) {
-            logger.error("Failed to clear data", { error: JSON.stringify(error) });
+            logger.error("Failed to clear data", { error: JSON.stringify(error), name: this.name });
 
             throw error;
         }
 
-        logger.debug("Successfully cleared data");
+        logger.debug("Successfully cleared data", { name: this.name });
     }
 
     public dispose(): void {
@@ -93,19 +94,19 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     private changeListener(changes: Changes, storageType: string): void {
         if (this.type !== storageType) {
             logger.debug("Underlying storage changed, except in wrong storage type",
-                { thisType: this.type, changedType: storageType });
+                { thisType: this.type, changedType: storageType, name: this.name });
 
             return;
         }
 
         if (!(this.key in changes)) {
             logger.debug("Underlying storage changed, except in wrong key",
-                { key: this.key, changes: Object.keys(changes).join(", ") });
+                { key: this.key, changes: Object.keys(changes).join(", "), name: this.name });
 
             return;
         }
 
-        logger.debug("Underlying storage changed");
+        logger.debug("Underlying storage changed", { name: this.name });
 
         this._onChange.dispatch(changes[ this.key ].newValue);
     }
@@ -115,14 +116,20 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
     private readonly timeout: NodeJS.Timer;
     private unflushed: T | null = null;
 
-    public constructor(browser: Browser, type: "sync" | "local", key: string, intervalSeconds: number) {
-        super(browser, type, key);
+    public constructor(
+        name: string,
+        browser: Browser,
+        type: "sync" | "local",
+        key: string,
+        intervalSeconds: number
+    ) {
+        super(name, browser, type, key);
 
         this.timeout = setInterval(this.flush, intervalSeconds * 1000);
     }
 
     public async save(data: T | null): Promise<void> {
-        logger.debug("Data saved, waiting to be flushed");
+        logger.debug("Data saved, waiting to be flushed", { name: this.name });
 
         this.unflushed = data;
     }
@@ -147,7 +154,7 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
             return;
         }
 
-        logger.debug("Flushing storage");
+        logger.debug("Flushing storage", { name: this.name });
 
         await super.save(this.unflushed);
 

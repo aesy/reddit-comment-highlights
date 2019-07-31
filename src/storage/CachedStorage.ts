@@ -12,6 +12,7 @@ export class CachedStorage<T> implements Storage<T> {
     private initialized = false;
 
     public constructor(
+        private readonly name: string,
         private readonly delegate: Storage<T>
     ) {
         // Listen for changes in storage and update internal cache
@@ -23,7 +24,7 @@ export class CachedStorage<T> implements Storage<T> {
     }
 
     public async save(data: T | null): Promise<void> {
-        logger.debug("Caching data");
+        logger.debug("Caching data", { name: this.name });
 
         this.cache = data;
 
@@ -31,10 +32,10 @@ export class CachedStorage<T> implements Storage<T> {
     }
 
     public async load(): Promise<T | null> {
-        logger.debug("Reading data from cache");
+        logger.debug("Reading data from cache", { name: this.name });
 
         if (!this.initialized) {
-            logger.debug("Initializing cache");
+            logger.debug("Initializing cache", { name: this.name });
             this.initialized = true;
             this.cache = await this.delegate.load();
         }
@@ -43,7 +44,7 @@ export class CachedStorage<T> implements Storage<T> {
     }
 
     public async clear(): Promise<void> {
-        logger.debug("Clearing storage with cache");
+        logger.debug("Clearing storage with cache", { name: this.name });
 
         this.cache = null;
         this.initialized = false;
@@ -52,7 +53,7 @@ export class CachedStorage<T> implements Storage<T> {
     }
 
     public dispose(): void {
-        logger.debug("Disposing storage");
+        logger.debug("Disposing storage", { name: this.name });
 
         this._onChange.dispose();
         this.delegate.dispose();
@@ -60,8 +61,8 @@ export class CachedStorage<T> implements Storage<T> {
 
     @bind
     private onStorageChange(data: T | null): void {
-        logger.debug("Underlying storage changed");
-        logger.debug("Caching data");
+        logger.debug("Underlying storage changed", { name: this.name });
+        logger.debug("Caching data", { name: this.name });
 
         this.cache = data;
         this.initialized = true;

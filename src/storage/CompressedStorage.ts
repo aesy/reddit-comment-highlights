@@ -11,6 +11,7 @@ export class CompressedStorage<T> implements Storage<T> {
     private readonly _onChange = new SyncEvent<T | null>();
 
     public constructor(
+        private readonly name: string,
         private readonly delegate: Storage<string>
     ) {
         delegate.onChange.subscribe(this.onStorageChange);
@@ -21,19 +22,19 @@ export class CompressedStorage<T> implements Storage<T> {
     }
 
     public async save(data: T | null): Promise<void> {
-        logger.debug("Compressing data");
+        logger.debug("Compressing data", { name: this.name });
 
         let compressed: string;
 
         try {
             compressed = this.compress(data);
         } catch (error) {
-            logger.error("Failed to compress data", { error: JSON.stringify(error) });
+            logger.error("Failed to compress data", { error: JSON.stringify(error), name: this.name });
 
             throw error;
         }
 
-        logger.debug("Successfully compressed data");
+        logger.debug("Successfully compressed data", { name: this.name });
 
         await this.delegate.save(compressed);
         this._onChange.dispatch(data);
@@ -42,31 +43,31 @@ export class CompressedStorage<T> implements Storage<T> {
     public async load(): Promise<T | null> {
         const data = await this.delegate.load();
 
-        logger.debug("Decompressing data");
+        logger.debug("Decompressing data", { name: this.name });
 
         let decompressed: T | null;
 
         try {
             decompressed = this.decompress(data);
         } catch (error) {
-            logger.error("Failed to decompress data", { error: JSON.stringify(error) });
+            logger.error("Failed to decompress data", { error: JSON.stringify(error), name: this.name });
 
             throw error;
         }
 
-        logger.debug("Successfully decompressed data");
+        logger.debug("Successfully decompressed data", { name: this.name });
 
         return decompressed;
     }
 
     public async clear(): Promise<void> {
-        logger.debug("Clearing storage");
+        logger.debug("Clearing storage", { name: this.name });
 
         await this.delegate.clear();
     }
 
     public dispose(): void {
-        logger.debug("Disposing storage");
+        logger.debug("Disposing storage", { name: this.name });
 
         this._onChange.dispose();
         this.delegate.dispose();
@@ -74,20 +75,20 @@ export class CompressedStorage<T> implements Storage<T> {
 
     @bind
     private onStorageChange(data: string | null): void {
-        logger.debug("Underlying storage changed");
-        logger.debug("Decompressing data");
+        logger.debug("Underlying storage changed", { name: this.name });
+        logger.debug("Decompressing data", { name: this.name });
 
         let decompressed: T | null;
 
         try {
             decompressed = this.decompress(data);
         } catch (error) {
-            logger.error("Failed to decompress data", { error: JSON.stringify(error) });
+            logger.error("Failed to decompress data", { error: JSON.stringify(error), name: this.name });
 
             throw error;
         }
 
-        logger.debug("Successfully decompressed data");
+        logger.debug("Successfully decompressed data", { name: this.name });
 
         this._onChange.dispatch(decompressed);
     }

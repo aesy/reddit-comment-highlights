@@ -12,7 +12,7 @@ describe("CompressedStorage", () => {
         .forEach(item => {
             it(`should be able write and read '${ JSON.stringify(item) }'`, async () => {
                 const baseStorage = new InMemoryStorage<string>();
-                const cachedStorage = new CompressedStorage<any>(baseStorage);
+                const cachedStorage = new CompressedStorage<any>("test", baseStorage);
 
                 await cachedStorage.save(item);
                 const data = await cachedStorage.load();
@@ -23,7 +23,7 @@ describe("CompressedStorage", () => {
 
     it("should be able to load from an empty storage", async () => {
         const baseStorage = new InMemoryStorage<string>();
-        const cachedStorage = new CompressedStorage<string[]>(baseStorage);
+        const cachedStorage = new CompressedStorage<string[]>("test", baseStorage);
 
         const data = await cachedStorage.load();
 
@@ -34,7 +34,7 @@ describe("CompressedStorage", () => {
         const data: string[] = new Array(100).fill("woop");
         const baseStorage = new InMemoryStorage<string>();
         const spiedStorage = spy(baseStorage);
-        const cachedStorage = new CompressedStorage<string[]>(baseStorage);
+        const cachedStorage = new CompressedStorage<string[]>("test", baseStorage);
 
         await cachedStorage.save(data);
 
@@ -47,7 +47,7 @@ describe("CompressedStorage", () => {
         const data = "woop";
         const baseStorage = new InMemoryStorage<string>();
         const spiedStorage = spy(baseStorage);
-        const cachedStorage = new CompressedStorage<string>(baseStorage);
+        const cachedStorage = new CompressedStorage<string>("test", baseStorage);
 
         await cachedStorage.save(data);
 

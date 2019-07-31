@@ -27,12 +27,11 @@ A browser extension that highlights unread comments on [Reddit](https://www.redd
 [license-image]: https://img.shields.io/github/license/aesy/reddit-comment-highlights?style=flat-square
 [license-url]: https://github.com/aesy/reddit-comment-highlights/blob/master/LICENSE
 
-#### Notice: The extension is broken in Reddits redesign - the traditional layout is required in order for the extension to function. You can change this by unchecking "Use the redesign as my default experience" in the site preferences, or use "old.reddit.com". Any help making the extension work with the redesign would be much appreciated!
-
 ### Features
 * Customizable
 * Syncs across browser sessions
 * Requires minimal permissions
+* Supports both `old.reddit.com` and `reddit.com`.
 * Supports [RES (Reddit Enhancement Suite)](https://redditenhancementsuite.com/) night mode
 * Supports custom CSS
 

@@ -59,6 +59,7 @@ describe("OldRedditCommentHighlighter", () => {
         when(comment.getChildComments()).thenReturn([]);
         when(comment.onClick).thenReturn(subscribable);
         when(comment.element).thenReturn(element);
+        when(comment.time).thenReturn(new Date());
 
         highlighter.highlightComment(instance(comment));
 

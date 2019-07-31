@@ -8,7 +8,7 @@ describe("CachedStorage", () => {
         .forEach(item => {
             it(`should be able write and read '${ JSON.stringify(item) }'`, async () => {
                 const baseStorage = new InMemoryStorage<string>();
-                const cachedStorage = new CachedStorage<any>(baseStorage);
+                const cachedStorage = new CachedStorage<any>("test", baseStorage);
 
                 await cachedStorage.save(item);
                 const data = await cachedStorage.load();
@@ -19,7 +19,7 @@ describe("CachedStorage", () => {
 
     it("should not load from underlying storage", async () => {
         const baseStorage = new InMemoryStorage<string>();
-        const cachedStorage = new CachedStorage(baseStorage);
+        const cachedStorage = new CachedStorage("test", baseStorage);
 
         await cachedStorage.save("woop");
         const spiedStorage = spy(baseStorage);

@@ -1,9 +1,9 @@
 {
     "name": "Reddit (Au) Comment Highlights",
-    "version": "1.2.0",
+    "version": "2.0.0",
     "options_page": "/options.html",
     "manifest_version": 2,
-    "applications": {
+    "browser_specific_settings": {
         "gecko": {
             "id": "{ada26ae8-41ec-4460-936a-790afc2d85c9}",
             "strict_min_version": "52.0"
