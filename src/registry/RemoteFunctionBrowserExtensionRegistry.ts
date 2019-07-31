@@ -86,7 +86,7 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
             if (this.global.runtime) {
                 this.global.runtime.sendMessage(request, handler);
             } else if (this.global.tabs) {
-                this.global.tabs.query({ active: true }, (tabs: Tab[]) => {
+                this.global.tabs.query({}, (tabs: Tab[]) => {
                     for (const tab of tabs) {
                         this.global.tabs.sendMessage(tab.id, request, handler);
                     }
