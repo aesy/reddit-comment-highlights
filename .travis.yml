@@ -16,3 +16,5 @@ jobs:
     - stage: test
       script:
         - npm run test:unit
+      after_success:
+        - npm run test:unit:report

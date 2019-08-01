@@ -8,3 +8,5 @@ node_modules
 *.crx
 img/webstore
 Thumbs.db
+.nyc_output
+coverage

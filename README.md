@@ -5,7 +5,7 @@ A browser extension that highlights unread comments on [Reddit](https://www.redd
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/jeodebnjeecpbmbgimbpinccfkihhjid.svg?style=flat)](https://chrome.google.com/webstore/detail/jeodebnjeecpbmbgimbpinccfkihhjid)
 [![Mozilla Add-on](https://img.shields.io/amo/v/reddit-comment-highlights.svg)](https://addons.mozilla.org/firefox/addon/reddit-comment-highlights/)
 [![Travis](https://img.shields.io/travis/aesy/reddit-comment-highlights.svg?style=flat)](https://travis-ci.org/aesy/reddit-comment-highlights)
-[![xo code style](https://img.shields.io/badge/code%20style-%20XO-67d5c5.svg?style=flat)](https://github.com/sindresorhus/xo)
+[![Coverage Status](https://coveralls.io/repos/github/aesy/reddit-comment-highlights/badge.svg?branch=master)](https://coveralls.io/github/aesy/reddit-comment-highlights?branch=master)
 [![MIT license](https://img.shields.io/github/license/aesy/reddit-comment-highlights.svg?style=flat)](https://github.com/aesy/reddit-comment-highlights/blob/master/LICENSE)
 
 #### Notice: The extension is broken in Reddits redesign - the traditional layout is required in order for the extension to function. You can change this by unchecking "Use the redesign as my default experience" in the site preferences, or use "old.reddit.com". Any help making the extension work with the redesign would be much appreciated!
