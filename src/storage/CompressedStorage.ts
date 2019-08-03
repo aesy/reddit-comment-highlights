@@ -93,7 +93,7 @@ export class CompressedStorage<T> implements Storage<T> {
     }
 
     private compress(data: T | null): string {
-        if (!data) {
+        if (data === null) {
             return "";
         }
 
@@ -101,7 +101,7 @@ export class CompressedStorage<T> implements Storage<T> {
     }
 
     private decompress(data: string | null): T | null {
-        if (!data) {
+        if (data === null) {
             return null;
         }
 

@@ -3,7 +3,7 @@ import { Subscribable } from "event/Event";
 import { SyncEvent } from "event/SyncEvent";
 import { Storage } from "storage/Storage";
 import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
-import { currentTimestampSeconds } from "util/Time";
+import { currentTimestampSeconds, wait } from "util/Time";
 import { Logging } from "logger/Logging";
 
 const logger = Logging.getLogger("TruncatingThreadHistory");
@@ -11,7 +11,6 @@ const logger = Logging.getLogger("TruncatingThreadHistory");
 export class TruncatingThreadHistory implements ThreadHistory {
     private static readonly SAVE_RETRY_TIMEOUT_SECONDS = 5;
     private readonly _onChange = new SyncEvent<void>();
-    private saveTimeout: number | null = null;
 
     public constructor(
         private readonly storage: Storage<ThreadHistoryEntry[]>,
@@ -156,11 +155,6 @@ export class TruncatingThreadHistory implements ThreadHistory {
     private async save(data: ThreadHistoryEntry[] | null): Promise<void> {
         logger.debug("Saving ThreadHistory", { length: String((data || []).length) });
 
-        if (this.saveTimeout) {
-            window.clearTimeout(this.saveTimeout);
-            this.saveTimeout = null;
-        }
-
         data = this.cleanup(data);
 
         try {
@@ -183,19 +177,13 @@ export class TruncatingThreadHistory implements ThreadHistory {
             const thread = TruncatingThreadHistory.getOldest(data);
             data = TruncatingThreadHistory.removeThread(data, thread!);
 
-            await new Promise(resolve => {
-                this.saveTimeout = window.setTimeout(() => {
-                    this.saveTimeout = null;
-                    resolve();
-                }, delay);
-            });
-
+            await wait(delay);
             await this.save(data);
         }
     }
 
     private cleanup(data: ThreadHistoryEntry[] | null): ThreadHistoryEntry[] | null {
-        if (!data) {
+        if (data === null) {
             return null;
         }
 

@@ -1,6 +1,7 @@
 import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
 import { RedditComment } from "reddit/RedditPage";
 import { injectCSS } from "util/DOM";
+import { wait } from "util/Time";
 
 export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
     private readonly cssElement: Element;
@@ -38,15 +39,17 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
             clear.push(comment);
         }
 
-        comment.onClick.once((): void => {
+        comment.onClick.once(async () => {
             for (const comment of clear) {
                 comment.element.classList.remove(this.options.className);
+            }
 
-                window.setTimeout((): void => {
-                    // Transition class can't be removed before transition has finished
-                    const className = `${ this.options.className }--transition`;
-                    comment.element.classList.remove(className);
-                }, this.options.transitionDurationSeconds * 1000 + 500);
+            await wait(this.options.transitionDurationSeconds * 1000 + 500);
+
+            // Transition class can't be removed before transition has finished
+            for (const comment of clear) {
+                const className = `${ this.options.className }--transition`;
+                comment.element.classList.remove(className);
             }
         });
     }

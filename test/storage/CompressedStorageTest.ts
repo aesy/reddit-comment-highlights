@@ -8,6 +8,28 @@ function sizeOf(data: any): number {
 }
 
 describe("CompressedStorage", () => {
+    [ null, "", "woop", 0, 1, [], [ null ], [ "" ], [ "woop" ], {}, { woop: "wawawa" } ]
+        .forEach(item => {
+            it(`should be able write and read '${ JSON.stringify(item) }'`, async () => {
+                const baseStorage = new InMemoryStorage<string>();
+                const cachedStorage = new CompressedStorage<any>(baseStorage);
+
+                await cachedStorage.save(item);
+                const data = await cachedStorage.load();
+
+                expect(data).to.deep.equal(item);
+            });
+        });
+
+    it("should be able to load from an empty storage", async () => {
+        const baseStorage = new InMemoryStorage<string>();
+        const cachedStorage = new CompressedStorage<string[]>(baseStorage);
+
+        const data = await cachedStorage.load();
+
+        expect(data).to.equal(null);
+    });
+
     it("should compress the data", async () => {
         const data: string[] = new Array(100).fill("woop");
         const baseStorage = new InMemoryStorage<string>();

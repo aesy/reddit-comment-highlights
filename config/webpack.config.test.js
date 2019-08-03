@@ -3,6 +3,7 @@ const merge = require("webpack-merge");
 
 module.exports = merge.smart(config, {
     mode: "development",
+    devtool: "inline-source-map",
     target: "node",
     module: {
         rules: [
@@ -19,5 +20,9 @@ module.exports = merge.smart(config, {
     },
     output: {
         libraryTarget: "umd"
+    },
+    externals: {
+        // https://github.com/jsdom/jsdom/issues/2508
+        canvas: "commonjs canvas"
     }
 });
