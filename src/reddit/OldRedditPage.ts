@@ -70,7 +70,7 @@ class OldRedditComment implements RedditComment {
     }
 
     @bind
-    private onElementClick(event: Event) {
+    private onElementClick(event: Event): void {
         const target = event.target as Node | null;
 
         if (!target) {
@@ -156,7 +156,7 @@ class OldRedditCommentThread implements RedditCommentThread {
             subtree: true
         });
 
-        const notify = (comment: RedditComment) => {
+        const notify = (comment: RedditComment): void => {
             const comments = comment.getChildComments();
 
             for (const comment of comments) {

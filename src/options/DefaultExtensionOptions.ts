@@ -64,7 +64,7 @@ export class DefaultExtensionOptions implements ExtensionOptions {
     }
 
     @bind
-    private onStorageChange(data: Partial<Options> | null): void {
+    private onStorageChange(): void {
         logger.debug("ExtensionOptions underlying storage changed");
 
         this._onChange.dispatch();

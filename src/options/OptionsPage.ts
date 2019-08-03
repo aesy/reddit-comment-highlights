@@ -44,51 +44,12 @@ const state = {
     showAdvancedSettings: false
 };
 
-async function initialize(): Promise<void> {
-    await Promise.all([
-        initializeListeners(),
-        load()
-    ]);
-}
-
-async function initializeListeners(): Promise<void> {
-    element.saveButton.addEventListener("click", save);
-    element.resetButton.addEventListener("click", reset);
-    element.advancedButton.addEventListener("click", async () => {
-        state.showAdvancedSettings = true;
-        await update();
-    });
-    element.clearCommentInput.addEventListener("click", update);
-    element.customLinkColor.addEventListener("click", update);
-    element.customQuoteColor.addEventListener("click", update);
-    element.frequencyInput.addEventListener("input", update);
-    element.CSSClassNameInput.addEventListener("input", async () => {
-        const selection = {
-            start: element.CSSClassNameInput.selectionStart!,
-            end: element.CSSClassNameInput.selectionEnd!
-        };
-
-        // This loses the selection of the input for some reason
-        await update();
-
-        // Restore selection (has to be async)
-        setTimeout(() => {
-            element.CSSClassNameInput.setSelectionRange(selection.start, selection.end);
-        }, 0);
-    });
-
-    for (const styleMode of element.styleModes) {
-        styleMode.addEventListener("click", update);
-    }
-}
-
 class Message {
-    // noinspection JSUnusedLocalSymbols
     private constructor() {}
 
-    static timeOutId: number;
+    private static timeOutId: number;
 
-    static show(text: string, isError = false): void {
+    public static show(text: string, isError = false): void {
         element.statusMessage.textContent = text;
         element.statusMessage.classList.add("status-message--is-visible");
 
@@ -103,6 +64,10 @@ class Message {
             element.statusMessage.classList.remove("status-message--is-visible");
         }, 3000);
     }
+}
+
+function isValidCSSClassName(className: string): boolean {
+    return /^[a-z_]|-[a-z_-][a-z\d_-]*$/i.test(className);
 }
 
 async function save(): Promise<void> {
@@ -137,24 +102,58 @@ async function save(): Promise<void> {
     Message.show("Settings saved!", false);
 }
 
-async function reset(): Promise<void> {
-    state.showAdvancedSettings = false;
+async function update(): Promise<void> {
+    const className = element.CSSClassNameInput.value.trim();
+    const valid = isValidCSSClassName(className);
 
-    window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: "smooth"
-    });
+    element.CSSClassNameInput.classList.toggle("text-input--invalid", !valid);
+    element.CSSClassNameInput.textContent = className;
+    element.CSSClassName.textContent = className;
+    element.clearChildrenInput.disabled = !element.clearCommentInput.checked;
+    element.linkColorPicker.disabled = !element.customLinkColor.checked;
+    element.linkNightColorPicker.disabled = !element.customLinkColor.checked;
+    element.quoteTextColorPicker.disabled = !element.customQuoteColor.checked;
+    element.quoteTextNightColorPicker.disabled = !element.customQuoteColor.checked;
 
-    try {
-        await extensionFunctionRegistry.invoke(Actions.CLEAR_STORAGE, undefined);
-    } catch (error) {
-        Message.show("Reset unsuccessful (see console for detailed error message)", true);
-        return console.warn(error);
+    const selection = document.querySelector("input[name=\"style-mode\"]:checked")!;
+
+    for (const tab of element.tabs) {
+        tab.classList.toggle(
+            "main-content__tab--is-visible",
+            tab.classList.contains(selection.id)
+        );
     }
 
-    Message.show("Settings reset!", false);
-    await load();
+    const frequencyValue = element.frequencyInput.value;
+
+    switch (parseInt(frequencyValue, 10)) {
+        case 1:
+            element.frequencyNumber.textContent = String(1);
+            element.frequencyUnit.textContent = "day";
+            break;
+        case 7:
+            element.frequencyNumber.textContent = String(1);
+            element.frequencyUnit.textContent = "week";
+            break;
+        case 14:
+            element.frequencyNumber.textContent = String(2);
+            element.frequencyUnit.textContent = "weeks";
+            break;
+        default:
+            element.frequencyNumber.textContent = frequencyValue;
+            element.frequencyUnit.textContent = "days";
+    }
+
+    element.advancedDialog.classList.toggle(
+        "options-section--hidden",
+        state.showAdvancedSettings
+    );
+
+    for (const setting of element.advancedSettings) {
+        setting.classList.toggle("options-section--hidden", !state.showAdvancedSettings);
+    }
+
+    element.content.classList.remove("main-content--hidden");
 }
 
 async function load(): Promise<void> {
@@ -213,62 +212,62 @@ async function load(): Promise<void> {
     await update();
 }
 
-async function update(): Promise<void> {
-    const className = element.CSSClassNameInput.value.trim();
-    const valid = isValidCSSClassName(className);
+async function reset(): Promise<void> {
+    state.showAdvancedSettings = false;
 
-    element.CSSClassNameInput.classList.toggle("text-input--invalid", !valid);
-    element.CSSClassNameInput.textContent = className;
-    element.CSSClassName.textContent = className;
-    element.clearChildrenInput.disabled = !element.clearCommentInput.checked;
-    element.linkColorPicker.disabled = !element.customLinkColor.checked;
-    element.linkNightColorPicker.disabled = !element.customLinkColor.checked;
-    element.quoteTextColorPicker.disabled = !element.customQuoteColor.checked;
-    element.quoteTextNightColorPicker.disabled = !element.customQuoteColor.checked;
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth"
+    });
 
-    const selection = document.querySelector("input[name=\"style-mode\"]:checked")!;
-
-    for (const tab of element.tabs) {
-        tab.classList.toggle(
-            "main-content__tab--is-visible",
-            tab.classList.contains(selection.id)
-        );
+    try {
+        await extensionFunctionRegistry.invoke(Actions.CLEAR_STORAGE, undefined);
+    } catch (error) {
+        Message.show("Reset unsuccessful (see console for detailed error message)", true);
+        return console.warn(error);
     }
 
-    const frequencyValue = element.frequencyInput.value;
-
-    switch (parseInt(frequencyValue, 10)) {
-        case 1:
-            element.frequencyNumber.textContent = String(1);
-            element.frequencyUnit.textContent = "day";
-            break;
-        case 7:
-            element.frequencyNumber.textContent = String(1);
-            element.frequencyUnit.textContent = "week";
-            break;
-        case 14:
-            element.frequencyNumber.textContent = String(2);
-            element.frequencyUnit.textContent = "weeks";
-            break;
-        default:
-            element.frequencyNumber.textContent = frequencyValue;
-            element.frequencyUnit.textContent = "days";
-    }
-
-    element.advancedDialog.classList.toggle(
-        "options-section--hidden",
-        state.showAdvancedSettings
-    );
-
-    for (const setting of element.advancedSettings) {
-        setting.classList.toggle("options-section--hidden", !state.showAdvancedSettings);
-    }
-
-    element.content.classList.remove("main-content--hidden");
+    Message.show("Settings reset!", false);
+    await load();
 }
 
-function isValidCSSClassName(className: string): boolean {
-    return /^[a-z_]|-[a-z_-][a-z\d_-]*$/i.test(className);
+async function initializeListeners(): Promise<void> {
+    element.saveButton.addEventListener("click", save);
+    element.resetButton.addEventListener("click", reset);
+    element.advancedButton.addEventListener("click", async () => {
+        state.showAdvancedSettings = true;
+        await update();
+    });
+    element.clearCommentInput.addEventListener("click", update);
+    element.customLinkColor.addEventListener("click", update);
+    element.customQuoteColor.addEventListener("click", update);
+    element.frequencyInput.addEventListener("input", update);
+    element.CSSClassNameInput.addEventListener("input", async () => {
+        const selection = {
+            start: element.CSSClassNameInput.selectionStart!,
+            end: element.CSSClassNameInput.selectionEnd!
+        };
+
+        // This loses the selection of the input for some reason
+        await update();
+
+        // Restore selection (has to be async)
+        setTimeout(() => {
+            element.CSSClassNameInput.setSelectionRange(selection.start, selection.end);
+        }, 0);
+    });
+
+    for (const styleMode of element.styleModes) {
+        styleMode.addEventListener("click", update);
+    }
+}
+
+async function initialize(): Promise<void> {
+    await Promise.all([
+        initializeListeners(),
+        load()
+    ]);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
