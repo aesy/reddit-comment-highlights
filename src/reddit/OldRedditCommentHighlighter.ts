@@ -24,7 +24,7 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
         const clear: RedditComment[] = [];
 
         if (this.options.includeChildren) {
-            const addComment = (comment: RedditComment) => {
+            const addComment = (comment: RedditComment): void => {
                 const comments = comment.getChildComments();
 
                 for (const comment of comments) {
@@ -54,7 +54,7 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
         });
     }
 
-    public dispose() {
+    public dispose(): void {
         document.head.removeChild(this.cssElement);
 
         for (const element of document.querySelectorAll(".comment")) {

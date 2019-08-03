@@ -6,17 +6,19 @@ declare const browser: any | undefined;
 declare const window: any | undefined;
 
 // https://developer.chrome.com/extensions/tabs#type-Tab
-type Tab = { id: string };
+interface Tab {
+    id: string;
+}
 
 interface InvocationRequest<T> {
-    method: string,
-    arg: T
+    method: string;
+    arg: T;
 }
 
 interface InvocationResponse<R> {
-    method: string,
-    error?: any,
-    result?: R
+    method: string;
+    error?: any;
+    result?: R;
 }
 
 export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry {
@@ -67,7 +69,7 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         };
 
         return new Promise((resolve, reject) => {
-            const handler = (response: InvocationResponse<R>) => {
+            const handler = (response: InvocationResponse<R>): void => {
                 const error = this.global.runtime.lastError;
 
                 if (error) {

@@ -9,7 +9,7 @@ let logLevel: LogLevel = LogLevel.INFO;
 let logSink: Sink = new ConsoleSink();
 let createLogger: LoggerFactory = JsonLogger.create;
 let logger: Logger | null = null;
-let isDirty: boolean = false;
+let isDirty: boolean;
 
 function getLogger(): Logger {
     if (isDirty || logger === null) {
@@ -88,7 +88,7 @@ export class Logging {
         return logSink;
     }
 
-    public static setSink(sink: Sink) {
+    public static setSink(sink: Sink): void {
         logSink = sink;
     }
 

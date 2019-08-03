@@ -7,11 +7,13 @@ declare const browser: any | undefined;
 declare const window: any | undefined;
 
 // https://developer.chrome.com/extensions/tabs#type-Tab
-type Tab = { id: string };
+interface Tab {
+    id: string;
+}
 
 interface EventPayload<T> {
-    method: string,
-    message: T
+    method: string;
+    message: T;
 }
 
 /**
@@ -140,17 +142,17 @@ abstract class AbstractOnInstalledEvent<T> extends BrowserExtensionEvent<T> {
 }
 
 class OnInstalledEvent extends AbstractOnInstalledEvent<void> {
-    constructor() {
+    public constructor() {
         super("install");
     }
 
-    protected getMessage(details: any): void {
+    protected getMessage(): void {
         return undefined;
     }
 }
 
 class OnUpdatedEvent extends AbstractOnInstalledEvent<{ previousVersion: string }> {
-    constructor() {
+    public constructor() {
         super("update");
     }
 

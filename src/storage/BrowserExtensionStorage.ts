@@ -117,7 +117,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         this.logger.debug("Successfully cleared data");
     }
 
-    public dispose() {
+    public dispose(): void {
         this._onChange.dispose();
         this.storage.onChanged.removeListener(this.changeListener);
         this.logger.dispose();
@@ -186,7 +186,7 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
     private readonly timeout: number;
     private unflushed: T | null = null;
 
-    constructor(type: BrowserExtensionStorageType, key: string, intervalSeconds: number) {
+    public constructor(type: BrowserExtensionStorageType, key: string, intervalSeconds: number) {
         super(type, key);
 
         this.timeout = window.setInterval(this.flush, intervalSeconds * 1000);
