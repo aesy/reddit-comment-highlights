@@ -43,7 +43,10 @@ export class CachedStorage<T> implements Storage<T> {
     }
 
     public async clear(): Promise<void> {
-        logger.debug("Clearing storage");
+        logger.debug("Clearing storage with cache");
+
+        this.cache = null;
+        this.initialized = false;
 
         await this.delegate.clear();
     }
