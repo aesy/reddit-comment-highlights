@@ -1,14 +1,6 @@
 import bind from "bind-decorator";
 import { FunctionRegistry } from "registry/FunctionRegistry";
-
-declare const chrome: any | undefined;
-declare const browser: any | undefined;
-declare const window: any | undefined;
-
-// https://developer.chrome.com/extensions/tabs#type-Tab
-interface Tab {
-    id: string;
-}
+import { Browser, MessageSender } from "typings/Browser";
 
 interface InvocationRequest<T> {
     method: string;
@@ -23,22 +15,13 @@ interface InvocationResponse<R> {
 
 export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry {
     private static readonly METHOD_PREFIX: string = "__RemoteFunctionBrowserExtensionRegistry__";
-    private readonly global: any;
     private readonly functions: Map<string, Function> = new Map();
 
-    public constructor() {
-        if (typeof chrome !== typeof undefined) {
-            this.global = chrome;
-        } else if (typeof browser !== typeof undefined) {
-            this.global = browser;
-        } else if (typeof window !== typeof undefined) {
-            this.global = window;
-        } else {
-            this.global = {};
-        }
-
-        if (this.global.runtime) {
-            this.global.runtime.onMessage.addListener(this.messageListener);
+    public constructor(
+        private readonly browser: Browser
+    ) {
+        if (this.browser.runtime) {
+            this.browser.runtime.onMessage.addListener(this.messageListener);
         }
     }
 
@@ -69,30 +52,39 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         };
 
         return new Promise((resolve, reject) => {
-            const handler = (response: InvocationResponse<R>): void => {
-                const error = this.global.runtime.lastError;
+            const handler = (response: object | void): void => {
+                const error = this.browser.runtime!.lastError;
 
                 if (error) {
                     return reject(error);
                 }
 
-                if (!response.method || response.error) {
-                    return reject(response.error);
+                const invocationResponse = response as InvocationResponse<R>;
+
+                if (!invocationResponse) {
+                    return reject();
                 }
 
-                const result = response.result;
+                if (!invocationResponse.method || invocationResponse.error) {
+                    return reject(invocationResponse.error);
+                }
+
+                const result = invocationResponse.result;
 
                 return resolve(result);
             };
 
-            if (this.global.runtime) {
-                this.global.runtime.sendMessage(request, handler);
-            } else if (this.global.tabs) {
-                this.global.tabs.query({}, (tabs: Tab[]) => {
-                    for (const tab of tabs) {
-                        this.global.tabs.sendMessage(tab.id, request, handler);
-                    }
-                });
+            if (this.browser.runtime) {
+                this.browser.runtime.sendMessage(request)
+                    .then(handler);
+            } else if (this.browser.tabs) {
+                this.browser.tabs.query({})
+                    .then(tabs => {
+                        for (const tab of tabs) {
+                            this.browser.tabs!.sendMessage(tab.id!, request)
+                                .then(handler);
+                        }
+                    });
             }
         });
     }
@@ -100,23 +92,25 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
     public dispose(): void {
         this.functions.clear();
 
-        if (this.global.runtime) {
-            this.global.runtime.onMessage.removeListener(this.messageListener);
+        if (this.browser.runtime) {
+            this.browser.runtime.onMessage.removeListener(this.messageListener);
         }
     }
 
     @bind
-    private messageListener<T, R>(
-        request: InvocationRequest<T>,
-        sender: object,
-        sendResponse: (response: InvocationResponse<R>) => void
+    private messageListener(
+        request: object,
+        sender: MessageSender,
+        sendResponse: (response: object) => Promise<void>
     ): boolean {
-        if (typeof request !== "object") {
+        const invocationRequest = request as InvocationRequest<unknown>;
+
+        if (!invocationRequest) {
             return false;
         }
 
-        const method = request.method;
-        const arg = request.arg;
+        const method = invocationRequest.method;
+        const arg = invocationRequest.arg;
         const prefix = RemoteFunctionBrowserExtensionRegistry.METHOD_PREFIX;
 
         if (typeof method !== "string") {
@@ -129,14 +123,14 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         }
 
         const func = this.functions.get(method);
-        const response: InvocationResponse<R> = { method };
+        const response: InvocationResponse<unknown> = { method };
 
         if (func) {
             try {
                 const result = func(arg);
 
                 if (result instanceof Promise) {
-                    result.then((actualResult: R) => {
+                    result.then((actualResult: unknown) => {
                         response[ "result" ] = actualResult;
                         sendResponse(response);
                     }).catch((error: any) => {

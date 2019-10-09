@@ -37,5 +37,6 @@ export class InMemoryStorage<T> implements Storage<T> {
         logger.debug("Disposing storage");
 
         this.data = null;
+        this._onChange.dispose();
     }
 }
