@@ -62,7 +62,11 @@ export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
     }
 
     @bind
-    private handleMessage(obj: object): void {
+    private handleMessage(obj: object | void): void {
+        if (!obj) {
+            return;
+        }
+
         if (typeof obj !== "object") {
             return;
         }

@@ -99,16 +99,16 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
 
     @bind
     private messageListener(
-        request: object,
+        request: object | void,
         sender: MessageSender,
         sendResponse: (response: object) => Promise<void>
     ): boolean {
-        const invocationRequest = request as InvocationRequest<unknown>;
 
-        if (!invocationRequest) {
+        if (!request) {
             return false;
         }
 
+        const invocationRequest = request as InvocationRequest<unknown>;
         const method = invocationRequest.method;
         const arg = invocationRequest.arg;
         const prefix = RemoteFunctionBrowserExtensionRegistry.METHOD_PREFIX;
