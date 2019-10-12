@@ -26,10 +26,12 @@ export interface Changes {
 
 export type StorageType = "sync" | "local";
 
+export type OnChangedEvent = (changes: Changes, storageType: StorageType) => void;
+
 export interface Storage {
     readonly sync: StorageArea;
     readonly local: StorageArea;
-    readonly onChanged: Listener<(changes: Changes, storageType: StorageType) => void>;
+    readonly onChanged: Listener<OnChangedEvent>;
 }
 
 // Tabs

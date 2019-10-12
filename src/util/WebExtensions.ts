@@ -1,15 +1,19 @@
 import {
     Browser,
     Storage,
+    Runtime,
+    TabQueryFilter,
     Tabs,
     Tab as BrowserTab,
-    Runtime,
-    OnMessageEvent,
-    TabQueryFilter,
-    StorageType,
-    Changes
+    OnChangedEvent as BrowserOnChangedEvent,
+    OnMessageEvent as BrowserOnMessageEvent
 } from "typings/Browser";
-import { Chrome, Tab as ChromeTab } from "typings/Chrome";
+import {
+    Chrome,
+    Tab as ChromeTab,
+    OnChangedEvent as ChromeOnChangedEvent,
+    OnMessageEvent as ChromeOnMessageEvent
+} from "typings/Chrome";
 import { Logging } from "logger/Logging";
 
 declare const chrome: Chrome | undefined;
@@ -19,9 +23,15 @@ declare const window: unknown | undefined;
 const logger = Logging.getLogger("WebExtensions");
 
 class ChromeBrowserAdapter implements Browser {
+    private readonly changeListeners: Map<BrowserOnChangedEvent, ChromeOnChangedEvent>;
+    private readonly messageListeners: Map<BrowserOnMessageEvent, ChromeOnMessageEvent>;
+
     public constructor(
         private readonly chrome: Chrome
-    ) {}
+    ) {
+        this.changeListeners = new Map();
+        this.messageListeners = new Map();
+    }
 
     public get storage(): Storage {
         return {
@@ -82,22 +92,36 @@ class ChromeBrowserAdapter implements Browser {
                 }
             },
             onChanged: {
-                addListener: (listener: (changes: Changes, storageType: StorageType) => void): void => {
-                    this.chrome.storage.onChanged.addListener((changes, storageType) => {
+                addListener: (listener: BrowserOnChangedEvent): void => {
+                    const wrapped: ChromeOnChangedEvent = (changes, storageType): void => {
                         if (storageType == "managed") {
                             return;
                         }
 
                         listener(changes, storageType);
-                    });
-                },
-                removeListener: (): void => {
-                    logger.warn("Tried to invoke unsupported action 'removeListener', ignoring...");
-                },
-                hasListener: (): boolean => {
-                    logger.warn("Tried to invoke unsupported action 'hasListener', ignoring...");
+                    };
 
-                    return false;
+                    this.changeListeners.set(listener, wrapped);
+                    this.chrome.storage.onChanged.addListener(wrapped);
+                },
+                removeListener: (listener: BrowserOnChangedEvent): void => {
+                    const wrapped = this.changeListeners.get(listener);
+
+                    if (!wrapped) {
+                        return;
+                    }
+
+                    this.changeListeners.delete(listener);
+                    this.chrome.storage.onChanged.removeListener(wrapped);
+                },
+                hasListener: (listener: BrowserOnChangedEvent): boolean => {
+                    const wrapped = this.changeListeners.get(listener);
+
+                    if (!wrapped) {
+                        return false;
+                    }
+
+                    return this.chrome.storage.onChanged.hasListener(wrapped);
                 }
             }
         };
@@ -112,8 +136,8 @@ class ChromeBrowserAdapter implements Browser {
             id: this.chrome.runtime.id,
             lastError: this.chrome.runtime.lastError || null,
             onMessage: {
-                addListener: (listener: OnMessageEvent): void => {
-                    this.chrome.runtime!.onMessage.addListener((message, sender, sendResponse): boolean | void => {
+                addListener: (listener: BrowserOnMessageEvent): void => {
+                    const wrapped: ChromeOnMessageEvent = (message, sender, sendResponse): boolean | void => {
                         const senderInfo = {
                             tab: sender.tab ? ChromeBrowserAdapter.toBrowserTab(sender.tab) : undefined,
                             frameId: sender.frameId,
@@ -129,15 +153,29 @@ class ChromeBrowserAdapter implements Browser {
                         }
 
                         return result;
-                    });
-                },
-                removeListener: (): void => {
-                    logger.warn("Tried to invoke unsupported action 'removeListener', ignoring...");
-                },
-                hasListener: (): boolean => {
-                    logger.warn("Tried to invoke unsupported action 'hasListener', ignoring...");
+                    };
 
-                    return false;
+                    this.messageListeners.set(listener, wrapped);
+                    this.chrome.runtime!.onMessage.addListener(wrapped);
+                },
+                removeListener: (listener: BrowserOnMessageEvent): void => {
+                    const wrapped = this.messageListeners.get(listener);
+
+                    if (!wrapped) {
+                        return;
+                    }
+
+                    this.messageListeners.delete(listener);
+                    this.chrome.runtime!.onMessage.removeListener(wrapped);
+                },
+                hasListener: (listener: BrowserOnMessageEvent): boolean => {
+                    const wrapped = this.messageListeners.get(listener);
+
+                    if (!wrapped) {
+                        return false;
+                    }
+
+                    return this.chrome.runtime!.onMessage.hasListener(wrapped);
                 }
             },
             sendMessage: (

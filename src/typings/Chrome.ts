@@ -2,6 +2,8 @@
 
 export interface Listener<T extends Function> {
     addListener: (listener: T) => void;
+    removeListener: (listener: T) => void;
+    hasListener: (listener: T) => boolean;
 }
 
 // Storage
@@ -27,11 +29,13 @@ export interface Changes {
 
 export type StorageType = "sync" | "local" | "managed";
 
+export type OnChangedEvent = (changes: Changes, storageType: StorageType) => void;
+
 export interface Storage {
     readonly sync: StorageArea;
     readonly local: StorageArea;
     readonly managed: StorageArea;
-    readonly onChanged: Listener<(changes: Changes, storageType: StorageType) => void>;
+    readonly onChanged: Listener<OnChangedEvent>;
 }
 
 // Tabs
@@ -107,7 +111,7 @@ export interface MessageSender {
     tlsChannelId?: string;
 }
 
-type OnMessageEvent = (
+export type OnMessageEvent = (
     message: object,
     sender: MessageSender,
     sendResponse: (response: object) => Promise<void>
