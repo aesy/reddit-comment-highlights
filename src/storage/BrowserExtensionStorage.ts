@@ -25,10 +25,6 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     public async save(data: T | null): Promise<void> {
         logger.debug("Saving data");
 
-        if (!this.canSave(data)) {
-            throw `Failed to save data. Reason: max byte quota exceeded (${ this.MAX_BYTES }b)`;
-        }
-
         await this.storageArea.set({ [ this.key ]: data });
 
         const error = this.browser.runtime!.lastError;
@@ -87,55 +83,18 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         return this.browser.storage[ this.type ];
     }
 
-    /**
-     * Returns the max byte size that can be saved
-     */
-    private get MAX_BYTES(): number {
-        return -1;
-
-        // switch (this.type) {
-        //     case BrowserExtensionStorageType.LOCAL:
-        //         /*
-        //          * This is true for the whole storage, not this specific key.
-        //          * Actually, it may not even be true for the whole storage when
-        //          * granted the unlimitedStorage permission.
-        //          */
-        //         return this.storage.QUOTA_BYTES;
-        //     case BrowserExtensionStorageType.SYNC:
-        //         /*
-        //          * QUOTA_BYTES_PER_ITEM is measured by the JSON stringification of its
-        //          * value plus its' key length.
-        //          */
-        //         return this.storage.QUOTA_BYTES_PER_ITEM
-        //                // Subtract key length because it's constant
-        //                - this.key.length;
-        // }
-    }
-
-    protected canSave(data: T | null): boolean {
-        /*
-         * We can't completely rely on this comparison. It doesn't always match up with the
-         * browser implementation. See the following stackoverflow question:
-         * https://stackoverflow.com/questions/56854421/unexpected-bytes-used-in-chrome-storage
-         */
-        return this.getByteSize(data) < this.MAX_BYTES;
-    }
-
-    private getByteSize(data: T | null): number {
-        // Avoid TextEncoder usage for compatibility reasons (not supported in chrome 32-37)
-        return new Blob([
-            JSON.stringify(data)
-        ]).size;
-    }
-
     @bind
     private changeListener(changes: Changes, storageType: StorageType): void {
-        // TODO check storage type ?
+        if (this.type !== storageType) {
+            logger.debug("Underlying storage changed, except in wrong storage type",
+                { thisType: this.type, changedType: storageType });
+
+            return;
+        }
 
         if (!(this.key in changes)) {
-            // Changes in wrong key
             logger.debug("Underlying storage changed, except in wrong key",
-                { changes: Object.keys(changes).join(", ") });
+                { key: this.key, changes: Object.keys(changes).join(", ") });
 
             return;
         }
