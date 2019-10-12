@@ -76,7 +76,6 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     public dispose(): void {
         this._onChange.dispose();
         this.browser.storage.onChanged.removeListener(this.changeListener);
-        logger.dispose();
     }
 
     protected get storageArea(): StorageArea {
