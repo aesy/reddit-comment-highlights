@@ -1,15 +1,6 @@
 import bind from "bind-decorator";
-import { Subscribable } from "event/Event";
 import { AsyncEvent } from "event/AsyncEvent";
-
-declare const chrome: any | undefined;
-declare const browser: any | undefined;
-declare const window: any | undefined;
-
-// https://developer.chrome.com/extensions/tabs#type-Tab
-interface Tab {
-    id: string;
-}
+import { Browser } from "typings/Browser";
 
 interface EventPayload<T> {
     method: string;
@@ -22,22 +13,12 @@ interface EventPayload<T> {
  */
 export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
     private static readonly METHOD_PREFIX: string = "__BrowserExtensionEvent__";
-    protected readonly global: any;
 
     public constructor(
+        private readonly browser: Browser,
         private readonly eventType: string
     ) {
         super();
-
-        if (typeof chrome !== typeof undefined) {
-            this.global = chrome;
-        } else if (typeof browser !== typeof undefined) {
-            this.global = browser;
-        } else if (typeof window !== typeof undefined) {
-            this.global = window;
-        } else {
-            this.global = {};
-        }
 
         this.initialize();
     }
@@ -48,16 +29,17 @@ export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
             message: data
         };
 
-        if (this.global.runtime) {
-            this.global.runtime.sendMessage(payload);
+        if (this.browser.runtime) {
+            this.browser.runtime.sendMessage(payload);
         }
 
-        if (this.global.tabs) {
-            this.global.tabs.query({}, (tabs: Tab[]) => {
-                for (const tab of tabs) {
-                    this.global.tabs.sendMessage(tab.id, payload);
-                }
-            });
+        if (this.browser.tabs) {
+            this.browser.tabs.query({})
+                .then(tabs => {
+                    for (const tab of tabs) {
+                        this.browser.tabs!.sendMessage(tab.id!, payload);
+                    }
+                });
         }
 
         super.dispatch(data);
@@ -68,23 +50,28 @@ export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
     public dispose(): void {
         super.dispose();
 
-        if (this.global.runtime) {
-            this.global.runtime.onMessage.removeListener(this.handleMessage);
+        if (this.browser.runtime) {
+            this.browser.runtime.onMessage.removeListener(this.handleMessage);
         }
     }
 
     protected initialize(): void {
-        if (this.global.runtime && this.global.runtime.onMessage) {
-            this.global.runtime.onMessage.addListener(this.handleMessage);
+        if (this.browser.runtime) {
+            this.browser.runtime.onMessage.addListener(this.handleMessage);
         }
     }
 
     @bind
-    private handleMessage(payload: EventPayload<T>): void {
-        if (typeof payload !== "object") {
+    private handleMessage(obj: object | void): void {
+        if (!obj) {
             return;
         }
 
+        if (typeof obj !== "object") {
+            return;
+        }
+
+        const payload = obj as EventPayload<T>;
         const method = payload.method;
 
         if (typeof method !== "string") {
@@ -106,63 +93,64 @@ export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
     }
 }
 
-abstract class AbstractOnInstalledEvent<T> extends BrowserExtensionEvent<T> {
-    protected constructor(
-        private readonly reason: string
-    ) {
-        super(reason);
-    }
-
-    public dispose(): void {
-        super.dispose();
-
-        if (this.global.runtime && this.global.runtime.onInstalled) {
-            this.global.runtime.onInstalled.removeListener(this.handleInstallEvent);
-        }
-    }
-
-    protected initialize(): void {
-        super.initialize();
-
-        if (this.global.runtime && this.global.runtime.onInstalled) {
-            this.global.runtime.onInstalled.addListener(this.handleInstallEvent);
-        }
-    }
-
-    protected abstract getMessage(details: any): T;
-
-    @bind
-    private handleInstallEvent(details: any): void {
-        if (this.reason !== details.reason) {
-            return;
-        }
-
-        this.dispatch(this.getMessage(details));
-    }
-}
-
-class OnInstalledEvent extends AbstractOnInstalledEvent<void> {
-    public constructor() {
-        super("install");
-    }
-
-    protected getMessage(): void {
-        return undefined;
-    }
-}
-
-class OnUpdatedEvent extends AbstractOnInstalledEvent<{ previousVersion: string }> {
-    public constructor() {
-        super("update");
-    }
-
-    protected getMessage(details: any): { previousVersion: string } {
-        return {
-            previousVersion: details.previousVersion
-        };
-    }
-}
-
-export const onInstallEvent: Subscribable<void> = new OnInstalledEvent();
-
-export const onUpdateEvent: Subscribable<{ previousVersion: string }> = new OnUpdatedEvent();
+// abstract class AbstractOnInstalledEvent<T> extends BrowserExtensionEvent<T> {
+//     protected constructor(
+//         private readonly browser: Browser,
+//         private readonly reason: string
+//     ) {
+//         super(browser, reason);
+//     }
+//
+//     public dispose(): void {
+//         super.dispose();
+//
+//         if (this.browser.runtime && this.browser.runtime.onInstalled) {
+//             this.browser.runtime.onInstalled.removeListener(this.handleInstallEvent);
+//         }
+//     }
+//
+//     protected initialize(): void {
+//         super.initialize();
+//
+//         if (this.browser.runtime && this.browser.runtime.onInstalled) {
+//             this.browser.runtime.onInstalled.addListener(this.handleInstallEvent);
+//         }
+//     }
+//
+//     protected abstract getMessage(details: any): T;
+//
+//     @bind
+//     private handleInstallEvent(details: any): void {
+//         if (this.reason !== details.reason) {
+//             return;
+//         }
+//
+//         this.dispatch(this.getMessage(details));
+//     }
+// }
+//
+// class OnInstalledEvent extends AbstractOnInstalledEvent<void> {
+//     public constructor() {
+//         super("install");
+//     }
+//
+//     protected getMessage(): void {
+//         return undefined;
+//     }
+// }
+//
+// class OnUpdatedEvent extends AbstractOnInstalledEvent<{ previousVersion: string }> {
+//     public constructor() {
+//         super("update");
+//     }
+//
+//     protected getMessage(details: any): { previousVersion: string } {
+//         return {
+//             previousVersion: details.previousVersion
+//         };
+//     }
+// }
+//
+// export const onInstallEvent: Subscribable<void> = new OnInstalledEvent();
+//
+// export const onUpdateEvent: Subscribable<{ previousVersion: string }> = new OnUpdatedEvent();

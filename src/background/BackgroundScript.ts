@@ -11,20 +11,20 @@ import { LogLevel } from "logger/Logger";
 import { Logging } from "logger/Logging";
 import { DefaultExtensionOptions } from "options/DefaultExtensionOptions";
 import { ExtensionOptions, Options } from "options/ExtensionOptions";
-import {
-    BrowserExtensionStorageType,
-    PeriodicallyFlushedBrowserExtensionStorage
-} from "storage/BrowserExtensionStorage";
+import { PeriodicallyFlushedBrowserExtensionStorage } from "storage/BrowserExtensionStorage";
 import { CachedStorage } from "storage/CachedStorage";
 import { CompressedStorage } from "storage/CompressedStorage";
 import { Storage } from "storage/Storage";
 import { StorageMigrator } from "storage/StorageMigrator";
+import { getBrowser } from "util/WebExtensions";
+import { StorageType } from "typings/Browser";
 
 Logging.setLoggerFactory(KeyValueLogger.create);
 Logging.setSink(new ConsoleSink());
 Logging.setLogLevel(LogLevel.DEBUG);
 
 const logger = Logging.getLogger("BackgroundScript");
+const browser = getBrowser();
 
 class BackgroundScript {
     private constructor(
@@ -45,7 +45,8 @@ class BackgroundScript {
         logger.info("Starting BackgroundScript");
 
         const optionsStorage = new CachedStorage(new PeriodicallyFlushedBrowserExtensionStorage(
-            BrowserExtensionStorageType.SYNC,
+            browser,
+            "sync",
             Constants.OPTIONS_STORAGE_KEY,
             Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
         const extensionOptions = new DefaultExtensionOptions(
@@ -61,26 +62,28 @@ class BackgroundScript {
         }
 
         let threadStorage: Storage<ThreadHistoryEntry[]>;
-        let browserType: BrowserExtensionStorageType;
+        let storageType: StorageType;
 
         if (options.sync) {
             logger.debug("Using sync thread storage");
-            browserType = BrowserExtensionStorageType.SYNC;
+            storageType = "sync";
         } else {
             logger.debug("Using local thread storage");
-            browserType = BrowserExtensionStorageType.LOCAL;
+            storageType = "local";
         }
 
         if (options.useCompression) {
             logger.info("Enabling storage compression");
 
             threadStorage = new CompressedStorage(new PeriodicallyFlushedBrowserExtensionStorage(
-                browserType,
+                browser,
+                storageType,
                 Constants.THREAD_STORAGE_KEY,
                 Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
         } else {
             threadStorage = new PeriodicallyFlushedBrowserExtensionStorage(
-                browserType,
+                browser,
+                storageType,
                 Constants.THREAD_STORAGE_KEY,
                 Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
         }
