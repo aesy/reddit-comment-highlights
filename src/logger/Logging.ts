@@ -1,13 +1,13 @@
-import { JsonLogger } from "logger/JsonLogger";
 import { Loggable, Logger, LogLevel } from "logger/Logger";
 import { Sink } from "logger/Sink";
 import { ConsoleSink } from "logger/ConsoleSink";
+import { KeyValueLogger } from "logger/KeyValueLogger";
 
 export type LoggerFactory = () => Logger;
 
 let logLevel: LogLevel = LogLevel.INFO;
 let logSink: Sink = new ConsoleSink();
-let createLogger: LoggerFactory = JsonLogger.create;
+let createLogger: LoggerFactory = KeyValueLogger.create;
 let logger: Logger | null = null;
 let isDirty: boolean;
 
