@@ -20,7 +20,7 @@ export interface RedditCommentThread {
 export interface RedditComment {
     readonly element: Element;
     readonly onClick: Subscribable<void>;
-    readonly id: string;
+    readonly id: string | null;
     readonly author: string | null;
     readonly time: Date | null;
 

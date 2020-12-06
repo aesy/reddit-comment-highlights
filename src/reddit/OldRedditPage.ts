@@ -25,11 +25,12 @@ class OldRedditComment implements RedditComment {
         return this._onClick;
     }
 
-    public get id(): string {
+    public get id(): string | null {
         const id = this.element.getAttribute("data-fullname");
 
         if (!id) {
-            throw "Failed to read thread id. Reason: data-fullname attribute is missing on comment element";
+            // Comment deleted
+            return null;
         }
 
         return id;
@@ -60,8 +61,8 @@ class OldRedditComment implements RedditComment {
     public getChildComments(): RedditComment[] {
         return Array.from(
             // Avoid use of :scope psuedo selector for compatibility reasons (firefox mobile)
-            this.element.querySelectorAll(`#thing_${ this.id } > .child > .listing > .comment`)
-        ).map((a): OldRedditComment => new OldRedditComment(a));
+            this.element.querySelectorAll(`.child > .listing > .comment`)
+        ).map(element => new OldRedditComment(element));
     }
 
     public dispose(): void {
