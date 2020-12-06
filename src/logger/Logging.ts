@@ -1,13 +1,24 @@
+import { ConsoleSink } from "logger/ConsoleSink";
 import { Loggable, Logger, LogLevel } from "logger/Logger";
 import { Sink } from "logger/Sink";
-import { ConsoleSink } from "logger/ConsoleSink";
-import { KeyValueLogger } from "logger/KeyValueLogger";
 
 export type LoggerFactory = () => Logger;
 
+const NoopLogger: Logger = {
+    debug(): void {},
+    dispose(): void {},
+    error(): void {},
+    info(): void {},
+    log(): void {},
+    warn(): void {},
+    withContext(): Logger {
+        return this;
+    }
+};
+
 let logLevel: LogLevel = LogLevel.INFO;
 let logSink: Sink = new ConsoleSink();
-let createLogger: LoggerFactory = KeyValueLogger.create;
+let createLogger: LoggerFactory = () => NoopLogger;
 let logger: Logger | null = null;
 let isDirty: boolean;
 

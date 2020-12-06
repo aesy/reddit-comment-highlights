@@ -5,8 +5,6 @@ import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
 import { TruncatingThreadHistory } from "history/TruncatingThreadHistory";
-import { ConsoleSink } from "logger/ConsoleSink";
-import { KeyValueLogger } from "logger/KeyValueLogger";
 import { LogLevel } from "logger/Logger";
 import { Logging } from "logger/Logging";
 import { DefaultExtensionOptions } from "options/DefaultExtensionOptions";
@@ -19,14 +17,10 @@ import { StorageMigrator } from "storage/StorageMigrator";
 import { getBrowser } from "util/WebExtensions";
 import { StorageType } from "typings/Browser";
 
-Logging.setLoggerFactory(KeyValueLogger.create);
-Logging.setSink(new ConsoleSink());
-Logging.setLogLevel(LogLevel.DEBUG);
-
 const logger = Logging.getLogger("BackgroundScript");
 const browser = getBrowser();
 
-class BackgroundScript {
+export class BackgroundScript {
     private constructor(
         private readonly optionsStorage: Storage<Partial<Options>>,
         private readonly threadStorage: Storage<ThreadHistoryEntry[]>,
@@ -245,15 +239,3 @@ class BackgroundScript {
         onSettingsChanged.dispatch();
     }
 }
-
-/* This file should really be called 'eventScript' as it's only loaded when needed */
-
-(async function entrypoint(): Promise<void> {
-    logger.info("BackgroundScript loaded");
-
-    try {
-        await BackgroundScript.start();
-    } catch (error) {
-        logger.error("Failed to start BackgroundScript", { error: JSON.stringify(error) });
-    }
-})();

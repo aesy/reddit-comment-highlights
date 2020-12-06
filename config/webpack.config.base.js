@@ -3,12 +3,13 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const Autoprefixer = require("autoprefixer");
+const CircularDependencyPlugin = require('circular-dependency-plugin');
 
 module.exports = {
     context: path.resolve(__dirname, ".."),
     entry: {
-        backgroundScript: [ "./src/background/BackgroundScript.ts" ],
-        contentScript: [ "./src/content/ContentScript.ts" ],
+        backgroundScript: [ "./src/background/index.ts" ],
+        contentScript: [ "./src/content/index.ts" ],
         options: [ "./src/options/OptionsPage.ts" ]
     },
     target: "web",
@@ -121,7 +122,11 @@ module.exports = {
                 context: "static",
                 from: "img/*.*"
             }
-        ])
+        ]),
+        new CircularDependencyPlugin({
+            include: /src/,
+            failOnError: true
+        })
     ],
     optimization: {
         noEmitOnErrors: true

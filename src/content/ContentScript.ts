@@ -4,8 +4,6 @@ import { Constants } from "common/Constants";
 import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 import { ThreadHistoryEntry } from "history/ThreadHistory";
-import { ConsoleSink } from "logger/ConsoleSink";
-import { KeyValueLogger } from "logger/KeyValueLogger";
 import { LogLevel } from "logger/Logger";
 import { Logging } from "logger/Logging";
 import { Options } from "options/ExtensionOptions";
@@ -14,13 +12,9 @@ import { OldRedditPage } from "reddit/OldRedditPage";
 import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
 import { RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
 
-Logging.setLoggerFactory(KeyValueLogger.create);
-Logging.setSink(new ConsoleSink());
-Logging.setLogLevel(LogLevel.DEBUG);
-
 const logger = Logging.getLogger("ContentScript");
 
-class ContentScript {
+export class ContentScript {
     private currentThread: RedditCommentThread | null = null;
 
     private constructor(
@@ -166,15 +160,3 @@ class ContentScript {
         }
     }
 }
-
-/* This script is injected into every reddit page */
-
-(async function entrypoint(): Promise<void> {
-    logger.info("ContentScript loaded");
-
-    try {
-        await ContentScript.start();
-    } catch (error) {
-        logger.error("Failed to start ContentScript", { error: JSON.stringify(error) });
-    }
-})();
