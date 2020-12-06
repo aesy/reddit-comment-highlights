@@ -2,7 +2,6 @@ import { expect } from "chai";
 import { ThreadHistoryEntry } from "history/ThreadHistory";
 import { TruncatingThreadHistory } from "history/TruncatingThreadHistory";
 import { InMemoryStorage } from "storage/InMemoryStorage";
-// import { wait } from "util/Time";
 
 describe("TruncatingThreadHistory", () => {
     it("should be able to read from an empty storage", async () => {
@@ -40,17 +39,4 @@ describe("TruncatingThreadHistory", () => {
         expect(result).to.not.equal(null);
         expect(result).to.be.equal(entry);
     });
-
-    // Disabled, because threads are currently only cleaned after manual save
-    // it("should remove threads after a given time", async () => {
-    //     const id = "123";
-    //     const storage = new InMemoryStorage<ThreadHistoryEntry[]>();
-    //     const history = new TruncatingThreadHistory(storage, 1);
-    //
-    //     await history.add(id);
-    //     await wait(2000);
-    //
-    //     const result = await history.get(id);
-    //     expect(result).to.equal(null);
-    // }).timeout(3000);
 });
