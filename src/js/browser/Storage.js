@@ -66,7 +66,7 @@ class Storage {
 	 * @returns {number} max item limit
 	 */
 	get MAX_ITEMS() {
-		return this.storage.MAX_ITEMS - 1;
+		return (this.storage.MAX_ITEMS || 512) - 1;
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Storage {
 	 * @returns {number} max byte limit
 	 */
 	get MAX_BYTES() {
-		return this.storage.QUOTA_BYTES_PER_ITEM - 20;
+		return (this.storage.QUOTA_BYTES_PER_ITEM || 8192) - 20;
 	}
 
 	/**
