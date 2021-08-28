@@ -1,10 +1,10 @@
 const config = require("./webpack.config.base.js");
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
 const ArchivePlugin = require("webpack-archive-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
-module.exports = merge.smart(config, {
+module.exports = merge(config, {
     mode: "production",
     optimization: {
         minimizer: [

@@ -229,7 +229,7 @@ a {
 		width: 18px;
 		height: 18px;
 		margin-bottom: 10px;
-		background: url('/img/radio.png') left top no-repeat;
+		background: url('/static/img/radio.png') left top no-repeat;
 
 		input:hover + & {
 			background-position: -18px;
@@ -253,7 +253,7 @@ a {
 		width: 18px;
 		height: 18px;
 		margin-bottom: 10px;
-		background: url('/img/checkbox.png') left top no-repeat;
+		background: url('/static/img/checkbox.png') left top no-repeat;
 
 		&:hover {
 			background-position: -18px;

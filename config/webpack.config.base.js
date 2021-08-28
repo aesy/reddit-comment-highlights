@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const Autoprefixer = require("autoprefixer");
-const CircularDependencyPlugin = require('circular-dependency-plugin');
+const CircularDependencyPlugin = require("circular-dependency-plugin");
 
 module.exports = {
     context: path.resolve(__dirname, ".."),
@@ -47,7 +47,7 @@ module.exports = {
                             ],
                             plugins: [
                                 [ "@babel/plugin-proposal-decorators", { "legacy": true } ],
-                                [ "@babel/proposal-class-properties", { "loose": true } ],
+                                [ "@babel/proposal-class-properties" ],
                                 [ "@babel/proposal-object-rest-spread" ],
                                 [ "babel-plugin-transform-async-to-promises" ]
                             ]
@@ -70,7 +70,9 @@ module.exports = {
                         loader: "postcss-loader",
                         options: {
                             sourceMap: true,
-                            plugins: () => [ Autoprefixer ]
+                            postcssOptions: {
+                                plugins: [ Autoprefixer ]
+                            }
                         }
                     },
                     {
@@ -113,31 +115,21 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: "css/[name].css"
         }),
-        new CopyWebpackPlugin([
-            {
-                context: "static",
-                from: "**/*.json"
-            },
-            {
-                context: "static",
-                from: "img/*.*"
-            }
-        ]),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    context: "static",
+                    from: "**/*.json"
+                },
+                {
+                    context: "static",
+                    from: "img/*.*"
+                }
+            ]
+        }),
         new CircularDependencyPlugin({
             include: /src/,
             failOnError: true
         })
-    ],
-    optimization: {
-        noEmitOnErrors: true
-    },
-    performance: {
-        hints: false
-    },
-    stats: {
-        errorDetails: true
-    },
-    node: {
-        fs: "empty"
-    }
+    ]
 };
