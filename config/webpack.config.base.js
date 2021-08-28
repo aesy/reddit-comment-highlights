@@ -4,6 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const Autoprefixer = require("autoprefixer");
 const CircularDependencyPlugin = require("circular-dependency-plugin");
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
     context: path.resolve(__dirname, ".."),
@@ -130,6 +131,11 @@ module.exports = {
         new CircularDependencyPlugin({
             include: /src/,
             failOnError: true
+        }),
+        new ForkTsCheckerWebpackPlugin({
+            typescript: {
+                configFile: "config/tsconfig.json"
+            }
         })
     ]
 };

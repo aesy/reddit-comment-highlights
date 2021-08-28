@@ -18,7 +18,7 @@
         "webextension-polyfill": "^0.8.0"
     },
     "devDependencies": {
-      "@babel/core": "^7.15.0",
+        "@babel/core": "^7.15.0",
         "@babel/plugin-proposal-class-properties": "^7.14.5",
         "@babel/plugin-proposal-decorators": "^7.14.5",
         "@babel/plugin-proposal-object-rest-spread": "^7.14.7",
@@ -43,6 +43,7 @@
         "css-loader": "^5.2.7",
         "eslint": "^7.32.0",
         "file-loader": "^6.2.0",
+        "fork-ts-checker-webpack-plugin": "^6.3.2",
         "html-webpack-plugin": "^4.5.2",
         "istanbul-instrumenter-loader": "^3.0.1",
         "jsdom": "^17.0.0",

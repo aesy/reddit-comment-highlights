@@ -3,6 +3,7 @@
         "baseUrl": "../src",
         "target": "es2018",
         "module": "commonjs",
+        "esModuleInterop": true,
         "strict": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
