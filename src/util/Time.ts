@@ -2,7 +2,7 @@ export function currentTimestampSeconds(): number {
     return Math.floor(Date.now() / 1000);
 }
 
-export function wait<T>(timeout: number): Promise<T> {
+export function wait(timeout: number): Promise<void> {
     return new Promise(resolve => {
         setTimeout(() => {
             resolve();

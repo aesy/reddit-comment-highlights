@@ -41,7 +41,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     public async load(): Promise<T | null> {
         logger.debug("Loading data");
 
-        const data: { [ keys: string ]: any } = await this.storageArea.get(this.key);
+        const data: Record<string, any> = await this.storageArea.get(this.key);
         const error = this.browser.runtime!.lastError;
 
         if (error) {

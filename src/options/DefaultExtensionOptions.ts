@@ -39,7 +39,7 @@ export class DefaultExtensionOptions implements ExtensionOptions {
 
         const oldData = await this.storage.load();
         const newData = Object.assign({}, oldData, options);
-        const obj = newData as { [ key: string ]: any };
+        const obj = newData as Record<string, unknown>;
 
         for (const key in obj) {
             if (obj[ key ] === undefined) {

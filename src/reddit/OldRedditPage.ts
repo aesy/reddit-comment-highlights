@@ -200,7 +200,7 @@ class OldRedditCommentThread implements RedditCommentThread {
 
 export class OldRedditPage implements RedditPage {
     private readonly _onThreadOpened = new SyncEvent<RedditCommentThread>();
-    private initialized: boolean = false;
+    private initialized = false;
 
     public get onThreadOpened(): Subscribable<RedditCommentThread> {
         if (!OldRedditPage.isACommentThread()) {
@@ -213,7 +213,7 @@ export class OldRedditPage implements RedditPage {
             listener(): MethodDecorator {
                 return self._onThreadOpened.listener();
             },
-            once(listener: <T>(data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            once(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.subscribe(listener);
 
                 if (!self.initialized) {
@@ -223,7 +223,7 @@ export class OldRedditPage implements RedditPage {
 
                 return this;
             },
-            subscribe(listener: <T>(data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            subscribe(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.subscribe(listener);
 
                 if (!self.initialized) {
@@ -233,7 +233,7 @@ export class OldRedditPage implements RedditPage {
 
                 return this;
             },
-            unsubscribe(listener: <T>(data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            unsubscribe(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.unsubscribe(listener);
 
                 return this;

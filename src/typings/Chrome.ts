@@ -23,9 +23,7 @@ export interface StorageChange {
     newValue?: any;
 }
 
-export interface Changes {
-    [ field: string ]: StorageChange;
-}
+export type Changes = Record<string, StorageChange>;
 
 export type StorageType = "sync" | "local" | "managed";
 

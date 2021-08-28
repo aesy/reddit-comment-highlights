@@ -24,7 +24,7 @@ export class ConsoleSink implements Sink {
                 log = console.error;
                 break;
             default:
-                log = () => {};
+                log = () => { /* Do nothing */ };
         }
 
         log(logEvent.message);

@@ -31,7 +31,7 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         this.functions.set(method, action);
     }
 
-    public unregister<T, R>(key: string): void {
+    public unregister(key: string): void {
         const method = `${ RemoteFunctionBrowserExtensionRegistry.METHOD_PREFIX }${ key }`;
 
         this.functions.delete(method);
@@ -65,7 +65,7 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
                     return reject();
                 }
 
-                if (!invocationResponse.method || invocationResponse.error) {
+                if (!invocationResponse.method || !invocationResponse.result || invocationResponse.error) {
                     return reject(invocationResponse.error);
                 }
 
@@ -103,7 +103,6 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         sender: MessageSender,
         sendResponse: (response: object) => Promise<void>
     ): boolean {
-
         if (!request) {
             return false;
         }

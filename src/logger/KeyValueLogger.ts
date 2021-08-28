@@ -12,7 +12,7 @@ export class KeyValueLogger extends AbstractLogger {
     private static readonly ESCAPE_CHARS: string[] = [
         " ", "-", "'", "\"", "\n", "\t"
     ];
-    private static readonly ESCAPE_REPLACEMENTS: { [ key: string ]: string } = {
+    private static readonly ESCAPE_REPLACEMENTS: Record<string, string> = {
         "\"": "\\\"",
         "\n": "\\n",
         "\t": "\\t"

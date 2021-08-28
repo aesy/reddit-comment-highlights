@@ -5,12 +5,12 @@ import { Sink } from "logger/Sink";
 export type LoggerFactory = () => Logger;
 
 const NoopLogger: Logger = {
-    debug(): void {},
-    dispose(): void {},
-    error(): void {},
-    info(): void {},
-    log(): void {},
-    warn(): void {},
+    debug(): void { /* Do nothing */ },
+    dispose(): void { /* Do nothing */ },
+    error(): void { /* Do nothing */ },
+    info(): void { /* Do nothing */ },
+    log(): void { /* Do nothing */ },
+    warn(): void { /* Do nothing */ },
     withContext(): Logger {
         return this;
     }
@@ -80,7 +80,9 @@ class ProxiedLogger implements Logger {
  * Global logger factory.
  */
 export class Logging {
-    private constructor() {}
+    private constructor() {
+        // Intentionally left empty
+    }
 
     public static setLoggerFactory(factory: LoggerFactory): void {
         createLogger = factory;

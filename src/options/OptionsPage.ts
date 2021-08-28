@@ -45,8 +45,6 @@ const state = {
 };
 
 class Message {
-    private constructor() {}
-
     private static timeOutId: number;
 
     public static show(text: string, isError = false): void {

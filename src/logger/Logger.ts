@@ -12,7 +12,7 @@ export interface LogContext {
 /**
  * Loggable may be used to give a log message additional context.
  */
-export type Loggable = LogContext | { [ key: string ]: string };
+export type Loggable = LogContext | Record<string, string>;
 
 /**
  * Structured logger.
@@ -31,8 +31,6 @@ export interface Logger {
 }
 
 export abstract class AbstractLogger implements Logger {
-    protected constructor() {}
-
     public abstract withContext(...args: Loggable[]): Logger;
 
     public abstract log(logLevel: LogLevel, message: string, ...args: Loggable[]): void;
@@ -60,8 +58,8 @@ export abstract class AbstractLogger implements Logger {
     /**
      * Recursively unwraps loggables into objects.
      */
-    protected getContext(args: Loggable[]): { [ key: string ]: string } {
-        let obj: { [ key: string ]: string } = {};
+    protected getContext(args: Loggable[]): Record<string, string> {
+        let obj: Record<string, string> = {};
 
         for (const arg of args) {
             if ("getLogContext" in arg) {
