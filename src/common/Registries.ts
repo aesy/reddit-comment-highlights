@@ -1,4 +1,4 @@
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 import { FunctionRegistry } from "registry/FunctionRegistry";
 import { RemoteFunctionBrowserExtensionRegistry } from "registry/RemoteFunctionBrowserExtensionRegistry";
 

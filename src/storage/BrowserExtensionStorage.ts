@@ -1,5 +1,5 @@
 import bind from "bind-decorator";
-import { Browser, Storage as BrowserStorage } from "webextension-polyfill-ts";
+import { Browser, Storage as BrowserStorage } from "webextension-polyfill";
 import { AsyncEvent } from "event/AsyncEvent";
 import { Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";

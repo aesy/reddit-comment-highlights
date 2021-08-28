@@ -1,5 +1,5 @@
 import bind from "bind-decorator";
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 import { Actions } from "common/Actions";
 import { Constants } from "common/Constants";
 import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";

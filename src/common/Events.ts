@@ -1,4 +1,4 @@
-import { browser } from "webextension-polyfill-ts";
+import browser from "webextension-polyfill";
 import { Event } from "event/Event";
 import { BrowserExtensionEvent } from "event/BrowserExtensionEvent";
 

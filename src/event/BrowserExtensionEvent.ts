@@ -1,5 +1,5 @@
 import bind from "bind-decorator";
-import { Browser } from "webextension-polyfill-ts";
+import { Browser } from "webextension-polyfill";
 import { AsyncEvent } from "event/AsyncEvent";
 
 interface EventPayload<T> {
