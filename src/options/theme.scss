@@ -1,7 +1,6 @@
-
 body {
 	background-color: #f8f8f8;
-	font-family: "Helvetica", "Arial", sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	color: #373737;
 	text-shadow: 0 1px 1px #fff;
@@ -47,7 +46,7 @@ a {
 
 	&--highlighted {
 		border: 1px solid #1794ce;
-		background-color: rgba(255, 255, 255, 0.8);
+		background-color: rgba(255 255 255 80%);
 	}
 }
 
@@ -141,11 +140,11 @@ a {
 			cursor: not-allowed;
 
 			&::before {
-				content: '';
+				content: "";
 				width: 100%;
 				height: 100%;
 				position: absolute;
-				background-color: rgba(204, 204, 204, 0.7);
+				background-color: rgba(204 204 204 70%);
 			}
 		}
 
@@ -229,7 +228,7 @@ a {
 		width: 18px;
 		height: 18px;
 		margin-bottom: 10px;
-		background: url('/static/img/radio.png') left top no-repeat;
+		background: url("/static/img/radio.png") left top no-repeat;
 
 		input:hover + & {
 			background-position: -18px;
@@ -253,7 +252,7 @@ a {
 		width: 18px;
 		height: 18px;
 		margin-bottom: 10px;
-		background: url('/static/img/checkbox.png') left top no-repeat;
+		background: url("/static/img/checkbox.png") left top no-repeat;
 
 		&:hover {
 			background-position: -18px;

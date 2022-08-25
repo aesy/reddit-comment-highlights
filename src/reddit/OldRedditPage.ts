@@ -122,7 +122,7 @@ class OldRedditCommentThread implements RedditCommentThread {
         return pathPieces.length < 8;
     }
 
-    public getCommentById(id: string): RedditComment {
+    public getCommentById(): RedditComment {
         throw "Not Implemented";
     }
 

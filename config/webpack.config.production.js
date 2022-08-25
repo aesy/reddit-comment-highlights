@@ -1,7 +1,7 @@
 const config = require("./webpack.config.base.js");
 const { merge } = require("webpack-merge");
-const ArchivePlugin = require("webpack-archive-plugin");
-const TerserPlugin = require('terser-webpack-plugin')
+const ZipPlugin = require("zip-webpack-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 module.exports = merge(config, {
@@ -24,19 +24,17 @@ module.exports = merge(config, {
         ]
     },
     plugins: [
-        new ArchivePlugin({
-            output: "dist/app",
-            format: "zip"
+        new ZipPlugin({
+            filename: "app",
+            extension: "zip"
         }),
-        new ArchivePlugin({
-            output: "dist/app",
-            format: "zip",
-            ext: "xsi"
+        new ZipPlugin({
+            filename: "app",
+            extension: "xsi"
         }),
-        new ArchivePlugin({
-            output: "dist/app",
-            format: "zip",
-            ext: "crx"
+        new ZipPlugin({
+            filename: "app",
+            extension: "crx"
         })
     ]
 });
