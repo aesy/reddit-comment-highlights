@@ -4,8 +4,10 @@ import { Constants } from "common/Constants";
 import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 import { ThreadHistoryEntry } from "history/ThreadHistory";
+import { CompoundSink } from 'logger/CompoundSink';
 import { LogLevel } from "logger/Logger";
 import { Logging } from "logger/Logging";
+import { SentrySink } from 'logger/SentrySink';
 import { Options } from "options/ExtensionOptions";
 import { OldRedditCommentHighlighter } from "reddit/OldRedditCommentHighlighter";
 import { OldRedditPage } from "reddit/OldRedditPage";
@@ -28,6 +30,13 @@ export class ContentScript {
         logger.info("Starting ContentScript");
 
         const options = await extensionFunctionRegistry.invoke<void, Options>(Actions.GET_OPTIONS);
+
+        if (options.sendErrorReports) {
+            Logging.setSink(new CompoundSink([
+                Logging.getSink(),
+                new SentrySink("ContentScript")
+            ]));
+        }
 
         if (options.debug) {
             logger.info("Enabling debug mode");

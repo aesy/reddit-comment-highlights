@@ -28,6 +28,7 @@ const element = {
     compressedStorage: document.getElementById("compressed-storage") as HTMLInputElement,
     syncedStorage: document.getElementById("sync-storage") as HTMLInputElement,
     debug: document.getElementById("debug-mode") as HTMLInputElement,
+    sendErrors: document.getElementById("send-errors") as HTMLInputElement,
     backgroundColorPicker: document.getElementById("back-color") as HTMLInputElement,
     backgroundNightColorPicker: document.getElementById("back-color-night") as HTMLInputElement,
     textColorPicker: document.getElementById("front-color") as HTMLInputElement,
@@ -86,7 +87,8 @@ async function save(): Promise<void> {
         customCSSClassName: element.customCSSRadioButton.checked ? element.CSSClassNameInput.value : undefined,
         useCompression: element.compressedStorage.checked,
         sync: element.syncedStorage.checked,
-        debug: element.debug.checked
+        debug: element.debug.checked,
+        sendErrorReports: element.sendErrors.checked
     };
 
     try {
@@ -176,6 +178,7 @@ async function load(): Promise<void> {
     element.compressedStorage.checked = options.useCompression;
     element.syncedStorage.checked = options.sync;
     element.debug.checked = options.debug;
+    element.sendErrors.checked = options.sendErrorReports;
 
     if (options.linkColor) {
         element.linkColorPicker.value = options.linkColor;

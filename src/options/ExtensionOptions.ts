@@ -19,6 +19,7 @@ export interface Options {
     useCompression: boolean;
     sync: boolean;
     debug: boolean;
+    sendErrorReports: boolean;
 }
 
 export interface ExtensionOptions {

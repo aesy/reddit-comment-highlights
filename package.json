@@ -12,6 +12,8 @@
         "test:unit": "nyc --include=src --all --extension=.ts --reporter=text --reporter=lcovonly mochapack --webpack-config config/webpack.config.test.js --recursive test"
     },
     "dependencies": {
+        "@sentry/browser": "7.21.1",
+        "@sentry/core": "7.21.1",
         "bind-decorator": "1.0.11",
         "lz-string": "1.4.4",
         "normalize.css": "8.0.1",

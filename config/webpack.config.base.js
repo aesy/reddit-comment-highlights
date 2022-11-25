@@ -95,6 +95,10 @@ module.exports = {
         ]
     },
     plugins: [
+      new webpack.DefinePlugin({
+        __SENTRY_DEBUG__: false,
+        __SENTRY_TRACING__: false,
+      }),
         new HtmlWebpackPlugin({
             hash: false,
             template: "static/options.html",

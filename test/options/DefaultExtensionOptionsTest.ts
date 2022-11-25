@@ -22,7 +22,8 @@ describe("DefaultExtensionOptions", () => {
         quoteTextNightColor: null,
         sync: true,
         threadRemovalTimeSeconds: 42,
-        useCompression: true
+        useCompression: true,
+        sendErrorReports: true
     };
 
     it("should be able to load from an empty storage", async () => {

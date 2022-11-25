@@ -1,4 +1,6 @@
 import bind from "bind-decorator";
+import { CompoundSink } from 'logger/CompoundSink';
+import { SentrySink } from 'logger/SentrySink';
 import browser from "webextension-polyfill";
 import { Actions } from "common/Actions";
 import { Constants } from "common/Constants";
@@ -44,6 +46,13 @@ export class BackgroundScript {
         const extensionOptions = new DefaultExtensionOptions(
             optionsStorage, Constants.OPTIONS_DEFAULTS);
         const options = await extensionOptions.get();
+
+        if (options.sendErrorReports) {
+            Logging.setSink(new CompoundSink([
+                Logging.getSink(),
+                new SentrySink("BackgroundScript")
+            ]));
+        }
 
         if (options.debug) {
             logger.info("Enabling debug mode");
