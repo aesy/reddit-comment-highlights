@@ -29,7 +29,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
 
         await this.storageArea.set({ [ this.key ]: data });
 
-        const error = this.browser.runtime!.lastError;
+        const error = this.browser.runtime.lastError;
 
         if (error) {
             logger.error("Failed to save data", { error: JSON.stringify(error) });
@@ -44,7 +44,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
         logger.debug("Loading data");
 
         const data: Record<string, T> = await this.storageArea.get(this.key);
-        const error = this.browser.runtime!.lastError;
+        const error = this.browser.runtime.lastError;
 
         if (error) {
             logger.error("Failed to load data", { error: JSON.stringify(error) });
@@ -52,7 +52,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
             throw error;
         }
 
-        const result = data[ this.key ];
+        const result = data[ this.key ] ?? null;
 
         logger.debug("Successfully loaded data");
 
@@ -64,7 +64,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
 
         await this.storageArea.set({ [ this.key ]: null });
 
-        const error = this.browser.runtime!.lastError;
+        const error = this.browser.runtime.lastError;
 
         if (error) {
             logger.error("Failed to clear data", { error: JSON.stringify(error) });
@@ -112,13 +112,13 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
 }
 
 export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtensionStorage<T> {
-    private readonly timeout: number;
+    private readonly timeout: NodeJS.Timer;
     private unflushed: T | null = null;
 
     public constructor(browser: Browser, type: "sync" | "local", key: string, intervalSeconds: number) {
         super(browser, type, key);
 
-        this.timeout = window.setInterval(this.flush, intervalSeconds * 1000);
+        this.timeout = setInterval(this.flush, intervalSeconds * 1000);
     }
 
     public async save(data: T | null): Promise<void> {
@@ -147,7 +147,7 @@ export class PeriodicallyFlushedBrowserExtensionStorage<T> extends BrowserExtens
             return;
         }
 
-        logger.debug("Flusing storage");
+        logger.debug("Flushing storage");
 
         await super.save(this.unflushed);
 

@@ -1,5 +1,5 @@
 import bind from "bind-decorator";
-import { Browser } from "webextension-polyfill-ts";
+import { Browser } from "webextension-polyfill";
 import { FunctionRegistry } from "registry/FunctionRegistry";
 
 interface InvocationRequest<T> {
@@ -7,11 +7,14 @@ interface InvocationRequest<T> {
     arg: T;
 }
 
-interface InvocationResponse<R> {
-    method: string;
-    error?: any;
-    result?: R;
-}
+type InvocationResponse<R> =
+    {
+        method: string;
+        error: unknown
+    } | {
+        method: string;
+        result: R
+    };
 
 export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry {
     private static readonly METHOD_PREFIX: string = "__RemoteFunctionBrowserExtensionRegistry__";
@@ -53,7 +56,7 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
 
         return new Promise((resolve, reject) => {
             const handler = (response: object | void): void => {
-                const error = this.browser.runtime!.lastError;
+                const error = this.browser.runtime.lastError;
 
                 if (error) {
                     return reject(error);
@@ -65,26 +68,30 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
                     return reject();
                 }
 
-                if (!invocationResponse.method || !invocationResponse.result || invocationResponse.error) {
+                if (!invocationResponse.method) {
+                    return reject();
+                }
+
+                if ("error" in invocationResponse) {
                     return reject(invocationResponse.error);
                 }
 
-                const result = invocationResponse.result;
-
-                return resolve(result);
+                return resolve(invocationResponse.result);
             };
 
             if (this.browser.runtime) {
                 this.browser.runtime.sendMessage(request)
-                    .then(handler);
+                    .then(handler)
+                    .catch(reject);
             } else if (this.browser.tabs) {
                 this.browser.tabs.query({})
-                    .then(tabs => {
+                    .then(async tabs => {
                         for (const tab of tabs) {
-                            this.browser.tabs!.sendMessage(tab.id!, request)
+                            await this.browser.tabs.sendMessage(tab.id!, request)
                                 .then(handler);
                         }
-                    });
+                    })
+                    .catch(reject);
             }
         });
     }
@@ -118,32 +125,30 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         }
 
         const func = this.functions.get(method);
-        const response: InvocationResponse<unknown> = { method };
 
         if (func) {
             try {
-                const result = func(arg);
+                const returnValue = func(arg);
 
-                if (result instanceof Promise) {
-                    return result.then((actualResult: unknown) => {
-                        response[ "result" ] = actualResult;
-                        return response;
-                    }).catch((error: any) => {
-                        response[ "error" ] = error;
-                        return response;
+                if (returnValue instanceof Promise) {
+                    return returnValue.then((result: unknown) => {
+                        return { method, result };
+                    }).catch((error: unknown) => {
+                        return { method, error };
                     });
                 } else {
-                    response[ "result" ] = result;
+                    return Promise.resolve({ method, result: returnValue });
                 }
             } catch (error) {
-                response[ "error" ] = error;
+                return Promise.resolve({ method, error });
             }
         } else {
             const name = method.substring(prefix.length);
 
-            response[ "error" ] = `No such function with name ${ name }`;
+            return Promise.resolve({
+                method,
+                error: `No such function with name ${ name }`
+            });
         }
-
-        return Promise.resolve(response);
     }
 }

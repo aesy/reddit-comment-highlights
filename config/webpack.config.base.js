@@ -5,6 +5,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const Autoprefixer = require("autoprefixer");
 const CircularDependencyPlugin = require("circular-dependency-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const webpack = require("webpack");
 
 module.exports = {
     context: path.resolve(__dirname, ".."),
@@ -89,16 +90,7 @@ module.exports = {
             },
             {
                 test: /\.ico|gif|png|jpe?g|svg$/,
-                exclude: /node_modules/,
-                use: [
-                    {
-                        loader: "file-loader",
-                        options: {
-                            limit: 10000,
-                            name: "img/[name].[ext]"
-                        }
-                    }
-                ]
+                type: 'asset/resource'
             }
         ]
     },
@@ -108,7 +100,7 @@ module.exports = {
             template: "static/options.html",
             filename: "options.html",
             chunks: [ "options" ],
-            minaify: {
+            minify: {
                 collapseWhitespace: true,
                 removeComments: true
             }

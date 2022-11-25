@@ -30,7 +30,7 @@ export class BackgroundScript {
         extensionFunctionRegistry.register(Actions.SAVE_OPTIONS, this.saveOptions);
         extensionFunctionRegistry.register(Actions.GET_OPTIONS, this.getOptions);
         extensionFunctionRegistry.register(Actions.CLEAR_STORAGE, this.clearStorages);
-        onThreadVisitedEvent.subscribe(this.onThreadVisisted);
+        onThreadVisitedEvent.subscribe(this.onThreadVisited);
     }
 
     public static async start(): Promise<BackgroundScript> {
@@ -108,7 +108,7 @@ export class BackgroundScript {
         extensionFunctionRegistry.unregister(Actions.SAVE_OPTIONS);
         extensionFunctionRegistry.unregister(Actions.GET_OPTIONS);
         extensionFunctionRegistry.unregister(Actions.CLEAR_STORAGE);
-        onThreadVisitedEvent.unsubscribe(this.onThreadVisisted);
+        onThreadVisitedEvent.unsubscribe(this.onThreadVisited);
 
         logger.debug("Successfully stopped BackgroundScript");
     }
@@ -191,7 +191,7 @@ export class BackgroundScript {
     }
 
     @bind
-    private async onThreadVisisted(threadId: string): Promise<void> {
+    private async onThreadVisited(threadId: string): Promise<void> {
         logger.debug("Thread visit notification", { threadId });
         logger.info("Saving thread in history", { threadId });
 

@@ -37,7 +37,7 @@ export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
             this.browser.tabs.query({})
                 .then(tabs => {
                     for (const tab of tabs) {
-                        this.browser.tabs!.sendMessage(tab.id!, payload);
+                        this.browser.tabs.sendMessage(tab.id!, payload);
                     }
                 });
         }
@@ -92,65 +92,3 @@ export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
         super.dispatch(payload.message);
     }
 }
-
-// abstract class AbstractOnInstalledEvent<T> extends BrowserExtensionEvent<T> {
-//     protected constructor(
-//         private readonly browser: Browser,
-//         private readonly reason: string
-//     ) {
-//         super(browser, reason);
-//     }
-//
-//     public dispose(): void {
-//         super.dispose();
-//
-//         if (this.browser.runtime && this.browser.runtime.onInstalled) {
-//             this.browser.runtime.onInstalled.removeListener(this.handleInstallEvent);
-//         }
-//     }
-//
-//     protected initialize(): void {
-//         super.initialize();
-//
-//         if (this.browser.runtime && this.browser.runtime.onInstalled) {
-//             this.browser.runtime.onInstalled.addListener(this.handleInstallEvent);
-//         }
-//     }
-//
-//     protected abstract getMessage(details: any): T;
-//
-//     @bind
-//     private handleInstallEvent(details: any): void {
-//         if (this.reason !== details.reason) {
-//             return;
-//         }
-//
-//         this.dispatch(this.getMessage(details));
-//     }
-// }
-//
-// class OnInstalledEvent extends AbstractOnInstalledEvent<void> {
-//     public constructor() {
-//         super("install");
-//     }
-//
-//     protected getMessage(): void {
-//         return undefined;
-//     }
-// }
-//
-// class OnUpdatedEvent extends AbstractOnInstalledEvent<{ previousVersion: string }> {
-//     public constructor() {
-//         super("update");
-//     }
-//
-//     protected getMessage(details: any): { previousVersion: string } {
-//         return {
-//             previousVersion: details.previousVersion
-//         };
-//     }
-// }
-//
-// export const onInstallEvent: Subscribable<void> = new OnInstalledEvent();
-//
-// export const onUpdateEvent: Subscribable<{ previousVersion: string }> = new OnUpdatedEvent();

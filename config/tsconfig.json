@@ -8,5 +8,6 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
-    "include": ["../test/**/*"]
+    "include": ["../src/**/*", "../test/**/*"],
+    "exclude": ["../node_modules"]
 }

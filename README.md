@@ -15,7 +15,7 @@ A browser extension that highlights unread comments on [Reddit](https://www.redd
 [mozilla-addon-image]: https://img.shields.io/amo/v/reddit-comment-highlights?style=flat-square
 [mozilla-addon-url]: https://addons.mozilla.org/firefox/addon/reddit-comment-highlights/
 
-[github-actions-image]: https://img.shields.io/github/workflow/status/aesy/reddit-comment-highlights/Continous%20Integration?style=flat-square
+[github-actions-image]: https://img.shields.io/github/workflow/status/aesy/reddit-comment-highlights/Continuous%20Integration?style=flat-square
 [github-actions-url]: https://github.com/aesy/reddit-comment-highlights/actions
 
 [code-climate-image]: https://img.shields.io/codeclimate/maintainability-percentage/aesy/reddit-comment-highlights?style=flat-square
@@ -30,7 +30,6 @@ A browser extension that highlights unread comments on [Reddit](https://www.redd
 #### Notice: The extension is broken in Reddits redesign - the traditional layout is required in order for the extension to function. You can change this by unchecking "Use the redesign as my default experience" in the site preferences, or use "old.reddit.com". Any help making the extension work with the redesign would be much appreciated!
 
 ### Features
-* Lightweight
 * Customizable
 * Syncs across browser sessions
 * Requires minimal permissions
@@ -38,22 +37,22 @@ A browser extension that highlights unread comments on [Reddit](https://www.redd
 * Supports custom CSS
 
 ### Screenshots
-![](img/Screenshot_highlight.png) |
---------------------------------- |
-Highlighted comments              |
+| ![](img/Screenshot_highlight.png) |
+|-----------------------------------|
+| Highlighted comments              |
 
-![](img/Screenshot_options.png)   |
---------------------------------- |
-Options page                      |
+| ![](img/Screenshot_options.png)   |
+|-----------------------------------|
+| Options page                      |
 
 ### Support
 | Chrome | Firefox |
 |:------:|:-------:|
-| 32+    | 53+     |
+|  32+   |   53+   |
 
 ### Contribute
 Use the [issue tracker](https://github.com/aesy/reddit-comment-highlights/issues) to report bugs or make feature requests.
-Pull requests are welcome, just make sure compiliation still works (`npm run build:prod`)
+Pull requests are welcome, just make sure compilation still works (`npm run build:prod`)
 and that linting pass without errors (`npm run lint`) beforehand.
 
 ### Issues

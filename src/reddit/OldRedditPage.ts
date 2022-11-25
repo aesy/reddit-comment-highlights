@@ -60,7 +60,7 @@ class OldRedditComment implements RedditComment {
 
     public getChildComments(): RedditComment[] {
         return Array.from(
-            // Avoid use of :scope psuedo selector for compatibility reasons (firefox mobile)
+            // Avoid use of :scope pseudo selector for compatibility reasons (firefox mobile)
             this.element.querySelectorAll(`.child > .listing > .comment`)
         ).map(element => new OldRedditComment(element));
     }
@@ -249,7 +249,7 @@ export class OldRedditPage implements RedditPage {
         }
 
         if (usernameElement.classList.contains("login-required")) {
-            // Noone logged in
+            // No one logged in
             return null;
         }
 
@@ -267,7 +267,13 @@ export class OldRedditPage implements RedditPage {
     }
 
     public static isSupported(): boolean {
-        return !OldRedditPage.isMobileSite();
+        if (OldRedditPage.isMobileSite()) {
+            return false;
+        }
+
+        const meta = document.querySelector("meta[name=\"jsapi\"]");
+
+        return !Boolean(meta);
     }
 
     private static isMobileSite(): boolean {

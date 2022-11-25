@@ -45,7 +45,7 @@ const state = {
 };
 
 class Message {
-    private static timeOutId: number;
+    private static timeOutId: NodeJS.Timeout;
 
     public static show(text: string, isError = false): void {
         element.statusMessage.textContent = text;
@@ -58,7 +58,7 @@ class Message {
         element.statusMessage.classList.toggle("status-message--success", !isError);
         element.statusMessage.classList.toggle("status-message--error", isError);
 
-        Message.timeOutId = window.setTimeout(() => {
+        Message.timeOutId = setTimeout(() => {
             element.statusMessage.classList.remove("status-message--is-visible");
         }, 3000);
     }
@@ -69,7 +69,6 @@ function isValidCSSClassName(className: string): boolean {
 }
 
 async function save(): Promise<void> {
-    // noinspection ConditionalExpressionJS
     const options: Partial<Options> = {
         backColor: element.backgroundColorPicker.value,
         backNightColor: element.backgroundNightColorPicker.value,
@@ -213,7 +212,7 @@ async function load(): Promise<void> {
 async function reset(): Promise<void> {
     state.showAdvancedSettings = false;
 
-    window.scrollTo({
+    scrollTo({
         top: 0,
         left: 0,
         behavior: "smooth"
@@ -270,9 +269,9 @@ async function initialize(): Promise<void> {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        await initialize()
+        await initialize();
     } catch (error) {
-        Message.show("An error occured (see console for detailed error message)", true);
+        Message.show("An error occurred (see console for detailed error message)", true);
         console.warn(error);
     }
 });

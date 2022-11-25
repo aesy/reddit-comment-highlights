@@ -27,14 +27,6 @@ module.exports = merge(config, {
         new ZipPlugin({
             filename: "app",
             extension: "zip"
-        }),
-        new ZipPlugin({
-            filename: "app",
-            extension: "xsi"
-        }),
-        new ZipPlugin({
-            filename: "app",
-            extension: "crx"
         })
     ]
 });
