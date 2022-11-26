@@ -1,30 +1,21 @@
 {
     "name": "Reddit (Au) Comment Highlights",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "options_page": "/options.html",
-    "manifest_version": 2,
-    "browser_specific_settings": {
-        "gecko": {
-            "id": "{ada26ae8-41ec-4460-936a-790afc2d85c9}",
-            "strict_min_version": "52.0"
-        }
-    },
-    "minimum_chrome_version": "32",
+    "manifest_version": 3,
+    "minimum_chrome_version": "88",
     "icons": {
         "48": "/img/icon48.png",
         "96": "/img/icon96.png"
     },
     "options_ui": {
-        "page": "/options.html",
-        "chrome_style": false,
-        "browser_style": false
+        "page": "/options.html"
     },
     "homepage_url": "https://github.com/aesy/reddit-comment-highlights",
     "description": "Highlight unread comments since your last visit to a Reddit comment section.",
     "short_name": "Highlight new Reddit comments",
     "background": {
-        "scripts": ["/js/backgroundScript.js"],
-        "persistent": false
+        "service_worker": "/js/backgroundScript.js"
     },
     "content_scripts": [
         {
@@ -33,7 +24,9 @@
         }
     ],
     "permissions": [
-        "storage",
+        "storage"
+    ],
+    "host_permissions": [
         "http://*.reddit.com/*",
         "https://*.reddit.com/*"
     ]

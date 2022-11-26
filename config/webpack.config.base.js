@@ -14,12 +14,10 @@ module.exports = {
         contentScript: [ "./src/content/index.ts" ],
         options: [ "./src/options/OptionsPage.ts" ]
     },
-    target: "web",
     output: {
         path: path.resolve(__dirname, "..", "dist"),
         publicPath: "/",
-        filename: "js/[name].js",
-        libraryTarget: "window"
+        filename: "js/[name].js"
     },
     resolve: {
         extensions: [ ".js", ".ts" ],
