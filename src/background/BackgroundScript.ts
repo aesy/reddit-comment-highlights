@@ -12,7 +12,7 @@ import { LogLevel } from "logger/Logger";
 import { Logging } from "logger/Logging";
 import { DefaultExtensionOptions } from "options/DefaultExtensionOptions";
 import { ExtensionOptions, Options } from "options/ExtensionOptions";
-import { PeriodicallyFlushedBrowserExtensionStorage } from "storage/BrowserExtensionStorage";
+import { BrowserExtensionStorage } from 'storage/BrowserExtensionStorage';
 import { CachedStorage } from "storage/CachedStorage";
 import { CompressedStorage } from "storage/CompressedStorage";
 import { Storage } from "storage/Storage";
@@ -38,12 +38,11 @@ export class BackgroundScript {
     public static async start(): Promise<BackgroundScript> {
         logger.info("Starting BackgroundScript");
 
-        const optionsStorage = new CachedStorage(Constants.OPTIONS_STORAGE_NAME, new PeriodicallyFlushedBrowserExtensionStorage(
+        const optionsStorage = new CachedStorage(Constants.OPTIONS_STORAGE_NAME, new BrowserExtensionStorage(
             Constants.OPTIONS_STORAGE_NAME,
             browser,
             "sync",
-            Constants.OPTIONS_STORAGE_KEY,
-            Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
+            Constants.OPTIONS_STORAGE_KEY));
         const extensionOptions = new DefaultExtensionOptions(
             optionsStorage, Constants.OPTIONS_DEFAULTS);
         const options = await extensionOptions.get();
@@ -77,19 +76,17 @@ export class BackgroundScript {
         if (options.useCompression) {
             logger.info("Enabling storage compression");
 
-            threadStorage = new CompressedStorage(Constants.THREAD_STORAGE_NAME, new PeriodicallyFlushedBrowserExtensionStorage(
+            threadStorage = new CompressedStorage(Constants.THREAD_STORAGE_NAME, new BrowserExtensionStorage(
                 Constants.THREAD_STORAGE_NAME,
                 browser,
                 storageType,
-                Constants.THREAD_STORAGE_KEY,
-                Constants.STORAGE_UPDATE_INTERVAL_SECONDS));
+                Constants.THREAD_STORAGE_KEY));
         } else {
-            threadStorage = new PeriodicallyFlushedBrowserExtensionStorage(
+            threadStorage = new BrowserExtensionStorage(
                 Constants.THREAD_STORAGE_NAME,
                 browser,
                 storageType,
-                Constants.THREAD_STORAGE_KEY,
-                Constants.STORAGE_UPDATE_INTERVAL_SECONDS);
+                Constants.THREAD_STORAGE_KEY);
         }
 
         threadStorage = new CachedStorage(Constants.THREAD_STORAGE_NAME, threadStorage);
