@@ -137,14 +137,14 @@ export class ContentScript {
 
         this.currentThread = thread;
 
+        await this.highlightComments(...thread.getAllComments());
+
+        thread.onCommentAdded.subscribe(this.highlightComments);
+
         if (isAtRootLevel()) {
             // Only consider comment section viewed if at root level
             onThreadVisitedEvent.dispatch(thread.id);
         }
-
-        thread.onCommentAdded.subscribe(this.highlightComments);
-
-        await this.highlightComments(...thread.getAllComments());
     }
 
     @bind
@@ -163,7 +163,7 @@ export class ContentScript {
 
             if (entry) {
                 // Caching lastVisitedTimestamp so that we don't have to do a lot of unnecessary
-                // inter-script communcation.
+                // inter-script communication.
                 this.lastVisitedTimestamp = entry.timestamp * 1000;
 
                 logger.debug("Thread history entry found", {
