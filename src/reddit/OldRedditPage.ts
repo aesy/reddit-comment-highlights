@@ -29,7 +29,7 @@ class OldRedditComment implements RedditComment {
             }
         );
 
-        this._id = this.element.getAttribute("data-fullname") || null;
+        this._id = this.element.getAttribute("data-fullname")?.replace("t1_", "") || null;
         this._author = this.element.getAttribute("data-author") || null;
         this._time = OldRedditComment.getTime(element);
     }
@@ -67,7 +67,7 @@ class OldRedditComment implements RedditComment {
     }
 
     public getChildComments(): RedditComment[] {
-        // Avoid use of :scope psuedo selector for compatibility reasons (firefox mobile)
+        // Avoid use of :scope pseudo selector for compatibility reasons (firefox mobile)
         const childElements = this.element.querySelectorAll(`.child > .listing > .comment`);
 
         return Array.from(childElements)
