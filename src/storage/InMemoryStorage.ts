@@ -1,12 +1,11 @@
-import { Subscribable } from "event/Event";
-import { SyncEvent } from "event/SyncEvent";
+import { Event, Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
 import { Logging } from "logger/Logging";
 
 const logger = Logging.getLogger("InMemoryStorage");
 
 export class InMemoryStorage<T> implements Storage<T> {
-    private readonly _onChange = new SyncEvent<T>();
+    private readonly _onChange = new Event<T>();
     private data: T | null = null;
 
     public get onChange(): Subscribable<T> {

@@ -17,7 +17,6 @@ type InvocationResponse<R> =
     };
 
 export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry {
-    private static readonly METHOD_PREFIX: string = "__RemoteFunctionBrowserExtensionRegistry__";
     private readonly functions: Map<string, Function> = new Map();
 
     public constructor(
@@ -29,15 +28,11 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
     }
 
     public register<T, R>(key: string, action: (arg: T) => R): void {
-        const method = `${ RemoteFunctionBrowserExtensionRegistry.METHOD_PREFIX }${ key }`;
-
-        this.functions.set(method, action);
+        this.functions.set(key, action);
     }
 
     public unregister(key: string): void {
-        const method = `${ RemoteFunctionBrowserExtensionRegistry.METHOD_PREFIX }${ key }`;
-
-        this.functions.delete(method);
+        this.functions.delete(key);
     }
 
     public async invoke<T, R>(key: string, arg?: T): Promise<R> {
@@ -48,10 +43,9 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
             return func(arg);
         }
 
-        const method = `${ RemoteFunctionBrowserExtensionRegistry.METHOD_PREFIX }${ key }`;
-
         const request: InvocationRequest<T> = {
-            method, arg: arg as T
+            method: key,
+            arg: arg!
         };
 
         return new Promise((resolve, reject) => {
@@ -113,14 +107,8 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         const invocationRequest = request as InvocationRequest<unknown>;
         const method = invocationRequest.method;
         const arg = invocationRequest.arg;
-        const prefix = RemoteFunctionBrowserExtensionRegistry.METHOD_PREFIX;
 
         if (typeof method !== "string") {
-            return;
-        }
-
-        if (!method.startsWith(prefix)) {
-            // Message is not related to extension registry
             return;
         }
 
@@ -143,11 +131,9 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
                 return Promise.resolve({ method, error });
             }
         } else {
-            const name = method.substring(prefix.length);
-
             return Promise.resolve({
                 method,
-                error: `No such function with name ${ name }`
+                error: `No such function with name ${ method }`
             });
         }
     }

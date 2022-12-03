@@ -1,6 +1,6 @@
 import bind from "bind-decorator";
 import { Browser } from "webextension-polyfill";
-import { AsyncEvent } from "event/AsyncEvent";
+import { Event } from "event/Event";
 
 interface EventPayload<T> {
     method: string;
@@ -11,53 +11,43 @@ interface EventPayload<T> {
  * Asynchronous event that works across scripts by communicating through browser message
  * listeners.
  */
-export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
-    private static readonly METHOD_PREFIX: string = "__BrowserExtensionEvent__";
-
+export class BrowserExtensionEvent<T> extends Event<T> {
     public constructor(
         private readonly browser: Browser,
         private readonly eventType: string
     ) {
         super();
 
-        this.initialize();
+        if (this.browser.runtime) {
+            this.browser.runtime.onMessage.addListener(this.handleMessage);
+        }
     }
 
-    public dispatch(data: T): this {
+    public async dispatch(data: T): Promise<void> {
         const payload: EventPayload<T> = {
-            method: `${ BrowserExtensionEvent.METHOD_PREFIX }${ this.eventType }`,
+            method: this.eventType,
             message: data
         };
 
         if (this.browser.runtime) {
-            this.browser.runtime.sendMessage(payload);
+            await this.browser.runtime.sendMessage(payload);
         }
 
         if (this.browser.tabs) {
-            this.browser.tabs.query({})
-                .then(tabs => {
-                    for (const tab of tabs) {
-                        this.browser.tabs.sendMessage(tab.id!, payload);
-                    }
-                });
+            await this.browser.tabs.query({})
+                .then(tabs => Promise.all(
+                    tabs.map(tab => this.browser.tabs.sendMessage(tab.id!, payload)))
+                );
         }
 
         super.dispatch(data);
-
-        return this;
     }
 
-    public dispose(): void {
+    public async dispose(): Promise<void> {
         super.dispose();
 
         if (this.browser.runtime) {
-            this.browser.runtime.onMessage.removeListener(this.handleMessage);
-        }
-    }
-
-    protected initialize(): void {
-        if (this.browser.runtime) {
-            this.browser.runtime.onMessage.addListener(this.handleMessage);
+            await this.browser.runtime.onMessage.removeListener(this.handleMessage);
         }
     }
 
@@ -78,14 +68,7 @@ export class BrowserExtensionEvent<T> extends AsyncEvent<T> {
             return;
         }
 
-        if (!method.startsWith(BrowserExtensionEvent.METHOD_PREFIX)) {
-            // Message is not related to extension events
-            return;
-        }
-
-        const eventType = method.substring(BrowserExtensionEvent.METHOD_PREFIX.length);
-
-        if (eventType !== this.eventType) {
+        if (method !== this.eventType) {
             return;
         }
 

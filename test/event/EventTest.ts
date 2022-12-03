@@ -1,12 +1,12 @@
 import { expect } from "chai";
-import { SyncEvent } from "event/SyncEvent";
+import { Event } from "event/Event";
 
-describe("SyncEvent", () => {
+describe("Event", () => {
     it("should call each listener once on each dispatch", async () => {
         let callCount = 0;
         const dispatches = 10;
         const listener = () => { callCount++; };
-        const event = new SyncEvent<string>();
+        const event = new Event<string>();
 
         event.subscribe(listener);
 
@@ -20,7 +20,7 @@ describe("SyncEvent", () => {
     it("should pass dispatch message to each listener", async () => {
         const message = "woop woop";
         const listener = (arg0: string) => { expect(arg0).to.equal(message); };
-        const event = new SyncEvent<string>();
+        const event = new Event<string>();
 
         event.subscribe(listener);
         event.dispatch(message);
@@ -29,7 +29,7 @@ describe("SyncEvent", () => {
     it("should call one-off listeners only once", async () => {
         let callCount = 0;
         const listener = () => { callCount++; };
-        const event = new SyncEvent<string>();
+        const event = new Event<string>();
 
         event.once(listener);
 

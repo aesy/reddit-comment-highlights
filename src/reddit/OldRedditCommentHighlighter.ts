@@ -1,8 +1,8 @@
 import { Logging } from "logger/Logging";
-import { HighlighterOptions, RedditCommentHighlighter } from 'reddit/RedditCommentHighlighter';
-import { RedditComment } from 'reddit/RedditPage';
+import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
+import { RedditComment } from "reddit/RedditPage";
 import { injectCSS } from "util/DOM";
-import { wait } from 'util/Time';
+import { wait } from "util/Time";
 
 const logger = Logging.getLogger("OldRedditCommentHighlighter");
 

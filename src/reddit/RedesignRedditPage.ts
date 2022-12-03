@@ -1,6 +1,5 @@
 import bind from "bind-decorator";
-import { Subscribable } from "event/Event";
-import { SyncEvent } from "event/SyncEvent";
+import { Event as Evt, Subscribable } from "event/Event";
 import { isACommentThread, isMobileSite, RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
 import { Logging } from "logger/Logging";
 import { findClosestParent } from "util/DOM";
@@ -9,7 +8,7 @@ import { makeRequest } from "util/HTTP";
 const logger = Logging.getLogger("RedesignRedditCommentPage");
 
 class RedesignRedditComment implements RedditComment {
-    private readonly _onClick: SyncEvent<void> = new SyncEvent();
+    private readonly _onClick = new Evt<void>();
 
     public constructor(
         public readonly id: string,
@@ -88,8 +87,8 @@ class RedesignRedditComment implements RedditComment {
 }
 
 class RedesignRedditCommentThread implements RedditCommentThread {
-    private readonly _onCommentAdded: SyncEvent<RedditComment> = new SyncEvent();
-    private readonly comments: Map<string, RedditComment> = new Map();
+    private readonly _onCommentAdded = new Evt<RedditComment>();
+    private readonly comments = new Map<string, RedditComment>();
 
     public constructor(
         public readonly id: string,
@@ -153,7 +152,7 @@ class RedesignRedditCommentThread implements RedditCommentThread {
 }
 
 export class RedesignRedditPage implements RedditPage {
-    private readonly _onThreadOpened: SyncEvent<RedditCommentThread> = new SyncEvent();
+    private readonly _onThreadOpened = new Evt<RedditCommentThread>();
     private thread: RedditCommentThread | null = null;
     private meta: HTMLMetaElement | null = null;
     private loggedInUser: string | null = null;
@@ -257,7 +256,7 @@ export class RedesignRedditPage implements RedditPage {
 
     private initialize(): void {
         logger.info("Initializing reddit page");
-        logger.debug("Installing urlChanged eventlistener");
+        logger.debug("Installing urlChanged event listener");
 
         document.addEventListener("reddit.urlChanged", this.onUrlChanged, { capture: true });
 

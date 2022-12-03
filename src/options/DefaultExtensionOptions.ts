@@ -1,6 +1,5 @@
 import bind from "bind-decorator";
-import { Subscribable } from "event/Event";
-import { SyncEvent } from "event/SyncEvent";
+import { Event, Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
 import { ExtensionOptions, Options } from "options/ExtensionOptions";
 import { Logging } from "logger/Logging";
@@ -13,7 +12,7 @@ const logger = Logging.getLogger("DefaultExtensionOptions");
  * This class will treat the given storage as it's own and handle its' lifetime.
  */
 export class DefaultExtensionOptions implements ExtensionOptions {
-    private readonly _onChange = new SyncEvent<void>();
+    private readonly _onChange = new Event<void>();
 
     public constructor(
         private readonly storage: Storage<Partial<Options>>,

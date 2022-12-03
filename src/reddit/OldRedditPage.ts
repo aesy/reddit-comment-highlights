@@ -1,6 +1,5 @@
 import bind from "bind-decorator";
-import { Subscribable } from "event/Event";
-import { SyncEvent } from "event/SyncEvent";
+import { Event as Evt, Subscribable } from "event/Event";
 import { isACommentThread, isMobileSite, RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
 import { Logging } from "logger/Logging";
 import { RedesignRedditPage } from "reddit/RedesignRedditPage";
@@ -9,7 +8,7 @@ import { findClosestParent } from "util/DOM";
 const logger = Logging.getLogger("OldRedditCommentPage");
 
 class OldRedditComment implements RedditComment {
-    private readonly _onClick = new SyncEvent<void>();
+    private readonly _onClick = new Evt<void>();
     private readonly _id: string | null;
     private readonly _author: string | null;
     private readonly _time: Date | null;
@@ -125,9 +124,9 @@ class OldRedditComment implements RedditComment {
 }
 
 class OldRedditCommentThread implements RedditCommentThread {
-    private readonly _onCommentAdded = new SyncEvent<RedditComment>();
+    private readonly _onCommentAdded = new Evt<RedditComment>();
     private readonly onChangeObserver: MutationObserver;
-    private readonly comments: Map<string, RedditComment> = new Map();
+    private readonly comments = new Map<string, RedditComment>();
 
     public constructor() {
         this.onChangeObserver = new MutationObserver(this.onChange);
@@ -226,7 +225,7 @@ class OldRedditCommentThread implements RedditCommentThread {
 }
 
 export class OldRedditPage implements RedditPage {
-    private readonly _onThreadOpened = new SyncEvent<RedditCommentThread>();
+    private readonly _onThreadOpened = new Evt<RedditCommentThread>();
     private commentThread: RedditCommentThread | null = null;
 
     public constructor() {

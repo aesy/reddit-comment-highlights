@@ -1,6 +1,5 @@
 import bind from "bind-decorator";
-import { Subscribable } from "event/Event";
-import { SyncEvent } from "event/SyncEvent";
+import { Event, Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
 import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
 import { currentTimestampSeconds, wait } from "util/Time";
@@ -10,7 +9,7 @@ const logger = Logging.getLogger("TruncatingThreadHistory");
 
 export class TruncatingThreadHistory implements ThreadHistory {
     private static readonly SAVE_RETRY_TIMEOUT_SECONDS = 5;
-    private readonly _onChange = new SyncEvent<void>();
+    private readonly _onChange = new Event<void>();
 
     public constructor(
         private readonly storage: Storage<ThreadHistoryEntry[]>,

@@ -1,7 +1,6 @@
 import bind from "bind-decorator";
 import { Browser, Storage as BrowserStorage } from "webextension-polyfill";
-import { AsyncEvent } from "event/AsyncEvent";
-import { Subscribable } from "event/Event";
+import { Event, Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
 import { Logging } from "logger/Logging";
 
@@ -10,7 +9,7 @@ type Changes = Record<string, BrowserStorage.StorageChange>;
 const logger = Logging.getLogger("BrowserExtensionStorage");
 
 export class BrowserExtensionStorage<T> implements Storage<T> {
-    private readonly _onChange = new AsyncEvent<T | null>();
+    private readonly _onChange = new Event<T | null>();
 
     public constructor(
         protected readonly name: string,

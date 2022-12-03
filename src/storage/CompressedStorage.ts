@@ -1,14 +1,14 @@
 import bind from "bind-decorator";
 import { decompressFromUTF16, compressToUTF16 } from "lz-string";
 import { Subscribable } from "event/Event";
-import { SyncEvent } from "event/SyncEvent";
+import { Event } from "event/Event";
 import { Storage } from "storage/Storage";
 import { Logging } from "logger/Logging";
 
 const logger = Logging.getLogger("CompressedStorage");
 
 export class CompressedStorage<T> implements Storage<T> {
-    private readonly _onChange = new SyncEvent<T | null>();
+    private readonly _onChange = new Event<T | null>();
 
     public constructor(
         private readonly name: string,

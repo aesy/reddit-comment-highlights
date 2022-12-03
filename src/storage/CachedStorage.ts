@@ -1,13 +1,12 @@
 import bind from "bind-decorator";
-import { Subscribable } from "event/Event";
-import { SyncEvent } from "event/SyncEvent";
+import { Event, Subscribable } from "event/Event";
 import { Storage } from "storage/Storage";
 import { Logging } from "logger/Logging";
 
 const logger = Logging.getLogger("CachedStorage");
 
 export class CachedStorage<T> implements Storage<T> {
-    private readonly _onChange = new SyncEvent<T | null>();
+    private readonly _onChange = new Event<T | null>();
     private cache: Readonly<T | null> = null;
     private initialized = false;
 
