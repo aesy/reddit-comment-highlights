@@ -1,6 +1,9 @@
 import bind from "bind-decorator";
-import { Browser } from "webextension-polyfill";
+import { Logging } from "logger/Logging";
+import browser from "webextension-polyfill";
 import { Event } from "event/Event";
+
+const logger = Logging.getLogger("BrowserExtensionEvent");
 
 interface EventPayload<T> {
     method: string;
@@ -13,31 +16,67 @@ interface EventPayload<T> {
  */
 export class BrowserExtensionEvent<T> extends Event<T> {
     public constructor(
-        private readonly browser: Browser,
         private readonly eventType: string
     ) {
         super();
 
-        if (this.browser.runtime) {
-            this.browser.runtime.onMessage.addListener(this.handleMessage);
+        if (browser.runtime) {
+            browser.runtime.onMessage.addListener(this.handleMessage);
         }
     }
 
-    public async dispatch(data: T): Promise<void> {
+    public dispatch(data: T): void {
         const payload: EventPayload<T> = {
             method: this.eventType,
             message: data
         };
 
-        if (this.browser.runtime) {
-            await this.browser.runtime.sendMessage(payload);
+        logger.debug("Dispatching event", { eventType: this.eventType });
+
+        if (browser.runtime) {
+            browser.runtime.sendMessage(payload)
+                .then(() => {
+                    logger.debug("Successfully sent message", { eventType: this.eventType });
+                })
+                .catch(error => {
+                    logger.warn("Failed to send message", {
+                        eventType: this.eventType,
+                        error: JSON.stringify(error)
+                    });
+                });
         }
 
-        if (this.browser.tabs) {
-            await this.browser.tabs.query({})
-                .then(tabs => Promise.all(
-                    tabs.map(tab => this.browser.tabs.sendMessage(tab.id!, payload)))
-                );
+        if (browser.tabs) {
+            browser.tabs.query({})
+                .then(tabs => {
+                    logger.debug("Successfully queried tabs", {
+                        eventType: this.eventType,
+                        count: String(tabs.length)
+                    });
+
+                    for (const tab of tabs) {
+                        browser.tabs.sendMessage(tab.id!, payload)
+                            .then(() => {
+                                logger.debug("Successfully sent message to tab", {
+                                    eventType: this.eventType,
+                                    tab: String(tab.id)
+                                });
+                            })
+                            .catch(error => {
+                                logger.warn("Failed to send message to tab", {
+                                    eventType: this.eventType,
+                                    tab: String(tab.id),
+                                    error: JSON.stringify(error)
+                                });
+                            });
+                    }
+                })
+                .catch(error => {
+                    logger.debug("Failed to query tabs", {
+                        eventType: this.eventType,
+                        error: JSON.stringify(error)
+                    });
+                });
         }
 
         super.dispatch(data);
@@ -46,8 +85,8 @@ export class BrowserExtensionEvent<T> extends Event<T> {
     public async dispose(): Promise<void> {
         super.dispose();
 
-        if (this.browser.runtime) {
-            await this.browser.runtime.onMessage.removeListener(this.handleMessage);
+        if (browser.runtime) {
+            await browser.runtime.onMessage.removeListener(this.handleMessage);
         }
     }
 
@@ -71,6 +110,8 @@ export class BrowserExtensionEvent<T> extends Event<T> {
         if (method !== this.eventType) {
             return;
         }
+
+        logger.debug("Received message", { eventType: this.eventType, method });
 
         super.dispatch(payload.message);
     }

@@ -12,12 +12,8 @@ Logging.setLogLevel(LogLevel.DEBUG);
 
 /* This script is injected into every reddit page */
 
-(async function entrypoint(): Promise<void> {
-    logger.info("ContentScript loaded");
+logger.info("Starting ContentScript");
 
-    try {
-        await ContentScript.start();
-    } catch (error) {
-        logger.error("Failed to start ContentScript", { error: JSON.stringify(error) });
-    }
-})();
+ContentScript.start()
+    .then(() => logger.debug("Successfully started ContentScript"))
+    .catch(error => logger.error("Failed to start ContentScript", { error: JSON.stringify(error) }));

@@ -10,14 +10,10 @@ Logging.setLogLevel(LogLevel.DEBUG);
 
 const logger = Logging.getLogger("entrypoint");
 
-/* This file should really be called 'eventScript' as it's only loaded when needed */
+/* This script loads only when necessary and suspends when not needed */
 
-(async function entrypoint(): Promise<void> {
-    logger.info("BackgroundScript loaded");
+logger.info("Starting BackgroundScript");
 
-    try {
-        await BackgroundScript.start();
-    } catch (error) {
-        logger.error("Failed to start BackgroundScript", { error: JSON.stringify(error) });
-    }
-})();
+BackgroundScript.start()
+    .then(() => logger.debug("Successfully started BackgroundScript"))
+    .catch(error => logger.error("Failed to start BackgroundScript", { error: JSON.stringify(error) }));

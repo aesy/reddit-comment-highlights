@@ -1,6 +1,9 @@
 import bind from "bind-decorator";
-import { Browser } from "webextension-polyfill";
+import { Logging } from "logger/Logging";
+import browser from "webextension-polyfill";
 import { FunctionRegistry } from "registry/FunctionRegistry";
+
+const logger = Logging.getLogger("RemoteFunctionBrowserExtensionRegistry");
 
 interface InvocationRequest<T> {
     method: string;
@@ -19,11 +22,9 @@ type InvocationResponse<R> =
 export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry {
     private readonly functions: Map<string, Function> = new Map();
 
-    public constructor(
-        private readonly browser: Browser
-    ) {
-        if (this.browser.runtime) {
-            this.browser.runtime.onMessage.addListener(this.messageListener);
+    public constructor() {
+        if (browser.runtime) {
+            browser.runtime.onMessage.addListener(this.messageListener);
         }
     }
 
@@ -36,7 +37,9 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
     }
 
     public async invoke<T, R>(key: string, arg?: T): Promise<R> {
-        const func = this.functions.get(key as string);
+        const func = this.functions.get(key);
+
+        logger.debug("Invoking function", { method: key, local: String(Boolean(func)) });
 
         if (func) {
             // Function is not remote
@@ -49,58 +52,86 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
         };
 
         return new Promise((resolve, reject) => {
-            const handler = (response: object | void): void => {
-                const error = this.browser.runtime.lastError;
-
-                if (error) {
-                    return reject(error);
+            const handler = (response: InvocationResponse<R> | void): void => {
+                if (!response) {
+                    return reject("Missing response");
                 }
 
-                const invocationResponse = response as InvocationResponse<R>;
-
-                if (!invocationResponse) {
-                    return reject();
+                if (!response.method) {
+                    return reject("Missing response method");
                 }
 
-                if (!invocationResponse.method) {
-                    return reject();
+                if ("error" in response) {
+                    return reject(response.error);
                 }
 
-                if ("error" in invocationResponse) {
-                    return reject(invocationResponse.error);
-                }
-
-                return resolve(invocationResponse.result);
+                return resolve(response.result);
             };
 
-            if (this.browser.runtime) {
-                this.browser.runtime.sendMessage(request)
-                    .then(handler)
-                    .catch(reject);
-            } else if (this.browser.tabs) {
-                this.browser.tabs.query({})
-                    .then(async tabs => {
+            if (browser.runtime) {
+                browser.runtime.sendMessage(request)
+                    .then(response => {
+                        logger.debug("Successfully sent message", { method: key });
+                        handler(response);
+                    })
+                    .catch(error => {
+                        logger.warn("Failed to send message", {
+                            method: key,
+                            error: JSON.stringify(error)
+                        });
+                        reject(error);
+                    });
+            } else if (browser.tabs) {
+                browser.tabs.query({})
+                    .then(tabs => {
+                        logger.debug("Successfully queried tabs", {
+                            method: key,
+                            count: String(tabs.length)
+                        });
+
                         for (const tab of tabs) {
-                            await this.browser.tabs.sendMessage(tab.id!, request)
-                                .then(handler);
+                            browser.tabs.sendMessage(tab.id!, request)
+                                .then(response => {
+                                    logger.debug("Successfully sent message to tab", {
+                                        method: key,
+                                        tab: String(tab.id)
+                                    });
+                                    handler(response);
+                                })
+                                .catch(error => {
+                                    logger.warn("Failed to send message to tab", {
+                                        method: key,
+                                        tab: String(tab.id),
+                                        error: JSON.stringify(error)
+                                    });
+                                });
                         }
                     })
-                    .catch(reject);
+                    .catch(error => {
+                        logger.debug("Failed to query tabs", {
+                            method: key,
+                            error: JSON.stringify(error)
+                        });
+                    });
             }
         });
     }
 
-    public dispose(): void {
+    public async dispose(): Promise<void> {
         this.functions.clear();
 
-        if (this.browser.runtime) {
-            this.browser.runtime.onMessage.removeListener(this.messageListener);
+        if (browser.runtime) {
+            await browser.runtime.onMessage.removeListener(this.messageListener);
         }
     }
 
     @bind
     private messageListener(request: object | void): Promise<InvocationResponse<unknown>> | void {
         if (!request) {
+            return;
+        }
+
+        if (typeof request !== "object") {
             return;
         }
 
@@ -114,27 +145,33 @@ export class RemoteFunctionBrowserExtensionRegistry implements FunctionRegistry 
 
         const func = this.functions.get(method);
 
-        if (func) {
-            try {
-                const returnValue = func(arg);
+        if (!func) {
+            return;
+        }
 
-                if (returnValue instanceof Promise) {
-                    return returnValue.then((result: unknown) => {
-                        return { method, result };
-                    }).catch((error: unknown) => {
-                        return { method, error };
-                    });
-                } else {
-                    return Promise.resolve({ method, result: returnValue });
-                }
-            } catch (error) {
-                return Promise.resolve({ method, error });
+        logger.debug("Received message", { method });
+
+        try {
+            const returnValue = func(arg);
+
+            if (returnValue instanceof Promise) {
+                return returnValue.then((result: unknown) => {
+                    return { method, result };
+                }).catch(error => {
+                    logger.warn("Failed to run async function", { method, error });
+
+                    return { method, error };
+                });
+            } else {
+                return Promise.resolve({ method, result: returnValue });
             }
-        } else {
-            return Promise.resolve({
+        } catch (error) {
+            logger.warn("Failed to run function", {
                 method,
-                error: `No such function with name ${ method }`
+                error: JSON.stringify(error)
             });
+
+            return Promise.resolve({ method, error });
         }
     }
 }

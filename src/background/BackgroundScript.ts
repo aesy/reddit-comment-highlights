@@ -1,18 +1,17 @@
 import bind from "bind-decorator";
-import { CompoundSink } from 'logger/CompoundSink';
-import { SentrySink } from 'logger/SentrySink';
-import browser from "webextension-polyfill";
 import { Actions } from "common/Actions";
 import { Constants } from "common/Constants";
-import { onSettingsChanged, onThreadVisitedEvent } from "common/Events";
+import { onOptionsChanged, onThreadVisitedEvent } from "common/Events";
 import { extensionFunctionRegistry } from "common/Registries";
 import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
 import { TruncatingThreadHistory } from "history/TruncatingThreadHistory";
+import { CompoundSink } from "logger/CompoundSink";
 import { LogLevel } from "logger/Logger";
 import { Logging } from "logger/Logging";
+import { SentrySink } from "logger/SentrySink";
 import { DefaultExtensionOptions } from "options/DefaultExtensionOptions";
 import { ExtensionOptions, Options } from "options/ExtensionOptions";
-import { BrowserExtensionStorage } from 'storage/BrowserExtensionStorage';
+import { BrowserExtensionStorage } from "storage/BrowserExtensionStorage";
 import { CachedStorage } from "storage/CachedStorage";
 import { CompressedStorage } from "storage/CompressedStorage";
 import { Storage } from "storage/Storage";
@@ -36,11 +35,8 @@ export class BackgroundScript {
     }
 
     public static async start(): Promise<BackgroundScript> {
-        logger.info("Starting BackgroundScript");
-
         const optionsStorage = new CachedStorage(Constants.OPTIONS_STORAGE_NAME, new BrowserExtensionStorage(
             Constants.OPTIONS_STORAGE_NAME,
-            browser,
             "sync",
             Constants.OPTIONS_STORAGE_KEY));
         const extensionOptions = new DefaultExtensionOptions(
@@ -78,13 +74,11 @@ export class BackgroundScript {
 
             threadStorage = new CompressedStorage(Constants.THREAD_STORAGE_NAME, new BrowserExtensionStorage(
                 Constants.THREAD_STORAGE_NAME,
-                browser,
                 storageType,
                 Constants.THREAD_STORAGE_KEY));
         } else {
             threadStorage = new BrowserExtensionStorage(
                 Constants.THREAD_STORAGE_NAME,
-                browser,
                 storageType,
                 Constants.THREAD_STORAGE_KEY);
         }
@@ -93,15 +87,12 @@ export class BackgroundScript {
 
         const threadHistory = new TruncatingThreadHistory(
             threadStorage, options.threadRemovalTimeSeconds);
-        const backgroundScript = new BackgroundScript(
+
+        return new BackgroundScript(
             optionsStorage,
             threadStorage,
             extensionOptions,
             threadHistory);
-
-        logger.debug("Successfully started BackgroundScript");
-
-        return backgroundScript;
     }
 
     public stop(): void {
@@ -243,6 +234,6 @@ export class BackgroundScript {
             throw error;
         }
 
-        onSettingsChanged.dispatch();
+        onOptionsChanged.dispatch();
     }
 }
