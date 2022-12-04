@@ -159,7 +159,7 @@ export class TruncatingThreadHistory implements ThreadHistory {
         try {
             await this.storage.save(data);
         } catch (error) {
-            if (!data) {
+            if (!data || data.length === 0) {
                 // History is empty, error not related to any limits
                 logger.error("Failed to save to storage", { error: JSON.stringify(error) });
 
@@ -169,12 +169,15 @@ export class TruncatingThreadHistory implements ThreadHistory {
             const delay = TruncatingThreadHistory.SAVE_RETRY_TIMEOUT_SECONDS * 1000;
 
             // An error occurred, probably due to some limit exceeded
-            // Remove oldest thread and try again
             logger.warn("Failed to save to storage, truncating data and trying again",
                 { delay: String(delay), error: JSON.stringify(error) });
 
-            const thread = TruncatingThreadHistory.getOldest(data);
-            data = TruncatingThreadHistory.removeThread(data, thread!);
+            // Remove half and try again
+            const middle = Math.ceil(data.length / 2);
+            for (let i = 0; i < middle; i++) {
+                const thread = TruncatingThreadHistory.getOldest(data);
+                data = TruncatingThreadHistory.removeThread(data, thread!);
+            }
 
             await wait(delay);
             await this.save(data);
