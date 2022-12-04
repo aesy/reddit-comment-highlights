@@ -75,18 +75,6 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
 
     public dispose(): void {
         logger.debug("Disposing comment highlighter");
-
-        const elements = document.querySelectorAll(".comment");
-
-        logger.debug("Removing all highlights", {
-            count: String(elements.length)
-        });
-
-        for (const element of elements) {
-            element.classList.remove(this.options.className);
-            element.classList.remove(`${ this.options.className }--transition`);
-        }
-
         this.removeCss();
     }
 
