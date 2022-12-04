@@ -66,12 +66,11 @@ class OldRedditComment implements RedditComment {
     }
 
     public getChildComments(): RedditComment[] {
-        // Avoid use of :scope pseudo selector for compatibility reasons (firefox mobile)
-        const childElements = this.element.querySelectorAll(`.child > .listing > .comment`);
+        const childElements = this.element.querySelectorAll(":scope > .child > .listing > .comment");
 
         return Array.from(childElements)
             .map(element => {
-                const id = element.getAttribute("data-fullname");
+                const id = element.getAttribute("data-fullname")?.replace("t1_", "");
 
                 if (!id) {
                     return null;
@@ -146,8 +145,8 @@ class OldRedditCommentThread implements RedditCommentThread {
         return pathPieces[ 4 ];
     }
 
-    public getCommentById(): RedditComment | null {
-        return this.comments.get(this.id) || null;
+    public getCommentById(id: string): RedditComment | null {
+        return this.comments.get(id) || null;
     }
 
     public getAllComments(): RedditComment[] {
