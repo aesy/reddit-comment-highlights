@@ -15,7 +15,7 @@ A browser extension that highlights unread comments on [Reddit](https://www.redd
 [mozilla-addon-image]: https://img.shields.io/amo/v/reddit-comment-highlights?style=flat-square
 [mozilla-addon-url]: https://addons.mozilla.org/firefox/addon/reddit-comment-highlights/
 
-[github-actions-image]: https://img.shields.io/github/workflow/status/aesy/reddit-comment-highlights/Continuous%20Integration?style=flat-square
+[github-actions-image]: https://img.shields.io/github/actions/workflow/status/aesy/reddit-comment-highlights/ci.yml?branch=master&style=flat-square
 [github-actions-url]: https://github.com/aesy/reddit-comment-highlights/actions
 
 [code-climate-image]: https://img.shields.io/codeclimate/maintainability-percentage/aesy/reddit-comment-highlights?style=flat-square
