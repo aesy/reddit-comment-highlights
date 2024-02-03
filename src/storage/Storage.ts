@@ -1,4 +1,4 @@
-import { Subscribable } from "event/Event";
+import { type Subscribable } from "@/event/Event";
 
 export interface Storage<T> {
     readonly onChange: Subscribable<T | null>;

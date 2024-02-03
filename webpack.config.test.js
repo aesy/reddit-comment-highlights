@@ -11,7 +11,7 @@ module.exports = merge(config, {
                 test: /\.ts|tsx$/,
                 enforce: "post",
                 exclude: /node_modules|static/,
-                loader: "istanbul-instrumenter-loader",
+                loader: "@jsdevtools/coverage-istanbul-loader",
                 options: {
                     esModules: true
                 }
@@ -19,10 +19,10 @@ module.exports = merge(config, {
         ]
     },
     output: {
-        libraryTarget: "umd"
+        libraryTarget: "umd",
     },
     externals: {
         // https://github.com/jsdom/jsdom/issues/2508
-        canvas: "commonjs canvas"
-    }
+        canvas: "commonjs canvas",
+    },
 });

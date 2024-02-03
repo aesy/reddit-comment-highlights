@@ -12,7 +12,7 @@ export function hexToRgb(hex: string): ColorRGB {
     const rgb = parseInt(hex, 16);
 
     if (isNaN(rgb)) {
-        throw `Failed to parse hex number '${ hex }.'`;
+        throw `Failed to parse hex number '${hex}.'`;
     }
 
     const r = (rgb >> 16) & 0xff;

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 14 ]
+        node-version: [ 20 ]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -21,7 +21,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+      run: npm ci
     - name: Build with Node
       run: npm run build:prod
   test:
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 14 ]
+        node-version: [ 20 ]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -38,12 +38,12 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
-      run: npm ci  --legacy-peer-deps
+      run: npm ci
     - name: Lint with ESLint
       run: npm run lint:scripts
     - name: Lint with StyleLint
       run: npm run lint:styles
     - name: Test with Node
-      run: npm run test:unit
+      run: npm run test:unit -- --coverage
     - name: Upload coverage to CodeCov
       uses: codecov/codecov-action@v1

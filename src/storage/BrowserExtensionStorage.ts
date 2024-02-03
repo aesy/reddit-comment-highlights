@@ -1,28 +1,26 @@
-import bind from "bind-decorator";
-import browser, { Storage as BrowserStorage } from "webextension-polyfill";
-import { Event, Subscribable } from "event/Event";
-import { Storage } from "storage/Storage";
-import { Logging } from "logger/Logging";
+import { bind } from "bind-decorator";
+import {
+    type Browser,
+    type Storage as BrowserStorage,
+} from "webextension-polyfill";
+import { Event, type Subscribable } from "@/event/Event";
+import { type Storage } from "@/storage/Storage";
+import { Logging } from "@/logger/Logging";
 
 const logger = Logging.getLogger("BrowserExtensionStorage");
 
 type Changes = Record<string, BrowserStorage.StorageChange>;
 
-const onStorageChanged: Event<{ changes: Changes, storageType: string }> = new Event();
-
-browser.storage.onChanged.addListener((changes, storageType) => {
-    onStorageChanged.dispatch({ changes, storageType });
-});
-
 export class BrowserExtensionStorage<T> implements Storage<T> {
     private readonly _onChange = new Event<T | null>();
 
     public constructor(
-        protected readonly name: string,
+        private readonly name: string,
         private readonly type: "sync" | "local",
-        private readonly key: string
+        private readonly key: string,
+        private readonly browser: Browser,
     ) {
-        onStorageChanged.subscribe(this.changeListener);
+        browser.storage.onChanged.addListener(this.changeListener);
     }
 
     public get onChange(): Subscribable<T | null> {
@@ -32,7 +30,7 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     public async save(data: T | null): Promise<void> {
         logger.debug("Saving data", { name: this.name });
 
-        await this.storageArea.set({ [ this.key ]: data });
+        await this.storageArea.set({ [this.key]: data });
 
         logger.debug("Successfully saved data", { name: this.name });
     }
@@ -50,27 +48,28 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
     public async clear(): Promise<void> {
         logger.debug("Clearing data", { name: this.name });
 
-        await this.storageArea.set({ [ this.key ]: null });
+        await this.storageArea.set({ [this.key]: null });
 
         logger.debug("Successfully cleared data", { name: this.name });
     }
 
     public dispose(): void {
         this._onChange.dispose();
-        onStorageChanged.unsubscribe(this.changeListener);
+
+        this.browser.storage.onChanged.removeListener(this.changeListener);
     }
 
-    protected get storageArea(): BrowserStorage.StorageArea {
+    private get storageArea(): BrowserStorage.StorageArea {
         switch (this.type) {
             case "sync":
-                return browser.storage.sync;
+                return this.browser.storage.sync;
             case "local":
-                return browser.storage.local;
+                return this.browser.storage.local;
         }
     }
 
     @bind
-    private changeListener({ changes, storageType }: { changes: Changes, storageType: string }): void {
+    private changeListener(changes: Changes, storageType: string): void {
         if (this.type !== storageType) {
             return;
         }
@@ -81,6 +80,6 @@ export class BrowserExtensionStorage<T> implements Storage<T> {
 
         logger.debug("Underlying storage changed", { name: this.name });
 
-        this._onChange.dispatch(changes[ this.key ].newValue);
+        this._onChange.dispatch(changes[this.key].newValue);
     }
 }

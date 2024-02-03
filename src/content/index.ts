@@ -1,19 +1,30 @@
-import { ContentScript } from "content/ContentScript";
-import { ConsoleSink } from "logger/ConsoleSink";
-import { KeyValueLogger } from "logger/KeyValueLogger";
-import { LogLevel } from "logger/Logger";
-import { Logging } from "logger/Logging";
+import { ContentScript } from "@/content/ContentScript";
+import { ConsoleSink } from "@/logger/ConsoleSink";
+import { KeyValueLogger } from "@/logger/KeyValueLogger";
+import { LogLevel } from "@/logger/Logger";
+import { Logging } from "@/logger/Logging";
 
-const logger = Logging.getLogger("entrypoint");
+/* This script is injected into every reddit page */
 
 Logging.setLoggerFactory(KeyValueLogger.create);
 Logging.setSink(new ConsoleSink());
 Logging.setLogLevel(LogLevel.DEBUG);
 
-/* This script is injected into every reddit page */
+const logger = Logging.getLogger("entrypoint");
 
-logger.info("Starting ContentScript");
+let script: ContentScript | null = null;
 
-ContentScript.start()
-    .then(() => logger.debug("Successfully started ContentScript"))
-    .catch(error => logger.error("Failed to start ContentScript", { error: JSON.stringify(error) }));
+try {
+    script = new ContentScript();
+} catch (error) {
+    handleError(error);
+}
+
+script?.start().catch(handleError);
+
+function handleError(error: unknown): void {
+    logger.error("Failed to start ContentScript", {
+        error: JSON.stringify(error),
+    });
+    script?.dispose();
+}

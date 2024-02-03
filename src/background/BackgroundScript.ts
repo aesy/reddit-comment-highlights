@@ -1,126 +1,80 @@
-import bind from "bind-decorator";
-import { Actions } from "common/Actions";
-import { Constants } from "common/Constants";
-import { onOptionsChanged, onThreadVisitedEvent } from "common/Events";
-import { extensionFunctionRegistry } from "common/Registries";
-import { ThreadHistory, ThreadHistoryEntry } from "history/ThreadHistory";
-import { TruncatingThreadHistory } from "history/TruncatingThreadHistory";
-import { CompoundSink } from "logger/CompoundSink";
-import { LogLevel } from "logger/Logger";
-import { Logging } from "logger/Logging";
-import { SentrySink } from "logger/SentrySink";
-import { DefaultExtensionOptions } from "options/DefaultExtensionOptions";
-import { ExtensionOptions, Options } from "options/ExtensionOptions";
-import { BrowserExtensionStorage } from "storage/BrowserExtensionStorage";
-import { CachedStorage } from "storage/CachedStorage";
-import { CompressedStorage } from "storage/CompressedStorage";
-import { Storage } from "storage/Storage";
-import { StorageMigrator } from "storage/StorageMigrator";
+import { StorageMigrator } from "@/storage/StorageMigrator";
+import { bind } from "bind-decorator";
+import browser from "webextension-polyfill";
+import { Actions } from "@/common/Actions";
+import { Constants } from "@/common/Constants";
+import { onOptionsChanged, onThreadVisitedEvent } from "@/common/Events";
+import { extensionFunctionRegistry } from "@/common/Registries";
+import { ThreadHistory, ThreadHistoryEntry } from "@/history/ThreadHistory";
+import { LogLevel } from "@/logger/Logger";
+import { Logging } from "@/logger/Logging";
+import { ExtensionOptions, type Options } from "@/options/ExtensionOptions";
+import { BrowserExtensionStorage } from "@/storage/BrowserExtensionStorage";
+import { type Storage } from "@/storage/Storage";
+import { CachedStorage } from "@/storage/CachedStorage";
+import { CompressedStorage } from "@/storage/CompressedStorage";
 
 const logger = Logging.getLogger("BackgroundScript");
 
 export class BackgroundScript {
-    private constructor(
-        private readonly optionsStorage: Storage<Partial<Options>>,
-        private readonly threadStorage: Storage<ThreadHistoryEntry[]>,
-        private readonly extensionOptions: ExtensionOptions,
-        private readonly threadHistory: ThreadHistory
-    ) {
-        optionsStorage.onChange.subscribe(this.onOptionsChanged);
-        extensionFunctionRegistry.register(Actions.GET_THREAD_BY_ID, this.getThreadById);
-        extensionFunctionRegistry.register(Actions.SAVE_OPTIONS, this.saveOptions);
-        extensionFunctionRegistry.register(Actions.GET_OPTIONS, this.getOptions);
-        extensionFunctionRegistry.register(Actions.CLEAR_STORAGE, this.clearStorages);
+    private history: ThreadHistory | null = null;
+    private options: ExtensionOptions | null = null;
+
+    constructor() {
+        extensionFunctionRegistry.register(
+            Actions.GET_THREAD_BY_ID,
+            this.getThreadById,
+        );
+        extensionFunctionRegistry.register(
+            Actions.SAVE_OPTIONS,
+            this.saveOptions,
+        );
+        extensionFunctionRegistry.register(
+            Actions.GET_OPTIONS,
+            this.getOptions,
+        );
+        extensionFunctionRegistry.register(
+            Actions.CLEAR_STORAGE,
+            this.clearStorages,
+        );
         onThreadVisitedEvent.subscribe(this.onThreadVisited);
+        onOptionsChanged.subscribe(this.onOptionsChanged);
     }
 
-    public static async start(): Promise<BackgroundScript> {
-        const optionsStorage = new CachedStorage(Constants.OPTIONS_STORAGE_NAME, new BrowserExtensionStorage(
-            Constants.OPTIONS_STORAGE_NAME,
-            "sync",
-            Constants.OPTIONS_STORAGE_KEY));
-        const extensionOptions = new DefaultExtensionOptions(
-            optionsStorage, Constants.OPTIONS_DEFAULTS);
+    public async start(): Promise<void> {
+        logger.info("Starting BackgroundScript");
+
+        const extensionOptions = await this.getExtensionOptions();
         const options = await extensionOptions.get();
 
-        if (options.sendErrorReports) {
-            Logging.setSink(new CompoundSink([
-                Logging.getSink(),
-                new SentrySink("BackgroundScript")
-            ]));
-        }
+        BackgroundScript.initializeLogger(options);
 
-        if (options.debug) {
-            logger.info("Enabling debug mode");
-            Logging.setLogLevel(LogLevel.DEBUG);
-        } else {
-            logger.info("Disabling debug mode");
-            Logging.setLogLevel(LogLevel.WARN);
-        }
-
-        let threadStorage: Storage<ThreadHistoryEntry[]>;
-        let storageType: "sync" | "local";
-
-        if (options.sync) {
-            logger.info("Using sync thread storage");
-            storageType = "sync";
-        } else {
-            logger.info("Using local thread storage");
-            storageType = "local";
-        }
-
-        if (options.useCompression) {
-            logger.info("Enabling storage compression");
-
-            threadStorage = new CompressedStorage(Constants.THREAD_STORAGE_NAME, new BrowserExtensionStorage(
-                Constants.THREAD_STORAGE_NAME,
-                storageType,
-                Constants.THREAD_STORAGE_KEY));
-        } else {
-            threadStorage = new BrowserExtensionStorage(
-                Constants.THREAD_STORAGE_NAME,
-                storageType,
-                Constants.THREAD_STORAGE_KEY);
-        }
-
-        threadStorage = new CachedStorage(Constants.THREAD_STORAGE_NAME, threadStorage);
-
-        const threadHistory = new TruncatingThreadHistory(
-            threadStorage, options.threadRemovalTimeSeconds);
-
-        return new BackgroundScript(
-            optionsStorage,
-            threadStorage,
-            extensionOptions,
-            threadHistory);
+        logger.info("Successfully started BackgroundScript");
     }
 
     public stop(): void {
         logger.info("Stopping BackgroundScript");
 
-        this.optionsStorage.dispose();
-        this.threadStorage.dispose();
-        this.extensionOptions.dispose();
-        this.threadHistory.dispose();
-        this.optionsStorage.onChange.unsubscribe(this.onOptionsChanged);
+        this.options?.dispose();
+        this.options = null;
 
-        extensionFunctionRegistry.unregister(Actions.GET_THREAD_BY_ID);
-        extensionFunctionRegistry.unregister(Actions.SAVE_OPTIONS);
-        extensionFunctionRegistry.unregister(Actions.GET_OPTIONS);
-        extensionFunctionRegistry.unregister(Actions.CLEAR_STORAGE);
-        onThreadVisitedEvent.unsubscribe(this.onThreadVisited);
+        this.history?.dispose();
+        this.history = null;
 
         logger.debug("Successfully stopped BackgroundScript");
     }
 
     @bind
-    private async getThreadById(threadId: string): Promise<ThreadHistoryEntry | null> {
+    private async getThreadById(
+        threadId: string,
+    ): Promise<ThreadHistoryEntry | null> {
         logger.info("Thread history entry requested", { threadId });
 
         let entry: ThreadHistoryEntry | null;
 
         try {
-            entry = await this.threadHistory.get(threadId);
+            const threadHistory = await this.getThreadHistory();
+            entry = await threadHistory.get(threadId);
         } catch (error) {
             logger.error("Failed to get thread history entry", { threadId });
 
@@ -137,11 +91,12 @@ export class BackgroundScript {
     }
 
     @bind
-    private async saveOptions(options: Partial<Options>): Promise<void> {
+    private async saveOptions(values: Partial<Options>): Promise<void> {
         logger.info("Saving options");
 
         try {
-            await this.extensionOptions.set(options);
+            const extensionOptions = await this.getExtensionOptions();
+            await extensionOptions.set(values);
         } catch (error) {
             logger.error("Failed to save options");
 
@@ -153,15 +108,17 @@ export class BackgroundScript {
 
     @bind
     private async getOptions(): Promise<Options> {
-        logger.debug("Options requested");
         logger.info("Fetching options");
 
         let options: Options;
 
         try {
-            options = await this.extensionOptions.get();
+            const extensionOptions = await this.getExtensionOptions();
+            options = await extensionOptions.get();
         } catch (error) {
-            logger.error("Failed to fetch options", { error: JSON.stringify(error) });
+            logger.error("Failed to fetch options", {
+                error: JSON.stringify(error),
+            });
 
             throw error;
         }
@@ -173,16 +130,20 @@ export class BackgroundScript {
 
     @bind
     private async clearStorages(): Promise<void> {
-        logger.debug("Storage reset requested");
         logger.info("Clearing storages");
 
         try {
+            const threadHistory = await this.getThreadHistory();
+            const extensionOptions = await this.getExtensionOptions();
+
             await Promise.all([
-                this.extensionOptions.clear(),
-                this.threadHistory.clear()
+                threadHistory.clear(),
+                extensionOptions.clear(),
             ]);
         } catch (error) {
-            logger.error("Failed to clear storages", { error: JSON.stringify(error) });
+            logger.error("Failed to clear storages", {
+                error: JSON.stringify(error),
+            });
 
             throw error;
         }
@@ -192,14 +153,16 @@ export class BackgroundScript {
 
     @bind
     private async onThreadVisited(threadId: string): Promise<void> {
-        logger.debug("Thread visit notification", { threadId });
         logger.info("Saving thread in history", { threadId });
 
         try {
-            await this.threadHistory.add(threadId);
+            const threadHistory = await this.getThreadHistory();
+            await threadHistory.add(threadId);
         } catch (error) {
-            logger.error("Failed to save thread in history",
-                { threadId, error: JSON.stringify(error) });
+            logger.error("Failed to save thread in history", {
+                threadId,
+                error: JSON.stringify(error),
+            });
 
             throw error;
         }
@@ -208,32 +171,128 @@ export class BackgroundScript {
     }
 
     @bind
-    private async onOptionsChanged(): Promise<void> {
+    public async onOptionsChanged(): Promise<void> {
         logger.info("Restarting BackgroundScript", {
-            reason: "ExtensionOptions changed"
+            reason: "Options changed",
         });
 
+        try {
+            const oldHistory = await this.getThreadHistory();
+            this.stop();
+            await this.start();
+            const newHistory = await this.getThreadHistory();
+
+            await new StorageMigrator().migrate(
+                oldHistory.storage,
+                newHistory.storage,
+            );
+        } catch (error) {
+            logger.error("Failed to migrate storage", {
+                error: JSON.stringify(error),
+            });
+
+            throw error;
+        }
+
+        logger.debug("Successfully restarted BackgroundScript");
+    }
+
+    private async getThreadHistory(): Promise<ThreadHistory> {
+        const createStorage = async (
+            options: Options,
+        ): Promise<Storage<ThreadHistoryEntry[]>> => {
+            let threadStorage: Storage<ThreadHistoryEntry[]>;
+            let storageType: "sync" | "local";
+
+            if (options.sync) {
+                logger.info("Using sync thread storage");
+                storageType = "sync";
+            } else {
+                logger.info("Using local thread storage");
+                storageType = "local";
+            }
+
+            if (options.useCompression) {
+                logger.info("Enabling storage compression");
+                const browserStorage = new BrowserExtensionStorage<string>(
+                    Constants.THREAD_STORAGE_NAME,
+                    storageType,
+                    Constants.THREAD_STORAGE_KEY,
+                    browser,
+                );
+                threadStorage = new CompressedStorage(
+                    Constants.THREAD_STORAGE_NAME,
+                    browserStorage,
+                );
+            } else {
+                threadStorage = new BrowserExtensionStorage<
+                    ThreadHistoryEntry[]
+                >(
+                    Constants.THREAD_STORAGE_NAME,
+                    storageType,
+                    Constants.THREAD_STORAGE_KEY,
+                    browser,
+                );
+            }
+
+            return new CachedStorage(
+                Constants.THREAD_STORAGE_NAME,
+                threadStorage,
+            );
+        };
+
+        if (this.history === null) {
+            const extensionOptions = await this.getExtensionOptions();
+            const options = await extensionOptions.get();
+            const storage = await createStorage(options);
+            this.history = new ThreadHistory(
+                storage,
+                options.threadRemovalTimeSeconds,
+            );
+        }
+
+        return this.history;
+    }
+
+    private async getExtensionOptions(): Promise<ExtensionOptions> {
+        if (this.options === null) {
+            const browserStorage = new BrowserExtensionStorage<Options>(
+                Constants.OPTIONS_STORAGE_NAME,
+                "sync",
+                Constants.OPTIONS_STORAGE_KEY,
+                browser,
+            );
+            const optionsStorage = new CachedStorage(
+                Constants.OPTIONS_STORAGE_NAME,
+                browserStorage,
+            );
+            this.options = new ExtensionOptions(
+                optionsStorage,
+                Constants.OPTIONS_DEFAULTS,
+            );
+        }
+
+        return this.options;
+    }
+
+    private static initializeLogger(options: Options): void {
+        if (options.debug) {
+            logger.info("Enabling debug mode");
+            Logging.setLogLevel(LogLevel.DEBUG);
+        } else {
+            logger.info("Disabling debug mode");
+            Logging.setLogLevel(LogLevel.WARN);
+        }
+    }
+
+    public dispose(): void {
         this.stop();
 
-        let script: BackgroundScript;
-
-        try {
-            script = await BackgroundScript.start();
-        } catch (error) {
-            logger.error("Failed to start BackgroundScript", { error: JSON.stringify(error) });
-
-            throw error;
-        }
-
-        try {
-            await new StorageMigrator()
-                .migrate(this.threadStorage, script.threadStorage);
-        } catch (error) {
-            logger.error("Failed to migrate storage", { error: JSON.stringify(error) });
-
-            throw error;
-        }
-
-        onOptionsChanged.dispatch();
+        extensionFunctionRegistry.unregister(Actions.GET_THREAD_BY_ID);
+        extensionFunctionRegistry.unregister(Actions.SAVE_OPTIONS);
+        extensionFunctionRegistry.unregister(Actions.GET_OPTIONS);
+        extensionFunctionRegistry.unregister(Actions.CLEAR_STORAGE);
+        onThreadVisitedEvent.unsubscribe(this.onThreadVisited);
+        onOptionsChanged.unsubscribe(this.onOptionsChanged);
     }
 }

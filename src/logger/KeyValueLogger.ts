@@ -1,6 +1,11 @@
-import { currentTimestampSeconds } from "util/Time";
-import { AbstractLogger, Loggable, Logger, LogLevel } from "logger/Logger";
-import { Logging } from "logger/Logging";
+import { currentTimestampSeconds } from "@/util/Time";
+import {
+    AbstractLogger,
+    type Loggable,
+    type Logger,
+    LogLevel,
+} from "@/logger/Logger";
+import { Logging } from "@/logger/Logging";
 
 /**
  * Logger that outputs messages formatted in key value pairs.
@@ -10,12 +15,17 @@ import { Logging } from "logger/Logging";
  */
 export class KeyValueLogger extends AbstractLogger {
     private static readonly ESCAPE_CHARS: string[] = [
-        " ", "-", "'", "\"", "\n", "\t"
+        " ",
+        "-",
+        "'",
+        '"',
+        "\n",
+        "\t",
     ];
     private static readonly ESCAPE_REPLACEMENTS: Record<string, string> = {
-        "\"": "\\\"",
+        '"': '\\"',
         "\n": "\\n",
-        "\t": "\\t"
+        "\t": "\\t",
     };
     private readonly context: Loggable[] = [];
 
@@ -38,13 +48,13 @@ export class KeyValueLogger extends AbstractLogger {
     }
 
     private static doEscape(input: string): string {
-        for (const char in KeyValueLogger.ESCAPE_REPLACEMENTS) {
-            const replacement = KeyValueLogger.ESCAPE_REPLACEMENTS[ char ];
-
+        for (const [char, replacement] of Object.entries(
+            KeyValueLogger.ESCAPE_REPLACEMENTS,
+        )) {
             input.replace(char, replacement);
         }
 
-        return `"${ input }"`;
+        return `"${input}"`;
     }
 
     public withContext(...args: Loggable[]): Logger {
@@ -75,7 +85,7 @@ export class KeyValueLogger extends AbstractLogger {
                 level = "ERROR";
                 break;
             default:
-                throw `Unknown log level '${ logLevel }'`;
+                throw `Unknown log level '${logLevel}'`;
         }
 
         const time: number = currentTimestampSeconds();
@@ -84,17 +94,11 @@ export class KeyValueLogger extends AbstractLogger {
             message,
             level,
             ...this.getContext(this.context),
-            ...this.getContext(args)
+            ...this.getContext(args),
         };
         const groups: string[] = [];
 
-        for (let key in context) {
-            if (!context.hasOwnProperty(key)) {
-                continue;
-            }
-
-            let value = context[ key ];
-
+        for (let [key, value] of Object.entries(context)) {
             if (KeyValueLogger.shouldEscape(key)) {
                 key = KeyValueLogger.doEscape(key);
             }
@@ -103,7 +107,7 @@ export class KeyValueLogger extends AbstractLogger {
                 value = KeyValueLogger.doEscape(value);
             }
 
-            groups.push(`${ key }=${ value }`);
+            groups.push(`${key}=${value}`);
         }
 
         const output: string = groups.join(" ");
@@ -111,7 +115,7 @@ export class KeyValueLogger extends AbstractLogger {
         Logging.getSink().emit({
             level: logLevel,
             message: output,
-            time: time
+            time: time,
         });
     }
 }

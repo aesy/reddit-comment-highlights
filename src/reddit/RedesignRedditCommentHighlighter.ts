@@ -1,20 +1,23 @@
-import bind from "bind-decorator";
-import { Logging } from "logger/Logging";
-import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
-import { RedditComment } from "reddit/RedditPage";
-import { hexToRgb, relativeLuminance } from "util/Color";
-import { injectCSS } from "util/DOM";
-import { wait } from "util/Time";
+import { bind } from "bind-decorator";
+import { Logging } from "@/logger/Logging";
+import {
+    type HighlighterOptions,
+    type RedditCommentHighlighter,
+} from "@/reddit/RedditCommentHighlighter";
+import { type RedditComment } from "@/reddit/RedditPage";
+import { hexToRgb, relativeLuminance } from "@/util/Color";
+import { injectCSS } from "@/util/DOM";
+import { wait } from "@/util/Time";
 
 const logger = Logging.getLogger("RedesignRedditCommentHighlighter");
 
-export class RedesignRedditCommentHighlighter implements RedditCommentHighlighter {
+export class RedesignRedditCommentHighlighter
+    implements RedditCommentHighlighter
+{
     private darkModeObserver: MutationObserver | null = null;
     private cssElement: Element | null = null;
 
-    public constructor(
-        private readonly options: HighlighterOptions
-    ) {
+    public constructor(private readonly options: HighlighterOptions) {
         this.addCss();
     }
 
@@ -22,11 +25,11 @@ export class RedesignRedditCommentHighlighter implements RedditCommentHighlighte
         logger.info("Highlighting comment", {
             id: comment.id,
             time: comment.time.toISOString(),
-            className: this.options.className
+            className: this.options.className,
         });
 
         comment.element.classList.add(this.options.className);
-        comment.element.classList.add(`${ this.options.className }--transition`);
+        comment.element.classList.add(`${this.options.className}--transition`);
 
         if (!this.options.clearOnClick) {
             return;
@@ -36,7 +39,7 @@ export class RedesignRedditCommentHighlighter implements RedditCommentHighlighte
 
         comment.onClick.once(async () => {
             logger.info("Comment clicked", {
-                id: comment.id
+                id: comment.id,
             });
 
             // Comments to clear on click
@@ -59,7 +62,7 @@ export class RedesignRedditCommentHighlighter implements RedditCommentHighlighte
             }
 
             logger.info("Clearing highlights", {
-                count: String(clear.length)
+                count: String(clear.length),
             });
 
             for (const comment of clear) {
@@ -70,7 +73,7 @@ export class RedesignRedditCommentHighlighter implements RedditCommentHighlighte
             await wait(this.options.transitionDurationSeconds * 1000 + 500);
 
             for (const comment of clear) {
-                const className = `${ this.options.className }--transition`;
+                const className = `${this.options.className}--transition`;
                 comment.element.classList.remove(className);
             }
         });
@@ -106,32 +109,40 @@ export class RedesignRedditCommentHighlighter implements RedditCommentHighlighte
         logger.debug("Detecting whether dark mode is active");
 
         if (style) {
-            const kvRegex = /--(\w+):#(\w+)/g;
+            const kvRegex = /--([\w-]+)\s*:\s*#([\w-]+)/g;
             const matches: Record<string, string> = {};
             let kv: RegExpExecArray | null;
 
             while ((kv = kvRegex.exec(style)) !== null) {
-                matches[ kv[ 1 ] ] = kv[ 2 ];
+                matches[kv[1]] = kv[2];
             }
 
             if (!Object.keys(matches).length) {
-                logger.warn("Failed to detect whether dark mode is active, assuming false", {
-                    reason: `Failed to parse style attribute '${ style }'`
-                });
+                logger.warn(
+                    "Failed to detect whether dark mode is active, assuming false",
+                    {
+                        reason: `Failed to parse style attribute '${style}'`,
+                    },
+                );
             } else if (!matches.background) {
-                logger.warn("Failed to detect whether dark mode is active, assuming false", {
-                    reason: `Background property missing from style attribute '${ style }'`
-                });
+                logger.warn(
+                    "Failed to detect whether dark mode is active, assuming false",
+                    {
+                        reason: `Background property missing from style attribute '${style}'`,
+                    },
+                );
             } else {
                 const color = hexToRgb(matches.background);
                 const luma = relativeLuminance(color);
                 darkMode = luma < 0.5;
 
-                logger.debug("Successfully detected if dark mode is active", { darkMode: String(darkMode) });
+                logger.debug("Successfully detected if dark mode is active", {
+                    darkMode: String(darkMode),
+                });
             }
         } else {
             logger.warn("Failed to detect whether dark mode is active", {
-                reason: "2x-container child has no style"
+                reason: "2x-container child has no style",
             });
         }
 
@@ -145,10 +156,10 @@ export class RedesignRedditCommentHighlighter implements RedditCommentHighlighte
 
         this.darkModeObserver.observe(element, {
             attributes: true,
-            attributeFilter: [ "style" ]
+            attributeFilter: ["style"],
         });
 
-        logger.info('Successfully injected CSS');
+        logger.info("Successfully injected CSS");
     }
 
     private removeCss(): void {
@@ -186,33 +197,33 @@ export class RedesignRedditCommentHighlighter implements RedditCommentHighlighte
         }
 
         let css = `
-            .Comment.${ this.options.className }--transition [data-testid="comment"] {
+            .Comment.${this.options.className}--transition [data-testid="comment"] {
                 transition-property: margin, padding, border, background-color, color;
-                transition-duration: ${ this.options.transitionDurationSeconds }s;
+                transition-duration: ${this.options.transitionDurationSeconds}s;
             }
 
-            .Comment.${ this.options.className } [data-testid="comment"] {
+            .Comment.${this.options.className} [data-testid="comment"] {
                 margin-top: 4px;
                 padding: 4px 10px;
-                border: ${ this.options.border || '0' };
+                border: ${this.options.border || "0"};
                 border-radius: 4px;
-                background-color: ${ darkMode ? this.options.backgroundColorDark : this.options.backgroundColor };
-                color: ${ darkMode ? this.options.normalTextColorDark : this.options.normalTextColor };
+                background-color: ${darkMode ? this.options.backgroundColorDark : this.options.backgroundColor};
+                color: ${darkMode ? this.options.normalTextColorDark : this.options.normalTextColor};
             }
         `;
 
         if (this.options.linkTextColor && this.options.linkTextColorDark) {
             css += `
-                .Comment.${ this.options.className } [data-testid="comment"] a {
-                    color: ${ darkMode ? this.options.linkTextColorDark : this.options.linkTextColor };
+                .Comment.${this.options.className} [data-testid="comment"] a {
+                    color: ${darkMode ? this.options.linkTextColorDark : this.options.linkTextColor};
                 }
             `;
         }
 
         if (this.options.quoteTextColor && this.options.quoteTextColorDark) {
             css += `
-                .Comment.${ this.options.className } [data-test-id="comment"] blockquote {
-                    color: ${ darkMode ? this.options.quoteTextColorDark : this.options.quoteTextColor };
+                .Comment.${this.options.className} [data-test-id="comment"] blockquote {
+                    color: ${darkMode ? this.options.quoteTextColorDark : this.options.quoteTextColor};
                 }
             `;
         }

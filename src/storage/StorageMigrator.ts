@@ -1,5 +1,5 @@
-import { Storage } from "storage/Storage";
-import { Logging } from "logger/Logging";
+import { type Storage } from "@/storage/Storage";
+import { Logging } from "@/logger/Logging";
 
 const logger = Logging.getLogger("StorageMigrator");
 
@@ -8,7 +8,10 @@ const logger = Logging.getLogger("StorageMigrator");
  * Any data present in the target storage will be overwritten.
  */
 export class StorageMigrator {
-    public async migrate<T>(source: Storage<T>, target: Storage<T>): Promise<void> {
+    public async migrate<T>(
+        source: Storage<T>,
+        target: Storage<T>,
+    ): Promise<void> {
         logger.info("Migrating storage");
 
         const data = await source.load();

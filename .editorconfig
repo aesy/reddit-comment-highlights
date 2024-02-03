@@ -6,17 +6,17 @@ end_of_line = lf
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.{md}]
+[*.md]
 trim_trailing_whitespace = false
 
-[*.{html, xml, json, yml}]
+[*.{html,xml,json,yml}]
 indent_style = space
 tab_width = 4
 
-[*.{js, jsx, ts, tsx}]
+[*.{js,jsx,ts,tsx}]
 indent_style = space
 tab_width = 4
 
-[*.{css, sass, scss}]
+[*.{css,sass,scss}]
 indent_style = space
 tab_width = 4

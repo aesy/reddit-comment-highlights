@@ -1,9 +1,15 @@
-import bind from "bind-decorator";
-import { Event as Evt, Subscribable } from "event/Event";
-import { isACommentThread, isMobileSite, RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
-import { Logging } from "logger/Logging";
-import { RedesignRedditPage } from "reddit/RedesignRedditPage";
-import { findClosestParent } from "util/DOM";
+import { bind } from "bind-decorator";
+import { Event as Evt, type Subscribable } from "@/event/Event";
+import {
+    isACommentThread,
+    isMobileSite,
+    type RedditComment,
+    type RedditCommentThread,
+    type RedditPage,
+} from "@/reddit/RedditPage";
+import { Logging } from "@/logger/Logging";
+import { RedesignRedditPage } from "@/reddit/RedesignRedditPage";
+import { findClosestParent } from "@/util/DOM";
 
 const logger = Logging.getLogger("OldRedditCommentPage");
 
@@ -16,19 +22,17 @@ class OldRedditComment implements RedditComment {
     public constructor(
         public readonly element: Element,
         // We need a reference to the thread to be able to fetch child comments...
-        private readonly thread: RedditCommentThread
+        private readonly thread: RedditCommentThread,
     ) {
-        element.addEventListener(
-            "click",
-            this.onElementClick,
-            {
-                capture: false,
-                once: false,
-                passive: true
-            }
-        );
+        element.addEventListener("click", this.onElementClick, {
+            capture: false,
+            once: false,
+            passive: true,
+        });
 
-        this._id = this.element.getAttribute("data-fullname")?.replace("t1_", "") || null;
+        this._id =
+            this.element.getAttribute("data-fullname")?.replace("t1_", "") ||
+            null;
         this._author = this.element.getAttribute("data-author") || null;
         this._time = OldRedditComment.getTime(element);
     }
@@ -66,11 +70,15 @@ class OldRedditComment implements RedditComment {
     }
 
     public getChildComments(): RedditComment[] {
-        const childElements = this.element.querySelectorAll(":scope > .child > .listing > .comment");
+        const childElements = this.element.querySelectorAll(
+            ":scope > .child > .listing > .comment",
+        );
 
         return Array.from(childElements)
-            .map(element => {
-                const id = element.getAttribute("data-fullname")?.replace("t1_", "");
+            .map((element) => {
+                const id = element
+                    .getAttribute("data-fullname")
+                    ?.replace("t1_", "");
 
                 if (!id) {
                     return null;
@@ -79,7 +87,7 @@ class OldRedditComment implements RedditComment {
                 return this.thread.getCommentById(id);
             })
             .filter(Boolean)
-            .map(comment => comment!);
+            .map((comment) => comment!);
     }
 
     public dispose(): void {
@@ -98,13 +106,12 @@ class OldRedditComment implements RedditComment {
         const comment = findClosestParent(target, ".comment");
 
         if (this.element === comment) {
-            logger.debug("Comment clicked", { id: this.id || "null" });
             this._onClick.dispatch();
         }
     }
 
     private static getTime(element: Element): Date | null {
-        const timeTag = element.getElementsByTagName("time")[ 0 ];
+        const timeTag = element.getElementsByTagName("time")[0];
 
         if (!timeTag) {
             // Comment deleted
@@ -142,7 +149,7 @@ class OldRedditCommentThread implements RedditCommentThread {
         const pathPieces = document.location.pathname.split("/");
 
         // The 4th item in the path *should* always be the thread id
-        return pathPieces[ 4 ];
+        return pathPieces[4];
     }
 
     public getCommentById(id: string): RedditComment | null {
@@ -156,7 +163,7 @@ class OldRedditCommentThread implements RedditCommentThread {
     public dispose(): void {
         this._onCommentAdded.dispose();
         this.onChangeObserver.disconnect();
-        this.comments.forEach(comment => comment.dispose());
+        this.comments.forEach((comment) => comment.dispose());
         this.comments.clear();
     }
 
@@ -173,7 +180,7 @@ class OldRedditCommentThread implements RedditCommentThread {
             attributes: false,
             characterData: false,
             childList: true,
-            subtree: true
+            subtree: true,
         });
 
         const notify = (comment: RedditComment): void => {
@@ -187,8 +194,8 @@ class OldRedditCommentThread implements RedditCommentThread {
         };
 
         Array.from(root.getElementsByClassName("comment"))
-            .map(element => new OldRedditComment(element, this))
-            .forEach(comment => {
+            .map((element) => new OldRedditComment(element, this))
+            .forEach((comment) => {
                 if (!comment.isDeleted()) {
                     this.comments.set(comment.id, comment);
                     notify(comment);
@@ -201,13 +208,18 @@ class OldRedditCommentThread implements RedditCommentThread {
         changes
             .filter((record: MutationRecord): boolean => {
                 // Filter out anything that's not a sitetable sibling
-                return (record.target as Element).classList.contains("sitetable");
+                return (record.target as Element).classList.contains(
+                    "sitetable",
+                );
             })
-            .reduce((accumulator: Element[], record: MutationRecord): Element[] => {
-                const nodes = Array.from(record.addedNodes);
+            .reduce(
+                (accumulator: Element[], record: MutationRecord): Element[] => {
+                    const nodes = Array.from(record.addedNodes);
 
-                return accumulator.concat(nodes as Element[]);
-            }, [])
+                    return accumulator.concat(nodes as Element[]);
+                },
+                [],
+            )
             .filter((element: Element): boolean => {
                 // Filter out anything that's not a comment
                 return element.classList.contains("comment");
@@ -242,7 +254,9 @@ export class OldRedditPage implements RedditPage {
             listener(): MethodDecorator {
                 return self._onThreadOpened.listener();
             },
-            once(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            once(
+                listener: (data: RedditCommentThread) => void,
+            ): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.once(listener);
 
                 if (self.commentThread) {
@@ -251,7 +265,9 @@ export class OldRedditPage implements RedditPage {
 
                 return this;
             },
-            subscribe(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            subscribe(
+                listener: (data: RedditCommentThread) => void,
+            ): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.subscribe(listener);
 
                 if (self.commentThread) {
@@ -260,11 +276,13 @@ export class OldRedditPage implements RedditPage {
 
                 return this;
             },
-            unsubscribe(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            unsubscribe(
+                listener: (data: RedditCommentThread) => void,
+            ): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.unsubscribe(listener);
 
                 return this;
-            }
+            },
         };
     }
 

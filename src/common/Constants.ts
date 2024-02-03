@@ -4,7 +4,6 @@ export const Constants = {
     OPTIONS_STORAGE_KEY: "reddit_au_options",
     THREAD_STORAGE_NAME: "thread storage",
     THREAD_STORAGE_KEY: "reddit_au_threads",
-    SENTRY_DSN: "https://4f14a6987e94421b94ad94dcde860996@o1377925.ingest.sentry.io/6689275",
     STORAGE_UPDATE_INTERVAL_SECONDS: 10,
     CSS_TRANSITION_DURATION_SECONDS: 0.4,
     OPTIONS_DEFAULTS: {
@@ -25,6 +24,5 @@ export const Constants = {
         useCompression: false,
         sync: true,
         debug: false,
-        sendErrorReports: false
-    }
+    },
 };

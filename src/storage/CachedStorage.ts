@@ -1,7 +1,7 @@
-import bind from "bind-decorator";
-import { Event, Subscribable } from "event/Event";
-import { Storage } from "storage/Storage";
-import { Logging } from "logger/Logging";
+import { bind } from "bind-decorator";
+import { Event, type Subscribable } from "@/event/Event";
+import { type Storage } from "@/storage/Storage";
+import { Logging } from "@/logger/Logging";
 
 const logger = Logging.getLogger("CachedStorage");
 
@@ -12,7 +12,7 @@ export class CachedStorage<T> implements Storage<T> {
 
     public constructor(
         private readonly name: string,
-        private readonly delegate: Storage<T>
+        private readonly delegate: Storage<T>,
     ) {
         // Listen for changes in storage and update internal cache
         delegate.onChange.subscribe(this.onStorageChange);

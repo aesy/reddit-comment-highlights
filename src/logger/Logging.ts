@@ -1,19 +1,31 @@
-import { ConsoleSink } from "logger/ConsoleSink";
-import { Loggable, Logger, LogLevel } from "logger/Logger";
-import { Sink } from "logger/Sink";
+import { ConsoleSink } from "@/logger/ConsoleSink";
+import { type Loggable, type Logger, LogLevel } from "@/logger/Logger";
+import { type Sink } from "@/logger/Sink";
 
 export type LoggerFactory = () => Logger;
 
 const NoopLogger: Logger = {
-    debug(): void { /* Do nothing */ },
-    dispose(): void { /* Do nothing */ },
-    error(): void { /* Do nothing */ },
-    info(): void { /* Do nothing */ },
-    log(): void { /* Do nothing */ },
-    warn(): void { /* Do nothing */ },
+    debug(): void {
+        /* Do nothing */
+    },
+    dispose(): void {
+        /* Do nothing */
+    },
+    error(): void {
+        /* Do nothing */
+    },
+    info(): void {
+        /* Do nothing */
+    },
+    log(): void {
+        /* Do nothing */
+    },
+    warn(): void {
+        /* Do nothing */
+    },
     withContext(): Logger {
         return this;
-    }
+    },
 };
 
 let logLevel: LogLevel = LogLevel.INFO;

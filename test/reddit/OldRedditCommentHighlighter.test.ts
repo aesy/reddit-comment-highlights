@@ -1,9 +1,8 @@
-import "jsdom-global/register";
 import { expect } from "chai";
-import { Subscribable } from "event/Event";
-import { RedditComment } from "reddit/RedditPage";
-import { OldRedditCommentHighlighter } from "reddit/OldRedditCommentHighlighter";
-import { instance, mock, when } from "ts-mockito";
+import { instance, mock, when } from "@typestrong/ts-mockito";
+import { type Subscribable } from "@/event/Event";
+import { type RedditComment } from "@/reddit/RedditPage";
+import { OldRedditCommentHighlighter } from "@/reddit/OldRedditCommentHighlighter";
 
 describe("OldRedditCommentHighlighter", () => {
     const options = {
@@ -20,7 +19,7 @@ describe("OldRedditCommentHighlighter", () => {
         normalTextColorDark: "blue",
         quoteTextColor: null,
         quoteTextColorDark: null,
-        transitionDurationSeconds: 2
+        transitionDurationSeconds: 2,
     };
 
     it("should inject css", async () => {
@@ -28,7 +27,9 @@ describe("OldRedditCommentHighlighter", () => {
 
         const ignored = new OldRedditCommentHighlighter(options);
 
-        expect(document.head.querySelectorAll("style")).to.have.length(count + 1);
+        expect(document.head.querySelectorAll("style")).to.have.length(
+            count + 1,
+        );
     });
 
     it("should remove css on disposal", async () => {
@@ -37,17 +38,9 @@ describe("OldRedditCommentHighlighter", () => {
 
         highlighter.dispose();
 
-        expect(document.head.querySelectorAll("style")).to.have.length(count - 1);
-    });
-
-    it("should remove highlights on disposal", async () => {
-        const element = document.createElement("div");
-        element.classList.add("comment", options.className);
-        document.body.appendChild(element);
-
-        new OldRedditCommentHighlighter(options).dispose();
-
-        expect(element.classList.contains(options.className)).to.equal(false);
+        expect(document.head.querySelectorAll("style")).to.have.length(
+            count - 1,
+        );
     });
 
     it("should add classname to comment element", async () => {

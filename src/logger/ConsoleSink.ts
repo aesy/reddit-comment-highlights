@@ -1,5 +1,5 @@
-import { LogLevel } from "logger/Logger";
-import { LogEvent, Sink } from "logger/Sink";
+import { LogLevel } from "@/logger/Logger";
+import { type LogEvent, type Sink } from "@/logger/Sink";
 
 /**
  * Sink that logs directly to the console.
@@ -9,11 +9,9 @@ export class ConsoleSink implements Sink {
         let log: (message: string) => void;
 
         switch (logEvent.level) {
-            /*
-             * In Chromium 58+ `console.debug` only appears when level "Verbose" is selected.
-             * Use `console.info` instead to avoid having users meddle with browser settings.
-             */
             case LogLevel.DEBUG:
+                log = console.debug;
+                break;
             case LogLevel.INFO:
                 log = console.info;
                 break;
@@ -24,7 +22,9 @@ export class ConsoleSink implements Sink {
                 log = console.error;
                 break;
             default:
-                log = () => { /* Do nothing */ };
+                log = () => {
+                    /* Do nothing */
+                };
         }
 
         log(logEvent.message);

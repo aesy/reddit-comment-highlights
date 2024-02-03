@@ -1,4 +1,4 @@
-import { LogLevel } from "logger/Logger";
+import { LogLevel } from "@/logger/Logger";
 
 export interface LogEvent {
     message: string;

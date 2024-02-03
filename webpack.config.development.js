@@ -5,7 +5,8 @@ module.exports = merge(config, {
     mode: "development",
     output: {
         devtoolModuleFilenameTemplate: "[absolute-resource-path]",
-        devtoolFallbackModuleFilenameTemplate: "[absolute-resource-path]?[hash]"
+        devtoolFallbackModuleFilenameTemplate:
+            "[absolute-resource-path]?[hash]",
     },
-    devtool: "inline-source-map"
+    devtool: "inline-source-map",
 });

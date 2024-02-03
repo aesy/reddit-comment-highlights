@@ -1,4 +1,4 @@
-import { Subscribable } from "event/Event";
+import { type Subscribable } from "@/event/Event";
 
 export interface RedditPage {
     readonly onThreadOpened: Subscribable<RedditCommentThread>;
@@ -32,7 +32,7 @@ export function isACommentThread(): boolean {
     const pathPieces = document.location.pathname.split("/");
 
     // Check if url is in the form of '/r/<subreddit>/comments/...'
-    return pathPieces[ 1 ] === "r" && pathPieces[ 3 ] === "comments";
+    return pathPieces[1] === "r" && pathPieces[3] === "comments";
 }
 
 export function isAtRootLevel(): boolean {

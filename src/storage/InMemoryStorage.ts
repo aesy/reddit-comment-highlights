@@ -1,6 +1,6 @@
-import { Event, Subscribable } from "event/Event";
-import { Storage } from "storage/Storage";
-import { Logging } from "logger/Logging";
+import { Event, Subscribable } from "@/event/Event";
+import { Storage } from "@/storage/Storage";
+import { Logging } from "@/logger/Logging";
 
 const logger = Logging.getLogger("InMemoryStorage");
 

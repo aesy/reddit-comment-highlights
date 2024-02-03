@@ -2,7 +2,7 @@ export enum LogLevel {
     DEBUG,
     INFO,
     WARN,
-    ERROR
+    ERROR,
 }
 
 export interface LogContext {
@@ -33,7 +33,11 @@ export interface Logger {
 export abstract class AbstractLogger implements Logger {
     public abstract withContext(...args: Loggable[]): Logger;
 
-    public abstract log(logLevel: LogLevel, message: string, ...args: Loggable[]): void;
+    public abstract log(
+        logLevel: LogLevel,
+        message: string,
+        ...args: Loggable[]
+    ): void;
 
     public debug(message: string, ...args: Loggable[]): void {
         this.log(LogLevel.DEBUG, message, ...args);
@@ -64,7 +68,7 @@ export abstract class AbstractLogger implements Logger {
         for (const arg of args) {
             if ("getLogContext" in arg) {
                 const loggable = (arg as LogContext).getLogContext();
-                const context = this.getContext([ loggable ]);
+                const context = this.getContext([loggable]);
 
                 obj = { ...obj, ...context };
             } else {

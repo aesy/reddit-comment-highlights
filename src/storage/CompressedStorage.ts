@@ -1,9 +1,8 @@
-import bind from "bind-decorator";
+import { bind } from "bind-decorator";
 import { decompressFromUTF16, compressToUTF16 } from "lz-string";
-import { Subscribable } from "event/Event";
-import { Event } from "event/Event";
-import { Storage } from "storage/Storage";
-import { Logging } from "logger/Logging";
+import { type Subscribable, Event } from "@/event/Event";
+import { type Storage } from "@/storage/Storage";
+import { Logging } from "@/logger/Logging";
 
 const logger = Logging.getLogger("CompressedStorage");
 
@@ -12,7 +11,7 @@ export class CompressedStorage<T> implements Storage<T> {
 
     public constructor(
         private readonly name: string,
-        private readonly delegate: Storage<string>
+        private readonly delegate: Storage<string>,
     ) {
         delegate.onChange.subscribe(this.onStorageChange);
     }
@@ -29,7 +28,10 @@ export class CompressedStorage<T> implements Storage<T> {
         try {
             compressed = this.compress(data);
         } catch (error) {
-            logger.error("Failed to compress data", { error: JSON.stringify(error), name: this.name });
+            logger.error("Failed to compress data", {
+                error: JSON.stringify(error),
+                name: this.name,
+            });
 
             throw error;
         }
@@ -50,7 +52,10 @@ export class CompressedStorage<T> implements Storage<T> {
         try {
             decompressed = this.decompress(data);
         } catch (error) {
-            logger.error("Failed to decompress data", { error: JSON.stringify(error), name: this.name });
+            logger.error("Failed to decompress data", {
+                error: JSON.stringify(error),
+                name: this.name,
+            });
 
             throw error;
         }
@@ -83,7 +88,10 @@ export class CompressedStorage<T> implements Storage<T> {
         try {
             decompressed = this.decompress(data);
         } catch (error) {
-            logger.error("Failed to decompress data", { error: JSON.stringify(error), name: this.name });
+            logger.error("Failed to decompress data", {
+                error: JSON.stringify(error),
+                name: this.name,
+            });
 
             throw error;
         }

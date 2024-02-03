@@ -17,10 +17,11 @@ export class Event<T> implements Subscribable<T>, Triggerable<T> {
      * Using a map rather than an array because the given listener may not be the
      * function we actually register (such as in the case of one-off listeners).
      */
-    private readonly listeners: Map<EventListener<T>, EventListener<T>> = new Map();
+    private readonly listeners: Map<EventListener<T>, EventListener<T>> =
+        new Map();
 
     public dispatch(data: T): void {
-        this.listeners.forEach(listener => {
+        this.listeners.forEach((listener) => {
             listener(data);
         });
     }
@@ -38,14 +39,14 @@ export class Event<T> implements Subscribable<T>, Triggerable<T> {
     }
 
     public once(listener: EventListener<T>): void {
-        this.listeners.set(listener, data => {
+        this.listeners.set(listener, (data) => {
             listener(data);
             this.unsubscribe(listener);
         });
     }
 
     public listener(): MethodDecorator {
-        return (target, propertyKey, descriptor) => {
+        return (_target, _propertyKey, descriptor) => {
             const listener: unknown = descriptor.value;
 
             this.subscribe(listener as EventListener<T>);

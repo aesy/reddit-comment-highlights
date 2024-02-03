@@ -1,17 +1,18 @@
-import { Logging } from "logger/Logging";
-import { HighlighterOptions, RedditCommentHighlighter } from "reddit/RedditCommentHighlighter";
-import { RedditComment } from "reddit/RedditPage";
-import { injectCSS } from "util/DOM";
-import { wait } from "util/Time";
+import { Logging } from "@/logger/Logging";
+import {
+    type HighlighterOptions,
+    type RedditCommentHighlighter,
+} from "@/reddit/RedditCommentHighlighter";
+import { type RedditComment } from "@/reddit/RedditPage";
+import { injectCSS } from "@/util/DOM";
+import { wait } from "@/util/Time";
 
 const logger = Logging.getLogger("OldRedditCommentHighlighter");
 
 export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
     private cssElement: Element | null = null;
 
-    public constructor(
-        private readonly options: HighlighterOptions
-    ) {
+    public constructor(private readonly options: HighlighterOptions) {
         this.addCss();
     }
 
@@ -19,11 +20,11 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
         logger.info("Highlighting comment", {
             id: comment.id,
             time: comment.time.toISOString(),
-            className: this.options.className
+            className: this.options.className,
         });
 
         comment.element.classList.add(this.options.className);
-        comment.element.classList.add(`${ this.options.className }--transition`);
+        comment.element.classList.add(`${this.options.className}--transition`);
 
         if (!this.options.clearOnClick) {
             return;
@@ -33,7 +34,7 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
 
         comment.onClick.once(async () => {
             logger.info("Comment clicked", {
-                id: comment.id
+                id: comment.id,
             });
 
             // Comments to clear on click
@@ -56,7 +57,7 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
             }
 
             logger.info("Clearing highlights", {
-                count: String(clear.length)
+                count: String(clear.length),
             });
 
             for (const comment of clear) {
@@ -67,7 +68,7 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
             await wait(this.options.transitionDurationSeconds * 1000 + 500);
 
             for (const comment of clear) {
-                const className = `${ this.options.className }--transition`;
+                const className = `${this.options.className}--transition`;
                 comment.element.classList.remove(className);
             }
         });
@@ -111,58 +112,58 @@ export class OldRedditCommentHighlighter implements RedditCommentHighlighter {
         }
 
         let css = `
-            .comment.${ this.options.className }--transition  > .entry .md {
+            .comment.${this.options.className}--transition  > .entry .md {
                 transition-property: padding, border, background-color, color;
-                transition-duration: ${ this.options.transitionDurationSeconds }s;
+                transition-duration: ${this.options.transitionDurationSeconds}s;
             }
 
-            .comment.${ this.options.className } > .entry .md {
+            .comment.${this.options.className} > .entry .md {
                 padding: 2px;
-                border: ${ this.options.border || "0" };
+                border: ${this.options.border || "0"};
                 border-radius: 2px;
-                background-color: ${ this.options.backgroundColor };
-                color: ${ this.options.normalTextColor };
+                background-color: ${this.options.backgroundColor};
+                color: ${this.options.normalTextColor};
             }
         `;
 
         if (this.options.linkTextColor) {
             css += `
-                .comment.${ this.options.className } > .entry .md a {
-                    color: ${ this.options.linkTextColor };
+                .comment.${this.options.className} > .entry .md a {
+                    color: ${this.options.linkTextColor};
                 }
             `;
         }
 
         if (this.options.quoteTextColor) {
             css += `
-                .comment.${ this.options.className } > .entry .md blockquote {
-                    color: ${ this.options.quoteTextColor };
+                .comment.${this.options.className} > .entry .md blockquote {
+                    color: ${this.options.quoteTextColor};
                 }
             `;
         }
 
         css += `
-            .res-nightmode .comment.${ this.options.className } > .entry .md {
+            .res-nightmode .comment.${this.options.className} > .entry .md {
                 padding: 2px;
-                border: ${ this.options.border || "0" };
+                border: ${this.options.border || "0"};
                 border-radius: 2px;
-                background-color: ${ this.options.backgroundColorDark };
-                color: ${ this.options.normalTextColorDark };
+                background-color: ${this.options.backgroundColorDark};
+                color: ${this.options.normalTextColorDark};
             }
         `;
 
         if (this.options.linkTextColorDark) {
             css += `
-                .res-nightmode .comment.${ this.options.className } > .entry .md a {
-                    color: ${ this.options.linkTextColorDark };
+                .res-nightmode .comment.${this.options.className} > .entry .md a {
+                    color: ${this.options.linkTextColorDark};
                 }
             `;
         }
 
         if (this.options.quoteTextColorDark) {
             css += `
-                .res-nightmode .comment.${ this.options.className } > .entry .md blockquote {
-                    color: ${ this.options.quoteTextColorDark };
+                .res-nightmode .comment.${this.options.className} > .entry .md blockquote {
+                    color: ${this.options.quoteTextColorDark};
                 }
             `;
         }

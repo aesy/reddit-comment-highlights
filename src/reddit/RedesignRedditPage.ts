@@ -1,9 +1,14 @@
-import bind from "bind-decorator";
-import { Event as Evt, Subscribable } from "event/Event";
-import { isACommentThread, isMobileSite, RedditComment, RedditCommentThread, RedditPage } from "reddit/RedditPage";
-import { Logging } from "logger/Logging";
-import { findClosestParent } from "util/DOM";
-import { makeRequest } from "util/HTTP";
+import { bind } from "bind-decorator";
+import { Event as Evt, type Subscribable } from "@/event/Event";
+import {
+    isACommentThread,
+    isMobileSite,
+    type RedditComment,
+    type RedditCommentThread,
+    type RedditPage,
+} from "@/reddit/RedditPage";
+import { Logging } from "@/logger/Logging";
+import { findClosestParent } from "@/util/DOM";
 
 const logger = Logging.getLogger("RedesignRedditCommentPage");
 
@@ -16,17 +21,13 @@ class RedesignRedditComment implements RedditComment {
         public readonly time: Date,
         public readonly element: Element,
         // We need a reference to the thread to be able to fetch child comments...
-        private readonly thread: RedditCommentThread
+        private readonly thread: RedditCommentThread,
     ) {
-        element.addEventListener(
-            "click",
-            this.onElementClick,
-            {
-                capture: false,
-                once: false,
-                passive: true
-            }
-        );
+        element.addEventListener("click", this.onElementClick, {
+            capture: false,
+            once: false,
+            passive: true,
+        });
     }
 
     public get onClick(): Subscribable<void> {
@@ -39,11 +40,14 @@ class RedesignRedditComment implements RedditComment {
     }
 
     public getChildComments(): RedditComment[] {
-        const elements = document.getElementsByClassName(`t1_${ this.id }`);
+        const elements = document.getElementsByClassName(`t1_${this.id}`);
         const comments: RedditComment[] = [];
 
         for (const element of elements) {
-            if (!element.parentElement || !element.parentElement.nextElementSibling) {
+            if (
+                !element.parentElement ||
+                !element.parentElement.nextElementSibling
+            ) {
                 continue;
             }
 
@@ -80,7 +84,6 @@ class RedesignRedditComment implements RedditComment {
         const comment = findClosestParent(target, ".Comment");
 
         if (this.element === comment) {
-            logger.debug("Comment clicked", { id: this.id });
             this._onClick.dispatch();
         }
     }
@@ -92,7 +95,7 @@ class RedesignRedditCommentThread implements RedditCommentThread {
 
     public constructor(
         public readonly id: string,
-        meta: HTMLMetaElement
+        meta: HTMLMetaElement,
     ) {
         document.addEventListener("reddit", this.addRedditEvent, true);
 
@@ -120,7 +123,7 @@ class RedesignRedditCommentThread implements RedditCommentThread {
         document.removeEventListener("reddit", this.addRedditEvent);
 
         this._onCommentAdded.dispose();
-        this.comments.forEach(comment => comment.dispose());
+        this.comments.forEach((comment) => comment.dispose());
         this.comments.clear();
     }
 
@@ -130,7 +133,10 @@ class RedesignRedditCommentThread implements RedditCommentThread {
             return;
         }
 
-        const element = findClosestParent(event.target, ".Comment") as Element | null;
+        const element = findClosestParent(
+            event.target,
+            ".Comment",
+        ) as Element | null;
 
         if (!element) {
             throw "Failed to handle comment event. Reason: event target is missing .Comment parent.";
@@ -139,7 +145,13 @@ class RedesignRedditCommentThread implements RedditCommentThread {
         const author: string = event.detail.data.author;
         const id: string = event.detail.data.id.replace("t1_", "");
         const createdAt: Date = new Date(event.detail.data.created * 1000);
-        const comment = new RedesignRedditComment(id, author, createdAt, element, this);
+        const comment = new RedesignRedditComment(
+            id,
+            author,
+            createdAt,
+            element,
+            this,
+        );
 
         if (this.comments.has(id)) {
             this.comments.get(id)!.dispose();
@@ -155,35 +167,9 @@ export class RedesignRedditPage implements RedditPage {
     private readonly _onThreadOpened = new Evt<RedditCommentThread>();
     private thread: RedditCommentThread | null = null;
     private meta: HTMLMetaElement | null = null;
-    private loggedInUser: string | null = null;
     private initialized = false;
 
-    public constructor(
-        private readonly extensionName: string
-    ) {
-        logger.debug("Fetching currently logged in user");
-
-        makeRequest<unknown>("https://www.reddit.com/api/me.json")
-            .then(String)
-            .then(JSON.parse)
-            .then(response => response.data.name)
-            .then((name: string): void => {
-                if (name) {
-                    this.loggedInUser = name;
-
-                    logger.info("Successfully fetched logged in user", {
-                        username: name
-                    });
-                } else {
-                    logger.info("No user currently logged in");
-                }
-            })
-            .catch((error: any): void => {
-                logger.warn("Failed to fetch currently logged in user", {
-                    error: JSON.stringify(error)
-                });
-            });
-    }
+    public constructor(private readonly extensionName: string) {}
 
     public get onThreadOpened(): Subscribable<RedditCommentThread> {
         const self = this;
@@ -193,7 +179,9 @@ export class RedesignRedditPage implements RedditPage {
             listener(): MethodDecorator {
                 return self._onThreadOpened.listener();
             },
-            once(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            once(
+                listener: (data: RedditCommentThread) => void,
+            ): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.once(listener);
 
                 if (!self.initialized) {
@@ -203,7 +191,9 @@ export class RedesignRedditPage implements RedditPage {
 
                 return this;
             },
-            subscribe(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            subscribe(
+                listener: (data: RedditCommentThread) => void,
+            ): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.subscribe(listener);
 
                 if (!self.initialized) {
@@ -213,16 +203,19 @@ export class RedesignRedditPage implements RedditPage {
 
                 return this;
             },
-            unsubscribe(listener: (data: RedditCommentThread) => void): Subscribable<RedditCommentThread> {
+            unsubscribe(
+                listener: (data: RedditCommentThread) => void,
+            ): Subscribable<RedditCommentThread> {
                 self._onThreadOpened.unsubscribe(listener);
 
                 return this;
-            }
+            },
         };
     }
 
     public getLoggedInUser(): string | null {
-        return this.loggedInUser;
+        // Can't get current user through API
+        return null;
     }
 
     public dispose(): void {
@@ -249,7 +242,7 @@ export class RedesignRedditPage implements RedditPage {
             return false;
         }
 
-        const meta = document.querySelector("meta[name=\"jsapi\"]");
+        const meta = document.querySelector('meta[name="jsapi"]');
 
         return Boolean(meta);
     }
@@ -258,7 +251,9 @@ export class RedesignRedditPage implements RedditPage {
         logger.info("Initializing reddit page");
         logger.debug("Installing urlChanged event listener");
 
-        document.addEventListener("reddit.urlChanged", this.onUrlChanged, { capture: true });
+        document.addEventListener("reddit.urlChanged", this.onUrlChanged, {
+            capture: true,
+        });
 
         logger.debug("Injecting jsapi meta element");
 
@@ -272,9 +267,11 @@ export class RedesignRedditPage implements RedditPage {
 
         // If starting page is a thread, no urlChanged event is emitted
         if (isACommentThread()) {
-            const id = document.location.pathname.split("/")[ 4 ];
+            const id = document.location.pathname.split("/")[4];
 
-            logger.debug("Determined current page to be a comment thread", { id });
+            logger.debug("Determined current page to be a comment thread", {
+                id,
+            });
 
             this.thread = new RedesignRedditCommentThread(id, this.meta);
             this._onThreadOpened.dispatch(this.thread);
@@ -286,7 +283,7 @@ export class RedesignRedditPage implements RedditPage {
     @bind
     private onUrlChanged(event: any): void {
         logger.debug("urlChanged event received", {
-            action: event.detail.action
+            action: event.detail.action,
         });
 
         if (!this.meta) {

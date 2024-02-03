@@ -1,0 +1,43 @@
+import { expect } from "chai";
+import { spy, verify } from "@typestrong/ts-mockito";
+import { InMemoryStorage } from "@/storage/InMemoryStorage";
+import { CachedStorage } from "@/storage/CachedStorage";
+
+describe("CachedStorage", () => {
+    [
+        null,
+        "",
+        "woop",
+        0,
+        1,
+        [],
+        [null],
+        [""],
+        ["woop"],
+        {},
+        { woop: "wawawa" },
+    ].forEach((item) => {
+        it(`should be able write and read '${JSON.stringify(item)}'`, async () => {
+            const baseStorage = new InMemoryStorage<string>();
+            const cachedStorage = new CachedStorage<any>("test", baseStorage);
+
+            await cachedStorage.save(item);
+            const data = await cachedStorage.load();
+
+            expect(data).to.deep.equal(item);
+        });
+    });
+
+    it("should not load from underlying storage", async () => {
+        const baseStorage = new InMemoryStorage<string>();
+        const cachedStorage = new CachedStorage("test", baseStorage);
+        const spiedStorage = spy(baseStorage);
+
+        await cachedStorage.save("woop");
+        const woop = await cachedStorage.load();
+
+        verify(spiedStorage.load()).never();
+
+        expect(woop).to.equal("woop");
+    });
+});

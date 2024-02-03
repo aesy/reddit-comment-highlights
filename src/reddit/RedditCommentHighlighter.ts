@@ -1,4 +1,4 @@
-import { RedditComment } from "reddit/RedditPage";
+import { type RedditComment } from "@/reddit/RedditPage";
 
 export interface HighlighterOptions {
     className: string;

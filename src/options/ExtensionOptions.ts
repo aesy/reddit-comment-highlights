@@ -1,4 +1,9 @@
-import { Subscribable } from "event/Event";
+import { bind } from "bind-decorator";
+import { onOptionsChanged } from "@/common/Events";
+import { Logging } from "@/logger/Logging";
+import { type Storage } from "@/storage/Storage";
+
+const logger = Logging.getLogger("ExtensionOptions");
 
 // These properties must keep their names for backwards compatibility
 export interface Options {
@@ -19,14 +24,56 @@ export interface Options {
     useCompression: boolean;
     sync: boolean;
     debug: boolean;
-    sendErrorReports: boolean;
 }
 
-export interface ExtensionOptions {
-    readonly onChange: Subscribable<void>;
+export class ExtensionOptions {
+    public constructor(
+        public readonly storage: Storage<Partial<Options>>,
+        public readonly defaults: Readonly<Options>,
+    ) {
+        storage.onChange.subscribe(this.onStorageChange);
+    }
 
-    get(): Promise<Options>;
-    set(options: Partial<Options>): Promise<void>;
-    clear(): Promise<void>;
-    dispose(): void;
+    public dispose(): void {
+        this.storage.onChange.unsubscribe(this.onStorageChange);
+    }
+
+    public async get(): Promise<Options> {
+        logger.debug("Reading ExtensionOptions");
+
+        const data = await this.storage.load();
+
+        return Object.assign({}, this.defaults, data);
+    }
+
+    public async set(values: Partial<Options>): Promise<void> {
+        logger.debug("Saving ExtensionOptions");
+
+        const oldData = await this.storage.load();
+        const newData = Object.assign({}, oldData, values);
+        const obj = newData as Record<string, unknown>;
+
+        for (const key of Object.keys(obj)) {
+            if (obj[key] === undefined) {
+                delete obj[key];
+            }
+        }
+
+        await this.storage.save(newData);
+    }
+
+    public async clear(): Promise<void> {
+        logger.debug("Clearing ExtensionOptions");
+
+        await this.storage.clear();
+    }
+
+    @bind
+    private async onStorageChange(): Promise<void> {
+        logger.debug("ExtensionOptions underlying storage changed");
+
+        const options = await this.get();
+
+        onOptionsChanged.dispatch(options);
+    }
 }

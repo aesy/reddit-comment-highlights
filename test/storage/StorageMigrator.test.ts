@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { InMemoryStorage } from "storage/InMemoryStorage";
-import { StorageMigrator } from "storage/StorageMigrator";
+import { InMemoryStorage } from "@/storage/InMemoryStorage";
+import { StorageMigrator } from "@/storage/StorageMigrator";
 
 describe("StorageMigrator", () => {
     it("should clear source storage", async () => {

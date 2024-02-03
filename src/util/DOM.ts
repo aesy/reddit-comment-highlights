@@ -19,7 +19,10 @@ export function injectCSS(css: string, target: Element): Element {
  * @param selector The selector to match against
  * @return The closest parent, or null if no matching element was found
  */
-export function findClosestParent(element: Node, selector: string): Node | null {
+export function findClosestParent(
+    element: Node,
+    selector: string,
+): Node | null {
     let currentElement: Node | null = element;
 
     while (currentElement && currentElement !== document) {
